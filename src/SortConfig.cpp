@@ -10,7 +10,7 @@
 #include <fstream>
 #include <iostream>
 
-#include <stuffing.hpp>
+#include "constants.h"
 
 using namespace std;
 
@@ -26,8 +26,10 @@ SortConfig::SortConfig(string configFilePath) {
 	// Read config file
 	string line;
 	while (getline(configfile, line)) {
-		if (line.find("tnlibConfig") != string::npos)
-			tnlibConfig = line.substr(line.find('=') + 2);
+		if (line.find("outputDir") != string::npos)
+			outputDir = line.substr(line.find('=') + 2);
+		else if (line.find("dataDir") != string::npos)
+			dataDir = line.substr(line.find('=') + 2);
 		else if (line.find("runNumbersFile") != string::npos)
 			runNumbersFile = line.substr(line.find('=') + 2);
 		else if (line.find("itreeName") != string::npos)

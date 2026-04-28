@@ -12,6 +12,9 @@
  * Modified by Henry Webb (h.s.webb@wustl.edu) and Johnathan
  * Phillips (j.s.phillips@wustl.edu) March 2026 for experiment
  * at TAMU Cyclotron Institute
+ * 
+ * Modified by Henry Webb (h.s.webb@wustl.edu) April 2026 for
+ * 9N FRIB experiment
  */
 
 #include "Gobbi.h"
@@ -22,7 +25,7 @@ using namespace std;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-Gobbi::Gobbi(Input& in, histo& hist, SortConfig& config, int run, event& neut) : input(in.GetGobbi()), Histo(hist), input_qdc(in.GetQDC()),input_tdc(in.GetTDC()), texneut(neut) {
+Gobbi::Gobbi(Input& in, histo& hist, SortConfig& config, int run) : input(in.GetGobbi()), Histo(hist), input_qdc(in.GetQDC()),input_tdc(in.GetTDC()) {
   Targetdist = config.GetTargDist();//23.95;//23.95;//24.1;//23.5; //cm //TODO is this correct? Shoud target dist be taken from input?
   TargetThickness = config.GetTargThick();;//3.2;//2.65; //mg/cm^2 for CD2 tar1 //TODO same as targ dist but for thickness
   //TargetThickness = 3.8; //mg/cm^2
@@ -72,9 +75,6 @@ Gobbi::~Gobbi() {
 
 bool Gobbi::analyze() {
 	
-	//Set neutron multiplicity to zero
-	num_neut = 0;
-	
 	//Vector holding calibrated diamond energies, same indices as input_qdc.qh
 	//Clear each loop
 	diamond_Ecal.clear();
@@ -103,81 +103,6 @@ bool Gobbi::analyze() {
 		if (input_qdc.chan[i] == 1) Histo.DiamondQDC1->Fill(input_qdc.qh[i]);
 		if (input_qdc.chan[i] == 1) Histo.DiamondQDC1_cal->Fill(diamond_Ecal[i]);
 	}
-	
-	//Shift the TexNeut gamma time peaks so that they align with TexNeut board 1
-	float TN_TDCShift[12] = {0,0.078,1.207,0.994,6.821,7.356,-0.867,
-													 -0.943,0.259,-0.141,0.697,-0.19500000};
-													 
-	//array of shifted values, only take first for now			 
-	float TN_TDC_shift[12] = {0,0,0,0,0,0,0,0,0,0,0,0};
-	
-	//array of first hits that fall into the neutron time gates
-	//Save the unshifted version
-	float TN_TDC_neutrons[12] = {0,0,0,0,0,0,0,0,0,0,0,0};
-	
-	//Fill TDC plots
-	for (int i=0;i<16;i++) {
-		//Loop over each channel
-		if (input_tdc.Nhits[i] == 0) continue;
-		//cout << input_tdc.Nhits[i] << endl;
-		for (int j=0;j<input_tdc.Nhits[i];j++) {
-			Histo.TDC_Plot[i]->Fill(input_tdc.t[i][j]);
-		}
-		
-		Histo.TDC_sum->Fill(i,input_tdc.t[i][0]); //Only take 1st for now
-		if (i > 3) {
-			Histo.TDC_sum_TN->Fill(i-4,input_tdc.t[i][0]); //TexNeut channels only
-			
-			TN_TDC_shift[i-4] = input_tdc.t[i][0] - TN_TDCShift[i-4];
-			Histo.TDC_sum_TN_shift->Fill(i-4,TN_TDC_shift[i-4]);
-			Histo.TDC_Plot_TN_shift[i-4]->Fill(TN_TDC_shift[i-4]);
-			
-			if (TN_TDC_shift[i-4] >= TN_TDClow && TN_TDC_shift[i-4] <= TN_TDChigh) {
-				TN_TDC_neutrons[i-4] = input_tdc.t[i][0];
-			}
-		}
-	}
-	
-	
-	//Get bars from TexNeut analysis and find neutron multiplicity
-	vector<int> TDCchan_top = texneut.get_TDCchannel("Top");
-	vector<int> TDCchan_bot = texneut.get_TDCchannel("Bot");
-	
-	for (int i=0;i<TDCchan_top.size();i++) {
-
-		bool neuttop = false;
-		bool neutbot = false;
-	
-		//make sure top and bottom channels have a hit
-		if (input_tdc.Nhits[TDCchan_top[i]] == 0 || input_tdc.Nhits[TDCchan_bot[i]] == 0) continue;
-		
-		//Apply neutron time gates
-		for (int j=0;j<input_tdc.Nhits[TDCchan_top[i]];j++) {
-			//Get shifted value (offset is relative to 1st channel)
-			float tdc_shift = input_tdc.t[TDCchan_top[i]][j] - TN_TDCShift[TDCchan_top[i]-4];
-			if (tdc_shift >= TN_TDClow && tdc_shift <= TN_TDChigh) neuttop = true;
-			if (neuttop == true) break; //break if condition met
-		}
-		
-		for (int j=0;j<input_tdc.Nhits[TDCchan_bot[i]];j++) {
-			//Get shifted value (offset is relative to 1st channel)
-			float tdc_shift = input_tdc.t[TDCchan_bot[i]][j] - TN_TDCShift[TDCchan_bot[i]-4];
-			if (tdc_shift >= TN_TDClow && tdc_shift <= TN_TDChigh) neutbot = true;
-			if (neutbot == true) break; //break if condition met
-		}
-		
-		if (neuttop == true && neutbot == true) num_neut++;
-		
-	}
-	
-	if (num_neut > 0) Histo.neutron_mult->Fill(num_neut);
-	
-	if (num_neut > num_neut_highest) num_neut_highest = num_neut;
-	
-	//Make time gates using TDC
-	//Add them as you go
-	float TDC_upper[16] = {0,-80};
-	float TDC_lower[16] = {0,50};
 
   // Reset the Silicon class
   //cout << "here pre Si reset" << endl;
@@ -634,15 +559,7 @@ bool Gobbi::analyze() {
     
   	//Count certain particle combinations
   	if (Correl.proton.mult == 1 && Correl.alpha.mult == 1) {
-  		// OR A time gate
-  		if (input_tdc.t[1][0] >= -80 && input_tdc.t[1][0] <= -50) {
-				if (num_neut == 0) a_p_0n++;
-				if (num_neut == 1) a_p_1n++;
-				if (num_neut == 2) a_p_2n++;
-				if (num_neut == 3) a_p_3n++;
-				
-				if (num_neut > 0) a_p_withn++;
-			}
+  		a_p++;
   	}
     
     
@@ -666,34 +583,6 @@ int Gobbi::match()
 float Gobbi::getEnergy(int board, int chan, int Ehigh)
 {
   return Ehigh*(float)slopes[board][chan] + (float)intercepts[board][chan];
-}
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-void Gobbi::TransferNeutSols()
-{
-  neutSol.reset();
-  //neutSol.SetTargetDistance(DIST HERE);
-  //neutSol.mass = Mass_lookup[{0, 1}];
-
-  // See silicon.cpp and solution.h for examples of what kinematic values can be stored
-/*
-  neutSol.energy = texneut...;  // calibrated energy from texneut class
-  neutSol.energyR = texneut...; // raw energy from texneut class
-	neutSol.time = texneut...;    // neutron time from texneut class
-  neutSol.Xpos = texneut...;    // x position from texneut class
-  neutSol.Ypos = texneut...;    // y position from texneut class
-  neutSol.Zpos = texneut...;    // z position from texneut class
-	neutSol.theta = texneut...;   // polar angle from texneut class
-  neutSol.phi = texneut...;     // azimuthal angle from texneut class
-
-  neutSol.energyTot = neutSol.energy + neutSol.mass; // calculate total energy in MeV
-
-  // CALCULATE MOMENTUM HERE ()??
-  neutSol.Mvect[0] = ...;
-  neutSol.Mvect[1] = ...;
-  neutSol.Mvect[2] = ...;
-*/
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -854,37 +743,7 @@ void Gobbi::corr_5Li()
 
 
 void Gobbi::corr_6Li()
-{	
-	// 6Li -> alpha + p + n
-	if(Correl.proton.mult == 1 && Correl.neutron.mult == 1 && Correl.alpha.mult == 1) {
-		
-		float const Q6Li = mass_6Li - (mass_p + mass_n + mass_alpha);
-		Correl.zeroMask();
-		Correl.proton.mask[0] = 1;
-		Correl.neutron.mask[0] = 1;
-		Correl.alpha.mask[0] = 1;
-		Correl.makeArray(1);
-		
-		float Erel_6Li = Correl.findErel();
-		float thetaCM = Correl.thetaCM;
-		float Ex = Erel_6Li - Q6Li;
-		
-		Histo.Erel_6Li_npa->Fill(Erel_6Li);
-    Histo.Ex_6Li_npa->Fill(Ex);
-
-    Histo.cos_thetaH_npa->Fill(Correl.cos_thetaH);
-    Histo.ThetaCM_6Li_npa->Fill(thetaCM*180./acos(-1));
-    Histo.VCM_6Li_npa->Fill(Correl.velocityCM);
-    
-    if(fabs(Correl.cos_thetaH) < .3)
-      Histo.Ex_6Li_npa_trans->Fill(Ex);
-    if(fabs(Correl.cos_thetaH) > .7)
-      Histo.Ex_6Li_npa_long->Fill(Ex);
-
-
-    Histo.cos_da_thetaH->Fill(Correl.cos_thetaH);
-    Histo.Erel_da_cosThetaH->Fill(Erel_6Li,Correl.cos_thetaH);
-	}
+{
 
   // D+alpha
   if(Correl.H2.mult == 1 && Correl.alpha.mult == 1)

@@ -15,6 +15,9 @@
  * Modified by Henry Webb (h.s.webb@wustl.edu) and Johnathan
  * Phillips (j.s.phillips@wustl.edu) March 2026 for experiment
  * at TAMU Cyclotron Institute
+ * 
+ * Modified by Henry Webb (h.s.webb@wustl.edu) April 2026 for
+ * 9N FRIB experiment
  */
 
 #include "calibrate.h"
@@ -25,15 +28,13 @@
 #include "solution.h"
 #include "SortConfig.h"
 
-#include <eventclass.hpp> // TNLIB TexNeut event class
-
 #include <iostream>
 #include <string>
 
 class Gobbi {
 
 public:
-	Gobbi(Input& in, histo& hist, SortConfig& config, int run, event& neut);
+	Gobbi(Input& in, histo& hist, SortConfig& config, int run);
 	~Gobbi();
 
 	bool analyze();
@@ -59,7 +60,6 @@ public:
 	double** intercepts;
 
 	histo& Histo;
-	event& texneut;
 	calibrate* FrontEcal;
 	calibrate* BackEcal;
 	calibrate* DeltaEcal;
@@ -86,32 +86,13 @@ public:
 	int runnum;
 	int diamond_calch = -1;
 	
-	//TexNeut TDC gates
-	float TN_TDClow = -147;
-	float TN_TDChigh = -60;
-	
-	//Neutron multiplicity
-	int num_neut;
-	
-	//also record highest multiplicity
-	int num_neut_highest = 0;
-	
 	//Record particle combinations, start with most important
-	int a_p_0n = 0;
-	int a_p_withn = 0; //Just needs to be mult > 0
-	int a_p_1n = 0;
-	int a_p_2n = 0;
-	int a_p_3n = 0;
+	int a_p = 0;
 
 private:
 	const Input::GobbiInput& input;
 	const Input::QDCInput& input_qdc;
 	const Input::TDCInput& input_tdc;
-
-  // This function is meant to take the neutron kinematic information
-  // from TexNeut, put it in a solution, and transfer said solution
-  // to the correl class for further analysis.
-  void TransferNeutSols();
 
 };
 

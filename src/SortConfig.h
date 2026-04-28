@@ -11,7 +11,8 @@
 
 class SortConfig {
 private:
-	std::string tnlibConfig;
+	std::string outputDir;
+	std::string dataDir;
 	std::string runNumbersFile;
 	std::string itreeName;
 	std::string ofileName;
@@ -35,7 +36,8 @@ public:
 	SortConfig(std::string configFilePath);
 
 	// Getters
-	std::string GetTnlibConfig() const { return tnlibConfig; }
+	std::string GetOutputDir() const { return outputDir; }
+	std::string GetDataDir() const { return dataDir; }
 	std::string GetRunNumbersFile() const { return runNumbersFile; }
 	std::string GetItreeName() const { return itreeName; }
 	std::string GetOfileName() const { return ofileName; }

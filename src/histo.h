@@ -18,8 +18,6 @@
 #include <string>
 #include <vector>
 
-#include <eventclass.hpp>
-
 #include "OutStructs.h"
 
 class histo {
@@ -28,31 +26,15 @@ private:
 
 	std::shared_ptr<ROOT::TBufferMergerFile> file_read; // thread-safe output ROOT file pointer
 
-	event& texneut; // hold TexNeut event object reference for easy variable retrieval and saving
-
-	// Variables for global tree branches
-	size_t texneutmult{0};              // number of successful pairs of hits per event in TexNeut, a.k.a. "bars"
-	std::vector<OutStructs::TexNeutHit> texneutout; // hit list from TexNeut data containing bar-wise information, should be "texneutmult" in length
-
 public:
 
-	histo(std::shared_ptr<ROOT::TBufferMergerFile>, event& texneutevent);
+	histo(std::shared_ptr<ROOT::TBufferMergerFile>);
 	~histo();
 
 	// Global tree for storing pre-solution variables
-	TTree* tpar;
+	//TTree* tpar;
 
 	void Fill();
-	
-	/******** TEXNEUT STUFF ********/
-	
-	TDirectoryFile* dirTexNeut;
-	
-	TH2I* topDownMap;
-	TH2I* barZeroFingers;
-	TH1I* neutron_mult;
-	
-	/*******************************/
 
 	//TODO: replace with CMake/compile-time variables
 	static const int E_boardnum = 8;  // number of boards associated with E silicon detectors

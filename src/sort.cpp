@@ -1,9 +1,13 @@
-// Code to analyze data from Gobbi Si-Si array + TexNeut neutron detector
+// Code to analyze data from Gobbi 28 Si-CsI array, including CsI PSD
 // Originally written by Nicolas Dronchi, 2020
 // Heavily modified by Henry Webb (h.s.webb@wustl.edu), August 2025
-// Now skips unpacking, reads values from SpecTcl-generated ROOT file
-// (i.e. SpecTcl now does the unpacking). Uses TNLIB TexNeut analysis
-// library written by Alex Alafa.
+//   Now skips unpacking, reads values from SpecTcl-generated ROOT file
+//   (i.e. SpecTcl now does the unpacking). Uses TNLIB TexNeut analysis
+//   library written by Alex Alafa.
+// Heavily modified by Henry Webb again, April 2026
+//   All TexNeut analysis pieces removed. Gobbi class modified to handle
+//   Si-CsI array with subdivided inner quadrants, along with PSD
+//   analysis for the CsI and extra bits for 9N.
 
 #include <atomic>
 #include <chrono>
@@ -20,22 +24,14 @@
 
 #include <ROOT/TBufferMerger.hxx>
 #include <ROOT/TTreeProcessorMT.hxx>
-#include <TH1I.h>
 #include <TFile.h>
 #include <TTree.h>
 
-#include <config.hpp>
-#include <detector.hpp>
-#include <eventclass.hpp>
-#include <stuffing.hpp>
-#include <tof_needs.hpp>
-
+#include "constants.h"
 #include "Gobbi.h"
 #include "histo.h"
 #include "Input.h"
 #include "SortConfig.h"
-
-#include "constants.h"
 
 using namespace std;
 
@@ -52,13 +48,8 @@ int main() {
 	std::atomic<long long> globalProcessed{0};
 	mutex consoleMutex; // To prevent text scrambling
 
-	// TNLIB (Alex's TexNeut library) setup
-	config configFile(sortConfig.GetTnlibConfig());
-	detector texneut;
-	texneut.fillmaps(configFile.GetExpInfoDir(), configFile.GetBarMapFile(), configFile.GetPosMapFile(), configFile.GetGainFile());
-
 	// Create the TBufferMerger: this class orchestrates the parallel writing to an output ROOT file
-	string ofname = configFile.GetOutputDir() + sortConfig.GetOfileName();
+	string ofname = sortConfig.GetOutputDir() + sortConfig.GetOfileName();
 	ROOT::TBufferMerger merger(ofname.c_str(), "RECREATE");
 	cout << GREEN << "Output file: " << ofname << RESET << endl;
 
@@ -72,12 +63,7 @@ int main() {
 	
 	// Counters for certain particle combinations, using atomic to be thread-safe
 	// Start with 6Li -> npa
-	atomic<size_t> count_ap0n{0};
-	atomic<size_t> count_ap_withn{0};
-	atomic<size_t> count_ap1n{0};
-	atomic<size_t> count_ap2n{0};
-	atomic<size_t> count_ap3n{0};
-	atomic<size_t> count_missTDC{0};
+	atomic<size_t> count_ap;
 	
 	/******** EVENT PROCESSING LAMBDA FUNCTION ********/
 	
@@ -94,9 +80,8 @@ int main() {
 		const char* otname = sortConfig.GetOtreeName().c_str();
 
 		// Initialize analysis classes
-		event texneutevent;
-		histo Histo(f, texneutevent);
-		Gobbi gobbi(input, Histo, sortConfig, runnum, texneutevent);
+		histo Histo(f);
+		Gobbi gobbi(input, Histo, sortConfig, runnum);
 		
 		// Thread-local event loop
 		size_t localCounter = 0;
@@ -104,14 +89,6 @@ int main() {
 
 			// First, take input file from SpecTcl and refactor into usable hit list format
 			input.ReadAndRefactor();
-			
-			// TexNeut analysis
-			vector<size_t> texneut_tdcchans;
-			vector<double> texneut_tdcts;
-			input.GetTDC().FillTexNeutHitVectors(texneut_tdcchans, texneut_tdcts);
-			const Input::TexNeutInput& texin = input.GetTexNeut();
-			texneutevent.CustomFillNecessary(texin.GetNhits(), texin.chip, texin.chan, texin.a, texin.b, texin.c, texin.t, texneut_tdcchans, texneut_tdcts);
-			texneutevent.analyse(texneut, 1234, Triple());
 			
 			// Gobbi analysis
 			gobbi.analyze();
@@ -134,12 +111,7 @@ int main() {
 
 		// Adding counters here that will tick up for different particle combinations
 		// All counters should be of type atomic<> for thread safety
-		count_ap0n += gobbi.a_p_0n;
-		count_ap1n += gobbi.a_p_1n;
-		count_ap2n += gobbi.a_p_2n;
-		count_ap3n += gobbi.a_p_3n;
-		count_ap_withn += gobbi.a_p_withn;
-		count_missTDC += texneutevent.Getcount_missTDC();
+		count_ap += gobbi.a_p;
 	};
 	
 	/******** RUN NUMBER LOOP ********/
@@ -156,7 +128,7 @@ int main() {
 		if (runFile.eof() || runFile.bad()) break;
 
 		datastring.str("");
-		datastring << configFile.GetTNDataDir() << "run-" << runnum << ".root";
+		datastring << sortConfig.GetDataDir() << "run-" << runnum << ".root";
 
 		// Check status of input run data file
 		TFile *file = TFile::Open(datastring.str().c_str());
@@ -180,7 +152,7 @@ int main() {
 		if (runFile.eof() || runFile.bad()) break;
 
 		datastring.str("");
-		datastring << configFile.GetTNDataDir() << "run-" << runnum << ".root";
+		datastring << sortConfig.GetDataDir() << "run-" << runnum << ".root";
 
 		// Check status of input run data file
 		size_t numentries_singlefile;
@@ -214,7 +186,7 @@ int main() {
 
 	// Output program duration
 	auto end = std::chrono::high_resolution_clock::now();
-  chrono::duration<double> elapsed = end - start;
+	chrono::duration<double> elapsed = end - start;
 	int total_seconds = static_cast<int>(elapsed.count());
 	int hours = total_seconds / 3600;
 	int minutes = (total_seconds % 3600) / 60;
@@ -226,17 +198,7 @@ int main() {
 
 	cout << "************************************************************************" << endl;
 	cout << "EVENT COUNTERS                                                          " << endl;
-	cout << "Neutron time gates are in Gobbi.h and counters at bottom of Gobbi main  " << endl;
-	cout << "The PSD time gates are based on offset-adjusted TDC spectra             " << endl;
-	cout << "These counts are also gated on OR A time                                " << endl;
-	cout << "1p + 1a + 0n: " << count_ap0n << endl;
-	cout << "1p + 1a + 1n: " << count_ap1n << endl;
-	cout << "1p + 1a + 2n: " << count_ap2n << endl;
-	cout << "1p + 1a + 3n: " << count_ap3n << endl;
-	cout << "1p + 1a with any number of neutrons: " << count_ap_withn << endl;
-	cout << endl;
-	cout << "DEBUG COUNTERS                                                          " << endl;
-	cout << "TexNeut hits with missing TDC data: " << count_missTDC << endl;
+	cout << "1p + 1a: " << count_ap << endl;
 
 	return 0;
 }
