@@ -25,7 +25,7 @@ using namespace std;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-Gobbi::Gobbi(Input& in, histo& hist, SortConfig& config, int run) : input(in.GetGobbi()), Histo(hist), input_qdc(in.GetQDC()),input_tdc(in.GetTDC()), runnum(run) {
+Det::Det(Input& in, histo& hist, SortConfig& config, int run) : input(in.GetGobbi()), Histo(hist), input_qdc(in.GetQDC()),input_tdc(in.GetTDC()), runnum(run) {
 
 	// Initialize wood class instances for ROOT TTree output
 	Correl.zeroMask();
@@ -135,7 +135,7 @@ Gobbi::Gobbi(Input& in, histo& hist, SortConfig& config, int run) : input(in.Get
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-Gobbi::~Gobbi() {
+Det::~Det() {
   delete FrontEcal;
   delete BackEcal;
   delete DeltaEcal;
@@ -147,7 +147,7 @@ Gobbi::~Gobbi() {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-bool Gobbi::analyze() {
+bool Det::analyze() {
 	
 	//Vector holding calibrated diamond energies, same indices as input_qdc.qh
 	//Clear each loop
@@ -645,7 +645,7 @@ bool Gobbi::analyze() {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-int Gobbi::match() {
+int Det::match() {
   //match dE, Efront, Eback as one hit
   int temp = 0;
   return temp;
@@ -653,13 +653,13 @@ int Gobbi::match() {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-float Gobbi::getEnergy(int board, int chan, int Ehigh) {
+float Det::getEnergy(int board, int chan, int Ehigh) {
   return Ehigh*(float)slopes[board][chan] + (float)intercepts[board][chan];
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void Gobbi::corr_4He() {
+void Det::corr_4He() {
   // p+t
   if(Correl.proton.mult == 1 && Correl.H3.mult == 1) {
     float const Q4He = mass_alpha - (mass_p + mass_t);
@@ -730,7 +730,7 @@ void Gobbi::corr_4He() {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void Gobbi::corr_5He() {
+void Det::corr_5He() {
   // d+t
   if(Correl.H2.mult == 1 && Correl.H3.mult == 1) {
     float const Q5He = mass_5He - (mass_d + mass_t);
@@ -758,7 +758,7 @@ void Gobbi::corr_5He() {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void Gobbi::corr_6He() {
+void Det::corr_6He() {
   // t+t
   if(Correl.H3.mult == 2) {
     float const Q6He = mass_6He - (2*mass_t);
@@ -786,7 +786,7 @@ void Gobbi::corr_6He() {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void Gobbi::corr_5Li() {
+void Det::corr_5Li() {
   // p+He4
   if(Correl.proton.mult == 1 && Correl.alpha.mult == 1) {
  
@@ -840,7 +840,7 @@ void Gobbi::corr_5Li() {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void Gobbi::corr_6Li() {
+void Det::corr_6Li() {
 
   // D+alpha
   if(Correl.H2.mult == 1 && Correl.alpha.mult == 1) {
@@ -1003,7 +1003,7 @@ void Gobbi::corr_6Li() {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void Gobbi::corr_7Li() {
+void Det::corr_7Li() {
   // p + 6He
   if(Correl.proton.mult == 1 && Correl.He6.mult == 1) {
     //cout << "inside corr_7Li_he6p()" << endl;
@@ -1082,7 +1082,7 @@ void Gobbi::corr_7Li() {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void Gobbi::corr_6Be() {
+void Det::corr_6Be() {
   // He4+p+p
   if(Correl.alpha.mult == 1 && Correl.proton.mult == 2) {
 		float const Q6Be = mass_6Be - (mass_alpha + 2.*mass_p);
@@ -1108,7 +1108,7 @@ void Gobbi::corr_6Be() {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void Gobbi::corr_7Be() {
+void Det::corr_7Be() {
   // He3+He4
   if(Correl.He3.mult == 1 && Correl.alpha.mult == 1) {
     float const Q7Be = mass_7Be - (mass_3He + mass_alpha);
@@ -1155,7 +1155,7 @@ void Gobbi::corr_7Be() {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void Gobbi::corr_8Be() {
+void Det::corr_8Be() {
   // He4+He4
   if(Correl.alpha.mult == 2) {
     //cout << "inside corr_8Be_aa()" << endl;
@@ -1265,7 +1265,7 @@ void Gobbi::corr_8Be() {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void Gobbi::corr_9B() {
+void Det::corr_9B() {
   // He4+He4+p
   if(Correl.alpha.mult == 2 && Correl.proton.mult == 1) {
     float const Q9B = mass_9B - (2*mass_alpha) - mass_p;

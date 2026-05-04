@@ -1,5 +1,5 @@
-#ifndef Gobbi_H
-#define Gobbi_H
+#ifndef Det_H
+#define Det_H
 
 /* Nicolas Dronchi 2022_04_04
  * Class written to handle all specifics of the Gobbi array
@@ -14,10 +14,12 @@
  * 
  * Modified by Henry Webb (h.s.webb@wustl.edu) and Johnathan
  * Phillips (j.s.phillips@wustl.edu) March 2026 for experiment
- * at TAMU Cyclotron Institute
+ * at TAMU Cyclotron Institute.
  * 
  * Modified by Henry Webb (h.s.webb@wustl.edu) April 2026 for
- * 9N FRIB experiment
+ * 9N FRIB experiment. Renamed to `Det` to match other sort
+ * code versions, Gobbi functionality moved to dedicated
+ * Gobbi class(s).
  */
 
 #include "calibrate.h"
@@ -33,11 +35,11 @@
 #include <memory>
 #include <string>
 
-class Gobbi {
+class Det {
 
 public:
-	Gobbi(Input& in, histo& hist, SortConfig& config, int run);
-	~Gobbi();
+	Det(Input& in, histo& hist, SortConfig& config, int run);
+	~Det();
 
 	bool analyze();
 	int match();

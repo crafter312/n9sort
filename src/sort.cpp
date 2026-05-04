@@ -82,7 +82,7 @@ int main() {
 
 		// Initialize analysis classes
 		histo Histo(f);
-		Gobbi gobbi(input, Histo, sortConfig, runnum);
+		Det det(input, Histo, sortConfig, runnum);
 		
 		// Thread-local event loop
 		size_t localCounter = 0;
@@ -91,10 +91,10 @@ int main() {
 			// First, take input file from SpecTcl and refactor into usable hit list format
 			input.ReadAndRefactor();
 			
-			// Gobbi analysis
-			gobbi.analyze();
+			// Perform analysis
+			det.analyze();
 			
-			// Output
+			// Finalize per-event output, if any
 			Histo.Fill();
 			
 			// Handle progress bar
@@ -112,7 +112,7 @@ int main() {
 
 		// Adding counters here that will tick up for different particle combinations
 		// All counters should be of type atomic<> for thread safety
-		count_ap += gobbi.a_p;
+		count_ap += det.a_p;
 	};
 	
 	/******** RUN NUMBER LOOP ********/
