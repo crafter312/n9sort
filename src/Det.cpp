@@ -17,7 +17,7 @@
  * 9N FRIB experiment
  */
 
-#include "Gobbi.h"
+#include "Det.h"
 
 #include "constants.h"
 

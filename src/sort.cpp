@@ -29,7 +29,7 @@
 #include <TTree.h>
 
 #include "constants.h"
-#include "Gobbi.h"
+#include "Det.h"
 #include "histo.h"
 #include "Input.h"
 #include "SortConfig.h"
