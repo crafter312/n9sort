@@ -41,13 +41,20 @@ class solution
   float btimeR;
   float dtime;
   float dtimeR; 
+	float CsITime;
+	float CsITimeR;
   int ifront;
   int iback;
   int ide;
+	int iCsI;
   int itele;
   float timediff;
   int Nbefore;
   int Norder;
+
+  //variables filled from S800
+  float theta_s800;
+  float phi_s800;
   
   //variables filled after getPID() from Silicon.cpp
   int ipid;
@@ -77,7 +84,6 @@ class solution
   float MomRot[3];
   float MomRot2[3];
   float energyCM;
-
 
   float KE;
 

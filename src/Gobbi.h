@@ -27,8 +27,10 @@
 #include "silicon.h"
 #include "solution.h"
 #include "SortConfig.h"
+#include "wood.h"
 
 #include <iostream>
+#include <memory>
 #include <string>
 
 class Gobbi {
@@ -53,6 +55,28 @@ public:
 	void corr_8Be();
 	void corr_9B();
 
+	// Each decay channel should have its own wood object instance in
+	// the form of a unique pointer so that initialization can be done
+	// in the constructor.
+	std::unique_ptr<wood> He4_pt;
+	std::unique_ptr<wood> He4_dd;
+	std::unique_ptr<wood> He5_dt;
+	std::unique_ptr<wood> He6_tt;
+	std::unique_ptr<wood> Li5_pa;
+	std::unique_ptr<wood> Li5_dHe3;
+	std::unique_ptr<wood> Li6_da;
+	std::unique_ptr<wood> Li7_ta_bad;
+	std::unique_ptr<wood> Li7_pHe6;
+	std::unique_ptr<wood> Li7_ta;
+	std::unique_ptr<wood> Be6_ppa;
+	std::unique_ptr<wood> Be7_He3a;
+	std::unique_ptr<wood> Be7_pLi6;
+	std::unique_ptr<wood> Be8_aa;
+	std::unique_ptr<wood> Be8_pLi7;
+	std::unique_ptr<wood> Be8_pta;
+	std::unique_ptr<wood> Li7_ta_fake; // missing the p
+	std::unique_ptr<wood> B9_paa;
+
 	double Targetdist;
 	float TargetThickness;
 
@@ -67,10 +91,9 @@ public:
 	calibrate* BackTimecal;
 	calibrate* DeltaTimecal;
 
-	calibrate* DiamondEcal;
+	calibrate* DiamondEcal{nullptr};
 
 	silicon* Silicon[4];
-	solution neutSol;
 	correl2 Correl;
 
 	int counter = 0;

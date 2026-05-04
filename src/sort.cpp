@@ -7,7 +7,8 @@
 // Heavily modified by Henry Webb again, April 2026
 //   All TexNeut analysis pieces removed. Gobbi class modified to handle
 //   Si-CsI array with subdivided inner quadrants, along with PSD
-//   analysis for the CsI and extra bits for 9N.
+//   analysis for the CsI and extra bits for 9N. `wood` class added
+//   for per-reconstruction ROOT TTree output (significantly rewritten).
 
 #include <atomic>
 #include <chrono>

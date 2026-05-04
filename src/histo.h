@@ -18,8 +18,6 @@
 #include <string>
 #include <vector>
 
-#include "OutStructs.h"
-
 class histo {
 
 private:
@@ -212,23 +210,27 @@ public:
 	TH1I* Ex_5He_dt;
 	TH1I* ThetaCM_5He_dt;
 	TH1I* VCM_5He_dt;
+	TH2I* Erel_dt_costhetaH;
 
 	// He6
 	TH1I* Erel_6He_tt;
 	TH1I* Ex_6He_tt;
 	TH1I* ThetaCM_6He_tt;
 	TH1I* VCM_6He_tt;
+	TH2I* Erel_tt_costhetaH;
 
 	// Li5
 	TH1I* Erel_5Li_pa;
 	TH1I* Ex_5Li_pa;
 	TH1I* ThetaCM_5Li_pa;
 	TH1I* VCM_5Li_pa;
+	TH2I* Erel_pa_costhetaH;
 
 	TH1I* Erel_5Li_d3He;
 	TH1I* Ex_5Li_d3He;
 	TH1I* ThetaCM_5Li_d3He;
 	TH1I* VCM_5Li_d3He;
+	TH2I* Erel_d3He_costhetaH;
 
 	// Li6
 	// -> p + n + alpa

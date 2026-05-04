@@ -370,6 +370,7 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f) {
   Ex_5He_dt = new TH1I("Ex_5He_dt","",800,-2,30);
   ThetaCM_5He_dt = new TH1I("ThetaCM_5He_dt","",200,0,10);
   VCM_5He_dt = new TH1I("VCM_5He_dt","",100,0,14);
+	Erel_dt_costhetaH = new TH2I("Erel_dt_costhetaH","",750,0,30,25,-1,1);
 
   // He6
   dir6He->cd();
@@ -377,6 +378,7 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f) {
   Ex_6He_tt = new TH1I("Ex_6He_tt","",800,-2,30);
   ThetaCM_6He_tt = new TH1I("ThetaCM_6He_tt","",200,0,10);
   VCM_6He_tt = new TH1I("VCM_6He_tt","",100,0,14);
+	Erel_tt_costhetaH = new TH2I("Erel_tt_costhetaH","",750,0,30,25,-1,1);
 
   // Li5
   dir5Li->cd();
@@ -384,11 +386,13 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f) {
   Ex_5Li_pa = new TH1I("Ex_5Li_pa","",800,-2,30);
   ThetaCM_5Li_pa = new TH1I("ThetaCM_5Li_pa","",200,0,10);
   VCM_5Li_pa = new TH1I("VCM_5Li_pa","",100,0,14);
+	Erel_pa_costhetaH = new TH2I("Erel_pa_costhetaH","",750,0,30,25,-1,1);
 
   Erel_5Li_d3He = new TH1I("Erel_5Li_d3He","",800,0,30);
   Ex_5Li_d3He = new TH1I("Ex_5Li_d3He","",800,-2,30);
   ThetaCM_5Li_d3He = new TH1I("ThetaCM_5Li_d3He","",200,0,10);
   VCM_5Li_d3He = new TH1I("VCM_5Li_d3He","",100,0,14);
+	Erel_d3He_costhetaH = new TH2I("Erel_d3He_costhetaH","",750,0,30,25,-1,1);
 
   // Li6
   dir6Li->cd();

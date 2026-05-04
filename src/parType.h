@@ -1,16 +1,26 @@
+#ifndef parType_H
+#define parType_H
+
+#include "constants.h"
 #include "solution.h"
 
-class parType
-{
- public:
-  int Z,A;
-  parType(){};
-  parType(int Z, int A);
-  void zeroMask();
-  void setMask();
-  void init(int Z, int A);
+class parType {
 
-  solution *Sol[6];
-  int mult;
-  bool mask[6];
+public:
+
+	DEFINE_ENUM_WITH_STRING_CONVERSIONS(detType, (Gobbi)(TexNeut)(S800))
+
+	parType(int Z, int A, detType det = Gobbi);
+
+	void zeroMask();
+	void setMask();
+
+	int Z, A;
+	solution *Sol[6];
+	int mult;
+	bool mask[6];
+	detType detector;
+
 };
+
+#endif
