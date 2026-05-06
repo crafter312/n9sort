@@ -104,6 +104,13 @@ Det::Det(Input& in, histo& hist, SortConfig& config, size_t run) : input(in.GetG
 	Correl.alpha.mask[0] = 1;
 	Correl.alpha.mask[1] = 1;
 	B9_paa = make_unique<wood>(Correl, "t_B9_paa", Histo.dir9B, false);
+	Correl.zeroMask();
+	Correl.proton.mask[0]=1;
+	Correl.proton.mask[1]=1;
+	Correl.proton.mask[2]=1;
+	Correl.proton.mask[3]=1;
+	Correl.alpha.mask[0]=1;
+	C8_4pa = make_unique<wood>(Correl, "t_C8_4pa", Histo.dir8C, false);
 
 	Correl.zeroMask();
 }
@@ -135,6 +142,7 @@ void Det::analyze() {
 	corr_7Be();
 	corr_8Be();
 	corr_9B();
+	corr_8C();
 
 	if (goodMult == 2) {
 		size_t pos = 0;
@@ -173,7 +181,7 @@ void Det::corr_4He() {
     float Erel_4He = Correl.findErel();
     float Ex = Erel_4He - Q4He;
 		float Vcm = Correl.velocityCM;
-		float thetaCM = Correl.thetaCM*180./acos(-1);
+		float thetaCM = Correl.thetaCM*rad_to_deg;
 		float cos_thetaH = Correl.cos_thetaH;
 
     Histo.Erel_4He_pt->Fill(Erel_4He);
@@ -216,7 +224,7 @@ void Det::corr_4He() {
     float Erel_4He = Correl.findErel();
     float Ex = Erel_4He - Q4He;
 		float Vcm = Correl.velocityCM;
-		float thetaCM = Correl.thetaCM*180./acos(-1);
+		float thetaCM = Correl.thetaCM*rad_to_deg;
 		float cos_thetaH = Correl.cos_thetaH;
 
     Histo.Erel_4He_dd->Fill(Erel_4He);
@@ -244,7 +252,7 @@ void Det::corr_5He() {
     float Erel_5He = Correl.findErel();
     float Ex = Erel_5He - Q5He;
 		float Vcm = Correl.velocityCM;
-		float thetaCM = Correl.thetaCM*180./acos(-1);
+		float thetaCM = Correl.thetaCM*rad_to_deg;
 		float cos_thetaH = Correl.cos_thetaH;
 
     Histo.Erel_5He_dt->Fill(Erel_5He);
@@ -272,7 +280,7 @@ void Det::corr_6He() {
     float Erel_6He = Correl.findErel();
 		float Ex = Erel_6He - Q6He;
 		float Vcm = Correl.velocityCM;
-    float thetaCM = Correl.thetaCM*180./acos(-1);
+    float thetaCM = Correl.thetaCM*rad_to_deg;
 		float cos_thetaH = Correl.cos_thetaH;
 
     Histo.Erel_6He_tt->Fill(Erel_6He);
@@ -301,7 +309,7 @@ void Det::corr_5Li() {
     float Erel_5Li = Correl.findErel();
 		float Ex = Erel_5Li - Q5Li;
 		float Vcm = Correl.velocityCM;
-    float thetaCM = Correl.thetaCM*180./acos(-1);
+    float thetaCM = Correl.thetaCM*rad_to_deg;
 		float cos_thetaH = Correl.cos_thetaH;
 
     Histo.Erel_5Li_pa->Fill(Erel_5Li);
@@ -326,7 +334,7 @@ void Det::corr_5Li() {
     float Erel_5Li = Correl.findErel();
 		float Ex = Erel_5Li - Q5Li;
 		float Vcm = Correl.velocityCM;
-    float thetaCM = Correl.thetaCM*180./acos(-1);
+    float thetaCM = Correl.thetaCM*rad_to_deg;
 		float cos_thetaH = Correl.cos_thetaH;
 
     Histo.Erel_5Li_d3He->Fill(Erel_5Li);
@@ -357,7 +365,7 @@ void Det::corr_6Li() {
     float Erel_6Li = Correl.findErel();
 		float Ex = Erel_6Li - Q6Li;
 		float Vcm = Correl.velocityCM;
-    float thetaCM = Correl.thetaCM*180./acos(-1);
+    float thetaCM = Correl.thetaCM*rad_to_deg;
 		float cos_thetaH = Correl.cos_thetaH;
 
     Histo.Erel_6Li_da->Fill(Erel_6Li);
@@ -444,7 +452,7 @@ void Det::corr_6Li() {
 		float Erel_7Li = Correl.findErel();
 		float Ex_7Li = Erel_7Li - Q7Li;
 		float Vcm_7Li = Correl.velocityCM;
-    float thetaCM_7Li = Correl.thetaCM*180./acos(-1);
+    float thetaCM_7Li = Correl.thetaCM*rad_to_deg;
 		float cos_thetaH_7Li = Correl.cos_thetaH;
 
     Histo.Ex_7Li_ta_bad->Fill(Ex_7Li);
@@ -469,7 +477,7 @@ void Det::corr_7Li() {
     float Erel_7Li = Correl.findErel();
     float Ex = Erel_7Li - Q7Li;
 		float Vcm = Correl.velocityCM;
-		float thetaCM = Correl.thetaCM*180./acos(-1);
+		float thetaCM = Correl.thetaCM*rad_to_deg;
 		float cos_thetaH = Correl.cos_thetaH;
 
 		Li7_pHe6->Fill(Erel_7Li, Ex, Vcm, thetaCM, cos_thetaH, runnum, 8);
@@ -508,7 +516,7 @@ void Det::corr_7Li() {
     float Erel_7Li = Correl.findErel();
     float Ex = Erel_7Li - Q7Li;
 		float Vcm = Correl.velocityCM;
-		float thetaCM = Correl.thetaCM*180./acos(-1);
+		float thetaCM = Correl.thetaCM*rad_to_deg;
 		float cos_thetaH = Correl.cos_thetaH;
 
 		Li7_ta->Fill(Erel_7Li, Ex, Vcm, thetaCM, cos_thetaH, runnum, 8);
@@ -547,7 +555,7 @@ void Det::corr_6Be() {
     float Erel_6Be = Correl.findErel();
 		float Ex = Erel_6Be - Q6Be;
 		float Vcm = Correl.velocityCM;
-		float thetaCM = Correl.thetaCM*180./acos(-1);
+		float thetaCM = Correl.thetaCM*rad_to_deg;
 		float cos_thetaH = Correl.cos_thetaH;
 
 		Be6_ppa->Fill(Erel_6Be, Ex, Vcm, thetaCM, cos_thetaH, runnum, 8);
@@ -572,7 +580,7 @@ void Det::corr_7Be() {
 		float Erel_7Be = Correl.findErel();
 		float Ex = Erel_7Be - Q7Be;
 		float Vcm = Correl.velocityCM;
-		float thetaCM = Correl.thetaCM*180./acos(-1);
+		float thetaCM = Correl.thetaCM*rad_to_deg;
 		float cos_thetaH = Correl.cos_thetaH;
 
 		Be7_He3a->Fill(Erel_7Be, Ex, Vcm, thetaCM, cos_thetaH, runnum, 8);
@@ -593,7 +601,7 @@ void Det::corr_7Be() {
     float Erel_7Be = Correl.findErel();
     float Ex = Erel_7Be - Q7Be;
 		float Vcm = Correl.velocityCM;
-		float thetaCM = Correl.thetaCM*180./acos(-1);
+		float thetaCM = Correl.thetaCM*rad_to_deg;
 		float cos_thetaH = Correl.cos_thetaH;
 
 		Be7_pLi6->Fill(Erel_7Be, Ex, Vcm, thetaCM, cos_thetaH, runnum, 8);
@@ -621,7 +629,7 @@ void Det::corr_8Be() {
     float Erel_8Be = Correl.findErel();
 		float Ex = Erel_8Be - Q8Be;
 		float Vcm = Correl.velocityCM;
-    float thetaCM = Correl.thetaCM*180./acos(-1);
+    float thetaCM = Correl.thetaCM*rad_to_deg;
     float cos_thetaH = Correl.cos_thetaH;
 
 		Be7_pLi6->Fill(Erel_8Be, Ex, Vcm, thetaCM, cos_thetaH, runnum, 8);
@@ -650,7 +658,7 @@ void Det::corr_8Be() {
     float Erel_8Be = Correl.findErel();
 		float Ex = Erel_8Be - Q8Be;
 		float Vcm = Correl.velocityCM;
-    float thetaCM = Correl.thetaCM*180./acos(-1);
+    float thetaCM = Correl.thetaCM*rad_to_deg;
     float cos_thetaH = Correl.cos_thetaH;
 
 		Be8_pLi7->Fill(Erel_8Be, Ex, Vcm, thetaCM, cos_thetaH, runnum, 8);
@@ -678,7 +686,7 @@ void Det::corr_8Be() {
     float Erel_8Be = Correl.findErel();
 		float Ex = Erel_8Be - Q8Be;
 		float Vcm = Correl.velocityCM;
-    float thetaCM = Correl.thetaCM*180./acos(-1);
+    float thetaCM = Correl.thetaCM*rad_to_deg;
 		float cos_thetaH = Correl.cos_thetaH;
 
 		Be8_pta->Fill(Erel_8Be, Ex, Vcm, thetaCM, cos_thetaH, runnum, 8);
@@ -705,7 +713,7 @@ void Det::corr_8Be() {
     float Erel_7Li = Correl.findErel();
 		float Ex = Erel_7Li - Q7Li;
 		float Vcm = Correl.velocityCM;
-    float thetaCM = Correl.thetaCM*180./acos(-1);
+    float thetaCM = Correl.thetaCM*rad_to_deg;
     float cos_thetaH = Correl.cos_thetaH;
 
 		Li7_ta_fake->Fill(Erel_7Li, Ex, Vcm, thetaCM, cos_thetaH, runnum, 8);
@@ -719,7 +727,7 @@ void Det::corr_8Be() {
 
 void Det::corr_9B() {
   // He4+He4+p
-  if(Correl.alpha.mult == 2 && Correl.proton.mult == 1) {
+  if (Correl.alpha.mult == 2 && Correl.proton.mult == 1) {
     float const Q9B = mass_9B - (2*mass_alpha) - mass_p;
     Correl.zeroMask();
     Correl.alpha.mask[0]=1;
@@ -730,7 +738,7 @@ void Det::corr_9B() {
     float Erel_9B = Correl.findErel();
 		float Ex = Erel_9B - Q9B;
 		float Vcm = Correl.velocityCM;
-    float thetaCM = Correl.thetaCM*180./acos(-1);
+    float thetaCM = Correl.thetaCM*rad_to_deg;
     float cos_thetaH = Correl.cos_thetaH;
 
 		B9_paa->Fill(Erel_9B, Ex, Vcm, thetaCM, cos_thetaH, runnum, 8);
@@ -740,6 +748,35 @@ void Det::corr_9B() {
     Histo.ThetaCM_9B_paa->Fill(thetaCM);
     Histo.VCM_9B_paa->Fill(Vcm);
   }
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void Det::corr_8C() {
+	// p+p+p+p+a
+	if (Correl.proton.mult == 4 && Correl.alpha.mult == 1) {
+		float const Q8C = mass_8C - (4*mass_p) - mass_alpha;
+		Correl.zeroMask();
+		Correl.proton.mask[0]=1;
+		Correl.proton.mask[1]=1;
+		Correl.proton.mask[2]=1;
+		Correl.proton.mask[3]=1;
+		Correl.alpha.mask[0]=1;
+		Correl.makeArray(1, *C8_4pa);
+
+		float Erel_8C = Correl.findErel();
+		float Ex = Erel_8C - Q8C;
+		float Vcm = Correl.velocityCM;
+    float thetaCM = Correl.thetaCM*rad_to_deg;
+    float cos_thetaH = Correl.cos_thetaH;
+
+		C8_4pa->Fill(Erel_8C, Ex, Vcm, thetaCM, cos_thetaH, runnum, 8);
+
+    Histo.Erel_8C_4pa->Fill(Erel_8C);
+    Histo.Ex_8C_4pa->Fill(Ex);
+    Histo.ThetaCM_8C_4pa->Fill(thetaCM);
+    Histo.VCM_8C_4pa->Fill(Vcm);
+	}
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

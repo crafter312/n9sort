@@ -39,10 +39,7 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, SortConfig& config) : hinpbo
   dir1dBackTime_R  = dirSummary->mkdir("1dBackTime_R","1dBackTime_R");
   dir1dDeltaTime_R = dirSummary->mkdir("1dDeltaTime_R","1dDeltaTime_R");
 
-	//Directory for diamond detector
-  dirDiamond = new TDirectoryFile("dirDiamond", "dirDiamond"); // name, title
-
-	//Directory for diamond detector
+	// Directory for TDC detector
   dirTDC = new TDirectoryFile("dirTDC", "dirTDC"); // name, title
 
   // Directory for DeltaE-E plots
@@ -543,6 +540,13 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, SortConfig& config) : hinpbo
   Ex_9B_aa = new TH1I("Ex_8Be_in_9B_aa","",800,-2,15);
   ThetaCM_9B_paa = new TH1I("ThetaCM_9B_paa","",200,0,10);
   VCM_9B_paa = new TH1I("VCM_9B_paa","",100,0,14);
+
+	// C8
+	dir8C->cd();
+	Erel_8C_4pa = new TH1I("Erel_8C_4pa","",800,0,17);
+	Ex_8C_4pa = new TH1I("Ex_8C_4pa","",800,-2,15);
+	ThetaCM_8C_4pa = new TH1I("ThetaCM_8C_4pa","",200,0,10);
+	VCM_8C_4pa = new TH1I("VCM_8C_4pa","",100,0,14);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

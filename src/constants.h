@@ -44,7 +44,7 @@ const double mass_d = 13.13572;
 const double mass_t = 14.9498;
 const double mass_3He = 14.93121;
 const double mass_alpha = 2.42491;
-const double mass_5He = 11.231;
+const double mass_5He = 11.231; // AME2020
 const double mass_6He = 17.5921;
 const double mass_8He = 31.6096;
 const double mass_5Li = 11.678886;
@@ -62,6 +62,7 @@ const double mass_8B = 22.9215;
 const double mass_9B = 12.416488;
 const double mass_10B = 12.0506;
 const double mass_11B = 8.6677;
+const double mass_8C = 35.064; // AME 2020
 const double mass_9C = 28.910972;
 const double mass_10C = 15.698672;
 const double mass_11C = 10.649396;
@@ -110,6 +111,7 @@ const double Mass_8B = 8.*m0+mass_8B;
 const double Mass_9B = 9.*m0+mass_9B;
 const double Mass_10B = 10.*m0+mass_10B;
 const double Mass_11B = 11.*m0+mass_11B;
+const double Mass_8C = 8.*m0+mass_8C;
 const double Mass_9C = 9.*m0+mass_9C;
 const double Mass_10C = 10.*m0+mass_10C;
 const double Mass_11C = 11.*m0+mass_11C;
@@ -149,7 +151,7 @@ const std::unordered_map<std::pair<size_t, size_t>, double, pair_hash> mass_look
 	{{3, 5}, mass_5Li}, {{3, 6}, mass_6Li}, {{3, 7}, mass_7Li}, {{3, 8}, mass_8Li}, {{3, 9}, mass_9Li},
 	{{4, 6}, mass_6Be}, {{4, 7}, mass_7Be}, {{4, 8}, mass_8Be}, {{4, 9}, mass_9Be}, {{4, 10}, mass_10Be}, {{4, 11}, mass_11Be},
 	{{5, 8}, mass_8B}, {{5, 9}, mass_9B}, {{5, 10}, mass_10B}, {{5, 11}, mass_11B},
-	{{6, 9}, mass_9C}, {{6, 10}, mass_10C}, {{6, 11}, mass_11C}, {{6, 12}, mass_12C}, {{6, 13}, mass_13C}, {{6, 14}, mass_14C},
+	{{6, 8}, mass_8C}, {{6, 9}, mass_9C}, {{6, 10}, mass_10C}, {{6, 11}, mass_11C}, {{6, 12}, mass_12C}, {{6, 13}, mass_13C}, {{6, 14}, mass_14C},
 	{{7, 11}, mass_11N}, {{7, 12}, mass_12N}, {{7, 13}, mass_13N}, {{7, 14}, mass_14N}, {{7, 15}, mass_15N},
 	{{8, 13}, mass_13O}, {{8, 14}, mass_14O}, {{8, 15}, mass_15O}, {{8, 16}, mass_16O}, {{8, 17}, mass_17O},
 	{{9, 14}, mass_14F}, {{9, 15}, mass_15F}, {{9, 17}, mass_17F}, {{9, 18}, mass_18F},
@@ -164,7 +166,7 @@ const std::unordered_map<std::pair<size_t, size_t>, double, pair_hash> Mass_look
 	{{3, 5}, Mass_5Li}, {{3, 6}, Mass_6Li}, {{3, 7}, Mass_7Li}, {{3, 8}, Mass_8Li}, {{3, 9}, Mass_9Li},
 	{{4, 6}, Mass_6Be}, {{4, 7}, Mass_7Be}, {{4, 8}, Mass_8Be}, {{4, 9}, Mass_9Be}, {{4, 10}, Mass_10Be}, {{4, 11}, Mass_11Be},
 	{{5, 8}, Mass_8B}, {{5, 9}, Mass_9B}, {{5, 10}, Mass_10B}, {{5, 11}, Mass_11B},
-	{{6, 9}, Mass_9C}, {{6, 10}, Mass_10C}, {{6, 11}, Mass_11C}, {{6, 12}, Mass_12C}, {{6, 13}, Mass_13C}, {{6, 14}, Mass_14C},
+	{{6, 8}, Mass_8C}, {{6, 9}, Mass_9C}, {{6, 10}, Mass_10C}, {{6, 11}, Mass_11C}, {{6, 12}, Mass_12C}, {{6, 13}, Mass_13C}, {{6, 14}, Mass_14C},
 	{{7, 11}, Mass_11N}, {{7, 12}, Mass_12N}, {{7, 13}, Mass_13N}, {{7, 14}, Mass_14N}, {{7, 15}, Mass_15N},
 	{{8, 13}, Mass_13O}, {{8, 14}, Mass_14O}, {{8, 15}, Mass_15O}, {{8, 16}, Mass_16O}, {{8, 17}, Mass_17O},
 	{{9, 14}, Mass_14F}, {{9, 15}, Mass_15F}, {{9, 17}, Mass_17F}, {{9, 18}, Mass_18F},

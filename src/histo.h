@@ -60,8 +60,6 @@ public:
 	TDirectory* dir1dBackTime_R;
 	TDirectory* dir1dDeltaTime_R;
 	
-	TDirectoryFile* dirDiamond;
-	
 	TDirectoryFile* dirTDC;
 
 	TDirectoryFile* dirDEEplots; // directory for deltaE-E plots used in particle identificaiton
@@ -78,6 +76,7 @@ public:
 	TDirectory* dir7Be;
 	TDirectory* dir8Be;
 	TDirectory* dir9B;
+	TDirectory* dir8C;
 
 	// Summary plots
 	TH2I* sumFrontE_R;
@@ -117,22 +116,6 @@ public:
 	std::vector<std::vector<TH1I*>> AngleCorrE;
 	std::vector<std::vector<TH1I*>> AngleCorr_noCorr;
 	std::vector<std::vector<TH1I*>> AngleCorrE_R;
-
-	//Diamond detector plots
-	TH1I* DiamondQDC0;
-	TH1I* DiamondQDC0_cal;
-	TH1I* DiamondQDC1;
-	TH1I* DiamondQDC1_cal;
-	
-	TH1I* DiamondQDC0_tgate_orA;
-	TH1I* DiamondQDC0_tgate_orA_cal;
-	TH2I* DiamondQDC0_vs_torA;
-	TH2I* DiamondQDC0_vs_torA_cal;
-	
-	TH2I* Diamond_vs_GobbiEsum[4];
-	TH2I* Diamond_vs_GobbiEsum_cal[4];
-	TH2I* Diamond_vs_GobbiEsum_torA[4];
-	TH2I* Diamond_vs_GobbiEsum_torA_cal[4];
 	
 	//TDC plots
 	TH1I * TDC_Plot[16];
@@ -362,6 +345,12 @@ public:
 	TH1I* Ex_9B_aa;
 	TH1I* ThetaCM_9B_paa;
 	TH1I* VCM_9B_paa;
+
+	// C8
+	TH1I* Erel_8C_4pa;
+	TH1I* Ex_8C_4pa;
+	TH1I* ThetaCM_8C_4pa;
+	TH1I* VCM_8C_4pa;
 
 };
 
