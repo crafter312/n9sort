@@ -21,13 +21,13 @@ public:
 	~pid();
 
 	bool getPID(float x, float y);
-  float getMass(int iZ,int iA);
+  double getMass(int iZ,int iA);
 
 	ZApar** par; // individual banana gates
 	int nlines;  // number of banana gated stored 	
-	int Z;       // Z of particle in gate
-	int A;       // A of particle in gate
-	float mass;  // mass of particle in amu
+	size_t Z;    // Z of particle in gate
+	size_t A;    // A of particle in gate
+	double mass; // mass of particle in amu
 
 };
 

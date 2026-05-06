@@ -26,5 +26,9 @@ class CKinematics
   float vcm[3];
   float velocitycm;
   float Erel;
+
+	// Default assignment operator
+	// Classes that store instances of this class can now use a default assignment operator
+	CKinematics& operator=(const CKinematics&) = default;
 };
 #endif 

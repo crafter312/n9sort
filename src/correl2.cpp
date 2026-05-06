@@ -112,7 +112,7 @@ float correl2::findErel()
 
 	// cout << "energyTot = " << energyTot << endl;
 	
-	float velCM[3]={0.};
+	double velCM[3]={0.};
 	for (int j=0;j<3;j++) velCM[j] = velocityCM/momentumCM*Mtot[j];
 	thetaCM = acos(velCM[2]/velocityCM);
 	phiCM = atan2(velCM[1],velCM[0]);

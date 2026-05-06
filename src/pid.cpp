@@ -27,7 +27,7 @@ pid::pid(string file, SortConfig& config) : Z(-1), A(-1) {
 	// Read zline file
 	ifile >> nlines;
 	par = new ZApar*[nlines];
-	for (int i = 0; i < nlines; i++)
+	for (size_t i = 0; i < nlines; i++)
 		par[i] = new ZApar(ifile);
 	ifile.close();
 	ifile.clear();
@@ -36,7 +36,7 @@ pid::pid(string file, SortConfig& config) : Z(-1), A(-1) {
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 pid::~pid() {
-	for (int i = 0; i < nlines; i++) delete par[i];
+	for (size_t i = 0; i < nlines; i++) delete par[i];
 	delete[] par;
 }
 
@@ -50,7 +50,7 @@ pid::~pid() {
 bool pid::getPID(float x, float y) {
 	Z = 0;
 	A = 0;
-	for (int i = 0; i < nlines; i++) {
+	for (size_t i = 0; i < nlines; i++) {
 		if (par[i]->inBanana(x,y)) {
 			Z = par[i]->Z;
 			A = par[i]->A;
@@ -63,7 +63,7 @@ bool pid::getPID(float x, float y) {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-float pid::getMass(int iZ,int iA) {
+double pid::getMass(int iZ,int iA) {
 	auto mapEntry = Mass_lookup.find({iZ, iA});
 	if (mapEntry == Mass_lookup.end()) {
 		cout << "No mass info for Z = "<< iZ << " A =" << iA << endl;

@@ -3,8 +3,6 @@
 
 #include <cmath>
 
-#define rel
-
 #ifdef rel
 #include "einstein.h"
 #else
@@ -26,75 +24,78 @@ class solution
   CNewton Kinematics;
 #endif
 
-  float distTarget;
+  double distTarget;
 
   //values loaded into solution class in Silicon when solution is found
-  float energy;
-  float energyR;
-  float benergy;
-  float benergyR;
-  float denergy;
-  float denergyR;
-	float time;
-  float timeR;
-  float btime;
-  float btimeR;
-  float dtime;
-  float dtimeR; 
-	float CsITime;
-	float CsITimeR;
+  double energy;
+  double energyR;
+  double benergy;
+  double benergyR;
+  double denergy;
+  double denergyR;
+	double time;
+  double timeR;
+  double btime;
+  double btimeR;
+  double dtime;
+  double dtimeR; 
+	double CsITime;
+	double CsITimeR;
   int ifront;
   int iback;
   int ide;
 	int iCsI;
   int itele;
-  float timediff;
+  double timediff;
   int Nbefore;
   int Norder;
 
   //variables filled from S800
-  float theta_s800;
-  float phi_s800;
+  double theta_s800;
+  double phi_s800;
   
   //variables filled after getPID() from Silicon.cpp
-  int ipid;
-  int iZ;
-  int iA;
-  float mass;
+  size_t ipid;
+  size_t iZ;
+  size_t iA;
+  double mass;
   
   //variables filled after position() and calcEloss() from Silicon.cpp
-  float Xpos;
-  float Ypos;
-  float Zpos; // added for TexNeut
-  float theta;
-  float phi;
-  float energyTot;
-  float Ekin;
-  float velocity;
+  double Xpos;
+  double Ypos;
+  double Zpos; // added for TexNeut
+  double theta;
+  double phi;
+  double energyTot;
+  double Ekin;
+  double velocity;
 
-  float Etot_cm;
-  float theta_cm;
-  float velocity_cm;
-  //float Vvect[3];
-  float Vcmvect[3];
-  float Mvect[3];
-  float MomCM[3];
-  float momentum;
-  float momentumCM;
-  float MomRot[3];
-  float MomRot2[3];
-  float energyCM;
+  double Etot_cm;
+  double theta_cm;
+  double velocity_cm;
+  //double Vvect[3];
+  double Vcmvect[3];
+  double Mvect[3];
+  double MomCM[3];
+  double momentum;
+  double momentumCM;
+  double MomRot[3];
+  double MomRot2[3];
+  double energyCM;
 
-  float KE;
+  double KE;
 
-  float Vlab;
+  double Vlab;
 
   void reset();
   void SetTargetDistance(double dist0);
   int setPID(int);
-  int setEnergy(float deltaE, float E);
-  float angle();
+  int setEnergy(double deltaE, double E);
+  double angle();
   void getMomentum();
+
+	// assignment or copy operator
+	solution& operator=(const solution& other) = default;
 };
 
 

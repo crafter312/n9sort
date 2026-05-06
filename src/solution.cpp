@@ -46,12 +46,12 @@ void solution::reset()
 
 void solution::SetTargetDistance(double dist0)
 {
-  distTarget = (float)dist0;
+  distTarget = dist0;
 }
 
-float solution::angle()
+double solution::angle()
 {
-  float XYZ2 = pow(Xpos , 2) + pow(Ypos, 2) + pow(distTarget,2);
+  double XYZ2 = pow(Xpos , 2) + pow(Ypos, 2) + pow(distTarget,2);
   theta = acos(distTarget/sqrt(XYZ2));
   phi = atan2(Ypos , Xpos);
 

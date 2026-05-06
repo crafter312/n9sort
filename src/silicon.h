@@ -20,15 +20,15 @@ using namespace std;
 struct lines
 {
   int n; //number of points
-  float *x; //pointer to x array
-  float *y; //pointer to y array
+  double *x; //pointer to x array
+  double *y; //pointer to y array
 };
 */
 
 class silicon
 {
  public:
-  silicon(float, SortConfig&);
+  silicon(double, SortConfig&);
   ~silicon();
   void reset();
   void init(int, SortConfig&);
@@ -36,16 +36,16 @@ class silicon
   int simpleFront();
   int multiHit();
   void SetTargetDistance(double);
-  int getPID();
+  size_t getPID();
   int calcEloss();
 
   CLosses * losses;
-  float TargetThickness;
+  double TargetThickness;
 
   int id;
-  float maxFront;
-  float maxBack;
-  float maxDelta;
+  double maxFront;
+  double maxBack;
+  double maxDelta;
   int imaxFront;
   int imaxBack;
   int imaxDelta;
@@ -73,9 +73,9 @@ class silicon
   int BackHigh[4];
 
   //position
-  float Xcenter; // center of detector in cm along x axis
-  float Ycenter; // center of detector in cm along y axis
-  float SiWidth;
+  double Xcenter; // center of detector in cm along x axis
+  double Ycenter; // center of detector in cm along y axis
+  double SiWidth;
   TRandom *Ran;
 
   //for nested loops
@@ -84,7 +84,7 @@ class silicon
   int NestArray[50];
   int arrayD[50];
   int arrayB[50];
-  float deMin;
+  double deMin;
   int dstripMin;
 
 };

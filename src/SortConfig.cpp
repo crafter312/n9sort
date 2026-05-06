@@ -84,7 +84,25 @@ SortConfig::SortConfig(string configFilePath) {
 				sscanf(temps.c_str(), "%zu", &updateRate); // Note that the `z` specifier is Linux only, and will have to be changed for this to work on Windows
 			}
 			catch (...) {
-				throw invalid_argument("targthick in config file " + configFilePath + " is not a valid size_t (unsigned integer)");
+				throw invalid_argument("updateRate in config file " + configFilePath + " is not a valid size_t (unsigned integer)");
+			}
+		}
+		else if (line.find("hinpboards") != string::npos) {
+			string temps = line.substr(line.find('=') + 2);
+			try {
+				sscanf(temps.c_str(), "%zu", &hinpboards); // Note that the `z` specifier is Linux only, and will have to be changed for this to work on Windows
+			}
+			catch (...) {
+				throw invalid_argument("hinpboards in config file " + configFilePath + " is not a valid size_t (unsigned integer)");
+			}
+		}
+		else if (line.find("hinpchans") != string::npos) {
+			string temps = line.substr(line.find('=') + 2);
+			try {
+				sscanf(temps.c_str(), "%zu", &hinpchans); // Note that the `z` specifier is Linux only, and will have to be changed for this to work on Windows
+			}
+			catch (...) {
+				throw invalid_argument("hinpchans in config file " + configFilePath + " is not a valid size_t (unsigned integer)");
 			}
 		}
 	}

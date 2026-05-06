@@ -6,7 +6,7 @@ using namespace std;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-histo::histo(shared_ptr<ROOT::TBufferMergerFile> f) {
+histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, SortConfig& config) : hinpboards(config.GetHinpboards()), hinpchans(config.GetHinpchans()) {
   file_read = f;
   file_read->cd();
 
@@ -71,51 +71,51 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f) {
   //// Create full summaries
 
   // Energies, Raw+Calibrated
-  sumFrontE_R = new TH2I("sumFrontE_R","",4*channum,0,4*channum,1024,0,8192);
+  sumFrontE_R = new TH2I("sumFrontE_R","",4*hinpchans,0,4*hinpchans,1024,0,8192);
   sumFrontE_R->SetOption("colz");
-  sumBackE_R = new TH2I("sumBackE_R","",4*channum,0,4*channum,1024,0,8192);
+  sumBackE_R = new TH2I("sumBackE_R","",4*hinpchans,0,4*hinpchans,1024,0,8192);
   sumBackE_R->SetOption("colz");
-  sumDeltaE_R = new TH2I("sumDeltaE_R","",4*channum,0,4*channum,1024,0,8192);
+  sumDeltaE_R = new TH2I("sumDeltaE_R","",4*hinpchans,0,4*hinpchans,1024,0,8192);
   sumDeltaE_R->SetOption("colz");
-  sumFrontE_cal = new TH2I("sumFrontE_cal","",4*channum,0,4*channum,Nbin,0,Ecal_Emax);
+  sumFrontE_cal = new TH2I("sumFrontE_cal","",4*hinpchans,0,4*hinpchans,Nbin,0,Ecal_Emax);
   sumFrontE_cal->SetOption("colz");
-  sumFrontE_addback = new TH2I("sumFrontE_addback","",4*channum,0,4*channum,Nbin,0,Ecal_Emax);
+  sumFrontE_addback = new TH2I("sumFrontE_addback","",4*hinpchans,0,4*hinpchans,Nbin,0,Ecal_Emax);
   sumFrontE_addback->SetOption("colz");
 
-  sumBackE_cal = new TH2I("sumBackE_cal","",4*channum,0,4*channum,Nbin,0,Ecal_Emax);
+  sumBackE_cal = new TH2I("sumBackE_cal","",4*hinpchans,0,4*hinpchans,Nbin,0,Ecal_Emax);
   sumBackE_cal->SetOption("colz");
-  sumBackE_addback = new TH2I("sumBackE_addback","",4*channum,0,4*channum,Nbin,0,Ecal_Emax);
+  sumBackE_addback = new TH2I("sumBackE_addback","",4*hinpchans,0,4*hinpchans,Nbin,0,Ecal_Emax);
   sumBackE_addback->SetOption("colz");
-  sumDeltaE_cal = new TH2I("sumDeltaE_cal","",4*channum,0,4*channum,Nbin,0,Ecal_Emax);
+  sumDeltaE_cal = new TH2I("sumDeltaE_cal","",4*hinpchans,0,4*hinpchans,Nbin,0,Ecal_Emax);
   sumDeltaE_cal->SetOption("colz");
-  sumDeltaE_addback = new TH2I("sumDeltaE_addback","",4*channum,0,4*channum,Nbin,0,Ecal_Emax);
+  sumDeltaE_addback = new TH2I("sumDeltaE_addback","",4*hinpchans,0,4*hinpchans,Nbin,0,Ecal_Emax);
   sumDeltaE_addback->SetOption("colz");
 
-  sumEtot_cal = new TH2I("sumEtot_cal","",4*channum,0,4*channum,Nbin,0,Ecal_Emax);
+  sumEtot_cal = new TH2I("sumEtot_cal","",4*hinpchans,0,4*hinpchans,Nbin,0,Ecal_Emax);
   sumEtot_cal->SetOption("colz");
-  AngleCorrSum_cal = new TH2I("AngleCorrSum_cal","",4*channum,0,4*channum,Nbin,0,Ecal_Emax);
+  AngleCorrSum_cal = new TH2I("AngleCorrSum_cal","",4*hinpchans,0,4*hinpchans,Nbin,0,Ecal_Emax);
   AngleCorrSum_cal->SetOption("colz");
 
-  AngleCorrFrontE_cal = new TH2I("AngleCorrFrontE_cal","",4*channum,0,4*channum,Nbin/4,0,Ecal_Emax);
+  AngleCorrFrontE_cal = new TH2I("AngleCorrFrontE_cal","",4*hinpchans,0,4*hinpchans,Nbin/4,0,Ecal_Emax);
   AngleCorrFrontE_cal->SetOption("colz");
-  AngleCorrDeltaE_cal = new TH2I("AngleCorrDeltaE_cal","",4*channum,0,4*channum,Nbin/4,0,Delta_Emax);
+  AngleCorrDeltaE_cal = new TH2I("AngleCorrDeltaE_cal","",4*hinpchans,0,4*hinpchans,Nbin/4,0,Delta_Emax);
   AngleCorrDeltaE_cal->SetOption("colz");
 
   // Times
-  sumFrontTime_R = new TH2I("sumFrontTime_R","",4*channum,0,4*channum,512,0,16383);
+  sumFrontTime_R = new TH2I("sumFrontTime_R","",4*hinpchans,0,4*hinpchans,512,0,16383);
   sumFrontTime_R->SetOption("colz");
-  sumFrontTime_cal = new TH2I("sumFrontTime_cal","",4*channum,0,4*channum,512,0,16383);
+  sumFrontTime_cal = new TH2I("sumFrontTime_cal","",4*hinpchans,0,4*hinpchans,512,0,16383);
   sumFrontTime_cal->SetOption("colz");
-  sumBackTime_R = new TH2I("sumBackTime_R","",4*channum,0,4*channum,512,0,16383);
+  sumBackTime_R = new TH2I("sumBackTime_R","",4*hinpchans,0,4*hinpchans,512,0,16383);
   sumBackTime_R->SetOption("colz");
-  sumBackTime_cal = new TH2I("sumBackTime_cal","",4*channum,0,4*channum,512,0,16383);
+  sumBackTime_cal = new TH2I("sumBackTime_cal","",4*hinpchans,0,4*hinpchans,512,0,16383);
   sumBackTime_cal->SetOption("colz");
-  sumDeltaTime_R = new TH2I("sumDeltaTime_R","",4*channum,0,4*channum,512,0,16383);
+  sumDeltaTime_R = new TH2I("sumDeltaTime_R","",4*hinpchans,0,4*hinpchans,512,0,16383);
   sumDeltaTime_R->SetOption("colz");
-  sumDeltaTime_cal = new TH2I("sumDeltaTime_cal","",4*channum,0,4*channum,512,0,16383);
+  sumDeltaTime_cal = new TH2I("sumDeltaTime_cal","",4*hinpchans,0,4*hinpchans,512,0,16383);
   sumDeltaTime_cal->SetOption("colz");
 
-  sumFrontTimeMult1_cal = new TH2I("sumFrontTimeMult1_cal","",4*channum,0,4*channum,512,0,16383);
+  sumFrontTimeMult1_cal = new TH2I("sumFrontTimeMult1_cal","",4*hinpchans,0,4*hinpchans,512,0,16383);
   sumFrontTimeMult1_cal->SetOption("colz");
 
   ostringstream name;
@@ -128,142 +128,142 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f) {
 
 
   // Create all 1d Front spectra
-  for (int board_i = 0; board_i < E_boardnum / 2; board_i++) {
-    for (int chan_i = 0; chan_i < channum; chan_i++) {
+	// # of Gobbi telescopes is always 4
+	FrontE_R.resize(4);
+	FrontElow_R.resize(4);
+	FrontTime_R.resize(4);
+	FrontE_cal.resize(4);
+	BackE_R.resize(4);
+	BackElow_R.resize(4);
+	BackTime_R.resize(4);
+	BackE_cal.resize(4);
+	AngleCorrE.resize(4);
+	AngleCorr_noCorr.resize(4);
+	AngleCorrE_R.resize(4);
+	DeltaE_R.resize(4);
+	DeltaElow_R.resize(4);
+	DeltaTime_R.resize(4);
+	DeltaE_cal.resize(4);
+	AngleCorrDeltaE.resize(4);
+	AngleCorrDeltaE_noCorr.resize(4);
+	AngleCorrDeltaE_R.resize(4);
+  for (size_t tele_i = 0; tele_i < 4; tele_i++) {
+		FrontE_R[tele_i].resize(hinpchans);
+		FrontElow_R[tele_i].resize(hinpchans);
+		FrontTime_R[tele_i].resize(hinpchans);
+		FrontE_cal[tele_i].resize(hinpchans);
+		BackE_R[tele_i].resize(hinpchans);
+		BackElow_R[tele_i].resize(hinpchans);
+		BackTime_R[tele_i].resize(hinpchans);
+		BackE_cal[tele_i].resize(hinpchans);
+		AngleCorrE[tele_i].resize(hinpchans);
+		AngleCorr_noCorr[tele_i].resize(hinpchans);
+		AngleCorrE_R[tele_i].resize(hinpchans);
+		DeltaE_R[tele_i].resize(hinpchans);
+		DeltaElow_R[tele_i].resize(hinpchans);
+		DeltaTime_R[tele_i].resize(hinpchans);
+		DeltaE_cal[tele_i].resize(hinpchans);
+		AngleCorrDeltaE[tele_i].resize(hinpchans);
+		AngleCorrDeltaE_noCorr[tele_i].resize(hinpchans);
+		AngleCorrDeltaE_R[tele_i].resize(hinpchans);
+
+    for (size_t chan_i = 0; chan_i < hinpchans; chan_i++) {
 
       // Individual Front Energy
       dir1dFrontE_R->cd();
       name.str("");
-      name << "FrontE_R" << board_i << "_" << chan_i;
-      FrontE_R[board_i][chan_i] = new TH1I(name.str().c_str(),"",2048,0,8192);
+      name << "FrontE_R" << tele_i << "_" << chan_i;
+      FrontE_R[tele_i][chan_i] = new TH1I(name.str().c_str(),"",2048,0,8192);
 
       dir1dFrontlowE_R->cd();
       name.str("");
-      name << "FrontElow_R" << board_i << "_" << chan_i;
-      FrontElow_R[board_i][chan_i] = new TH1I(name.str().c_str(),"",1024,0,4095);
+      name << "FrontElow_R" << tele_i << "_" << chan_i;
+      FrontElow_R[tele_i][chan_i] = new TH1I(name.str().c_str(),"",1024,0,4095);
 
       dir1dFrontTime_R->cd();
       name.str("");
-      name << "FrontTime_R" << board_i << "_" << chan_i;
-      FrontTime_R[board_i][chan_i] = new TH1I(name.str().c_str(),"",1024,0,16383);
+      name << "FrontTime_R" << tele_i << "_" << chan_i;
+      FrontTime_R[tele_i][chan_i] = new TH1I(name.str().c_str(),"",1024,0,16383);
 
       dir1dFrontE_cal->cd();
       name.str("");
-      name << "FrontE_cal" << board_i << "_" << chan_i;
-      FrontE_cal[board_i][chan_i] = new TH1I(name.str().c_str(),"",Nbin,5,Ecal_Emax);
+      name << "FrontE_cal" << tele_i << "_" << chan_i;
+      FrontE_cal[tele_i][chan_i] = new TH1I(name.str().c_str(),"",Nbin,5,Ecal_Emax);
 
       // Individual Back Energy
       dir1dBackE_R->cd();
       name.str("");
-      name << "BackE_R" << board_i << "_" << chan_i;
-      BackE_R[board_i][chan_i] = new TH1I(name.str().c_str(),"",2048,0,8192);
+      name << "BackE_R" << tele_i << "_" << chan_i;
+      BackE_R[tele_i][chan_i] = new TH1I(name.str().c_str(),"",2048,0,8192);
 
       dir1dBacklowE_R->cd();
       name.str("");
-      name << "BackElow_R" << board_i << "_" << chan_i;
-      BackElow_R[board_i][chan_i] = new TH1I(name.str().c_str(),"",1024,0,4095);
+      name << "BackElow_R" << tele_i << "_" << chan_i;
+      BackElow_R[tele_i][chan_i] = new TH1I(name.str().c_str(),"",1024,0,4095);
 
       dir1dBackTime_R->cd();
       name.str("");
-      name << "BackTime_R" << board_i << "_" << chan_i;
-      BackTime_R[board_i][chan_i] = new TH1I(name.str().c_str(),"",1024,0,16383);
+      name << "BackTime_R" << tele_i << "_" << chan_i;
+      BackTime_R[tele_i][chan_i] = new TH1I(name.str().c_str(),"",1024,0,16383);
 
       dir1dBackE_cal->cd();
       name.str("");
-      name << "BackE_cal" << board_i << "_" << chan_i;
-      BackE_cal[board_i][chan_i] = new TH1I(name.str().c_str(),"",Nbin,0,Ecal_Emax);
+      name << "BackE_cal" << tele_i << "_" << chan_i;
+      BackE_cal[tele_i][chan_i] = new TH1I(name.str().c_str(),"",Nbin,0,Ecal_Emax);
 
       // Individual DeltaE
       dir1dDeltaE_R->cd();
       name.str("");
-      name << "DeltaE_R" << board_i << "_" << chan_i;
-      DeltaE_R[board_i][chan_i] = new TH1I(name.str().c_str(),"",1024,0,4095);
+      name << "DeltaE_R" << tele_i << "_" << chan_i;
+      DeltaE_R[tele_i][chan_i] = new TH1I(name.str().c_str(),"",1024,0,4095);
 
       dir1dDeltalowE_R->cd();
       name.str("");
-      name << "DeltaElow_R" << board_i << "_" << chan_i;
-      DeltaElow_R[board_i][chan_i] = new TH1I(name.str().c_str(),"",1024,0,4095);
+      name << "DeltaElow_R" << tele_i << "_" << chan_i;
+      DeltaElow_R[tele_i][chan_i] = new TH1I(name.str().c_str(),"",1024,0,4095);
 
       dir1dDeltaTime_R->cd();
       name.str("");
-      name << "DeltaTime_R" << board_i << "_" << chan_i;
-      DeltaTime_R[board_i][chan_i] = new TH1I(name.str().c_str(),"",1024,0,16383);
+      name << "DeltaTime_R" << tele_i << "_" << chan_i;
+      DeltaTime_R[tele_i][chan_i] = new TH1I(name.str().c_str(),"",1024,0,16383);
 
       dir1dDeltaE_cal->cd();
       name.str("");
-      name << "DeltaE_cal" << board_i << "_" << chan_i;
-      DeltaE_cal[board_i][chan_i] = new TH1I(name.str().c_str(),"",Nbin,0,Delta_Emax);
+      name << "DeltaE_cal" << tele_i << "_" << chan_i;
+      DeltaE_cal[tele_i][chan_i] = new TH1I(name.str().c_str(),"",Nbin,0,Delta_Emax);
 
       dirAngleCorrFrontE->cd();
       name.str("");
-      name << "AngleCorrFrontE" << board_i << "_" << chan_i;
-      AngleCorrE[board_i][chan_i] = new TH1I(name.str().c_str(),"",Nbin/3,5,Ecal_Emax);
+      name << "AngleCorrFrontE" << tele_i << "_" << chan_i;
+      AngleCorrE[tele_i][chan_i] = new TH1I(name.str().c_str(),"",Nbin/3,5,Ecal_Emax);
 
       dirAngleCorrDeltaE->cd();
       name.str("");
-      name << "AngleCorrDeltaE" << board_i << "_" << chan_i;
-      AngleCorrDeltaE[board_i][chan_i] = new TH1I(name.str().c_str(),"",Nbin/3,0,Delta_Emax);
-    }
-  }
+      name << "AngleCorrDeltaE" << tele_i << "_" << chan_i;
+      AngleCorrDeltaE[tele_i][chan_i] = new TH1I(name.str().c_str(),"",Nbin/3,0,Delta_Emax);
 
-  for (int board_i = 0; board_i < E_boardnum / 2; board_i++) {
-    for (int chan_i = 0; chan_i < channum; chan_i++) {
-      dirAngleCorrFrontE->cd();
+			// Angle corrected energies I think
+			dirAngleCorrFrontE->cd();
       name.str("");
-      name << "AngleCorrE_noCorr" << board_i << "_" << chan_i;
-      AngleCorr_noCorr[board_i][chan_i] = new TH1I(name.str().c_str(),"",Nbin/3,5,Ecal_Emax);
+      name << "AngleCorrE_noCorr" << tele_i << "_" << chan_i;
+      AngleCorr_noCorr[tele_i][chan_i] = new TH1I(name.str().c_str(),"",Nbin/3,5,Ecal_Emax);
 
       dirAngleCorrDeltaE->cd();
       name.str("");
-      name << "AngleCorrDeltaE_noCorr" << board_i << "_" << chan_i;
-      AngleCorrDeltaE_noCorr[board_i][chan_i] = new TH1I(name.str().c_str(),"",Nbin/3,0,Delta_Emax);
-    }
-  }
+      name << "AngleCorrDeltaE_noCorr" << tele_i << "_" << chan_i;
+      AngleCorrDeltaE_noCorr[tele_i][chan_i] = new TH1I(name.str().c_str(),"",Nbin/3,0,Delta_Emax);
 
-  for (int board_i = 0; board_i < E_boardnum / 2; board_i++) {
-    for (int chan_i = 0; chan_i < channum; chan_i++) {
-      dirAngleCorrFrontE->cd();
+			dirAngleCorrFrontE->cd();
       name.str("");
-      name << "AngleCorrE_R" << board_i << "_" << chan_i;
-      AngleCorrE_R[board_i][chan_i] = new TH1I(name.str().c_str(),"",2048,0,8192);
+      name << "AngleCorrE_R" << tele_i << "_" << chan_i;
+      AngleCorrE_R[tele_i][chan_i] = new TH1I(name.str().c_str(),"",2048,0,8192);
 
       dirAngleCorrDeltaE->cd();
       name.str("");
-      name << "AngleCorrDeltaE_R" << board_i << "_" << chan_i;
-      AngleCorrDeltaE_R[board_i][chan_i] = new TH1I(name.str().c_str(),"",2048,0,8192);
+      name << "AngleCorrDeltaE_R" << tele_i << "_" << chan_i;
+      AngleCorrDeltaE_R[tele_i][chan_i] = new TH1I(name.str().c_str(),"",2048,0,8192);
     }
   }
-
-	//Diamond detector plots
-	dirDiamond->cd();
-	DiamondQDC0 = new TH1I("DiamondQDC0","",1024,0,4192);
-	DiamondQDC0_cal = new TH1I("DiamondQDC0_cal","",625,0,25);
-	DiamondQDC1 = new TH1I("DiamondQDC1","",1024,0,4192);
-	DiamondQDC1_cal = new TH1I("DiamondQDC1_cal","",625,0,25);
-	
-	DiamondQDC0_tgate_orA = new TH1I("DiamondQDC0_tgate_orA","",1024,0,4192);
-	DiamondQDC0_tgate_orA_cal = new TH1I("DiamondQDC0_tgate_orA_cal","",625,0,25);	
-
-	DiamondQDC0_vs_torA = new TH2I("DiamondQDC0_vs_torA","",1024,0,4192,1000,-500,500);
-	DiamondQDC0_vs_torA_cal = new TH2I("DiamondQDC0_vs_torA_cal","",625,0,25,1000,-500,500);
-	
-	for (int i=0;i<4;i++) {
-		name.str("");
-		name << "Diamond_vs_GobbiEsum_" << i;
-		Diamond_vs_GobbiEsum[i] = new TH2I(name.str().c_str(),"",500,0,80,1024,0,4192);
-		
-		name.str("");
-		name << "Diamond_vs_GobbiEsum_cal_" << i;
-		Diamond_vs_GobbiEsum_cal[i] = new TH2I(name.str().c_str(),"",500,0,80,625,0,25);
-		
-		name.str("");
-		name << "Diamond_vs_GobbiEsum_torA_" << i;
-		Diamond_vs_GobbiEsum_torA[i] = new TH2I(name.str().c_str(),"",500,0,80,1024,0,4192);
-		
-		name.str("");
-		name << "Diamond_vs_GobbiEsum_torA_cal_" << i;
-		Diamond_vs_GobbiEsum_torA_cal[i] = new TH2I(name.str().c_str(),"",500,0,80,625,0,25);
-	}
 	
 	//TDC plots
 	dirTDC->cd();
@@ -306,8 +306,6 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f) {
   dirhitmaps->cd();
   xyhitmap_allE = new TH2I("xyhitmap_allE","", 100,-10,10,100,-10,10);
   xyhitmap = new TH2I("xyhitmap","", 100,-10,10,100,-10,10);
-  xyhitmap_EdEgate_1stEL = new TH2I("xyhitmap_EdEgate_1stEL","", 100,-10,10,100,-10,10);
-  xyhitmap_EdEgate_2ndEL = new TH2I("xyhitmap_EdEgate_2ndEL","", 100,-10,10,100,-10,10);
   xyhitmap_tgate_orA = new TH2I("xyhitmap_tgate_orA","", 100,-10,10,100,-10,10);
   protonhitmap = new TH2I("protonhitmap","", 100,-10,10,100,-10,10);
   deuteronhitmap = new TH2I("deuteronhitmap","", 100,-10,10,100,-10,10);
@@ -319,10 +317,6 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f) {
 
   hitmapof_p = new TH2I("hitmapof_p","", 100,-10,10,100,-10,10);
   hitmapof_6He = new TH2I("hitmapof_6He","", 100,-10,10,100,-10,10);
-  
- 	xyhitmap_DiamondELlow = new TH2I("xyhitmap_DiamondELlow","", 100,-10,10,100,-10,10);
-  xyhitmap_DiamondELpeak = new TH2I("xyhitmap_DiamondELpeak","", 100,-10,10,100,-10,10);
- 	xyhitmap_DiamondELhigh = new TH2I("xyhitmap_DiamondELhigh","", 100,-10,10,100,-10,10);
 
   Evstheta[0] = new TH2I("Evstheta0","",50,0,25,Nbin,0,Ecal_Emax);
   Evstheta[1] = new TH2I("Evstheta1","",50,0,25,Nbin,0,Ecal_Emax);
@@ -410,8 +404,6 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f) {
   
   Erel_6Li_da = new TH1I("Erel_6Li_da","",2000,0,15);
   Erel_6Li_da_tgate_orA = new TH1I("Erel_6Li_da_tgate_orA","",2000,0,15);
-  Erel_6Li_da_vsDiamond = new TH2I("Erel_6Li_da_vsDiamond","",2000,0,15, 1024,0,4096);
-  Erel_6Li_da_vsDiamond_tgate_orA = new TH2I("Erel_6Li_da_vsDiamond_tgate_orA","",2000,0,15, 1024,0,4096);
   Ex_6Li_da_trans = new TH1I("Ex_6Li_da_trans","",2000,-5,10);
   Ex_6Li_da_long = new TH1I("Ex_6Li_da_long","",2000,-5,10);
   Ex_6Li_da = new TH1I("Ex_6Li_da","",2000,-5,10);
@@ -431,25 +423,6 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f) {
 	react_origin_tdiff = new TH1I("react_origin_tdiff","",2000,-100,100);
 	
 	xyhitmap_6Li_plus = new TH2I("xyhitmap_6Li_plus","",100,-10,10,100,-10,10);
-	
-	sumDiamond_vs_GobbiEsum_cal_6Li_3plus = new TH2I("sumDiamond_vs_GobbiEsum_cal_6Li_3plus","",200,0,80,100,0,25);	
-	
-	sumDiamond_vs_GobbiEsum_cal_6Li_3plus_torA = new TH2I("sumDiamond_vs_GobbiEsum_cal_6Li_3plus_torA","",200,0,80,100,0,25);	
-
-	for (int i=0;i<4;i++) {
-		name.str("");
-		name << "Diamond_vs_GobbiEsum_cal_6Li_" << i;
-		Diamond_vs_GobbiEsum_cal_6Li[i] = new TH2I(name.str().c_str(),"",200,0,80,100,0,25);
-		
-		name.str("");
-		name << "Diamond_vs_GobbiEsum_cal_6Li_torA_" << i;
-		Diamond_vs_GobbiEsum_cal_6Li_torA[i] = new TH2I(name.str().c_str(),"",200,0,80,100,0,25);
-	}
-
-	Diamond_Ex_6Li = new TH1I("Diamond_Ex_6Li","",200,0,36);
-	Diamond_Ex_6Li_torA = new TH1I("Diamond_Ex_6Li_torA","",200,0,36);
-	Diamond_Ex_6Li_3plus = new TH1I("Diamond_Ex_6Li_3plus","",200,0,36);
-	Diamond_Ex_6Li_3plus_torA = new TH1I("Diamond_Ex_6Li_3plus_torA","",200,0,36);
 
   // Li7
 	// p + 6He

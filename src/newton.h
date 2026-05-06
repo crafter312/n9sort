@@ -19,5 +19,13 @@ class CNewton : public CKinematics
   float transformMomentum(float* mom,float* vreference,float energyTot,
     float*momNew);
   float gamma(float vel);
+
+	// Simple assignment operator
+	// Classes that store instances of this class can now use a default assignment operator
+	CNewton& operator=(const CNewton& other) { 
+		if (this == &other) return *this;
+		CKinematics::operator=(other);
+		return *this;
+	}
 };
 #endif 

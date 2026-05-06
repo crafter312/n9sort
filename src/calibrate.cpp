@@ -36,7 +36,7 @@ calibrate::calibrate(int Ntele0, int Nstrip0, string name, int order0, bool weav
 
   int itele,istrip;
   int board,chan;
-  float slope, intercept, a2,a3;
+  double slope, intercept, a2,a3;
   for(;;)
   {
     file >>  itele >> istrip >> slope >> intercept;
@@ -96,9 +96,9 @@ calibrate::~calibrate()
 \param istrip - number of the strip or detector
 \param channel - raw channels from the ADC, etc
   */
-float calibrate::getEnergy(int itele,int istrip,float channel)
+double calibrate::getEnergy(int itele,int istrip,double channel)
 {
-  float fact = channel*Coeff[itele][istrip].slope + Coeff[itele][istrip].intercept;
+  double fact = channel*Coeff[itele][istrip].slope + Coeff[itele][istrip].intercept;
   if (order == 1) return fact;
 
   fact += pow(channel,2)*Coeff[itele][istrip].a2;
@@ -107,14 +107,14 @@ float calibrate::getEnergy(int itele,int istrip,float channel)
   else abort();
 }
 
-float calibrate::getTime(int itele,int istrip,float channel)
+double calibrate::getTime(int itele,int istrip,double channel)
 {
   return channel + Coeff[itele][istrip].intercept;
 }
 
 
-float calibrate::reverseCal(int itele, int istrip, float energy)
+double calibrate::reverseCal(int itele, int istrip, double energy)
 {
-  float fact = (energy - Coeff[itele][istrip].intercept)/Coeff[itele][istrip].slope;
+  double fact = (energy - Coeff[itele][istrip].intercept)/Coeff[itele][istrip].slope;
   return fact;
 }

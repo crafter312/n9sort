@@ -48,8 +48,8 @@ public:
 	parType Li9{3, 9, parType::detType::Gobbi};
 	parType Be7{4, 7, parType::detType::Gobbi};
 	parType Be9{4, 9, parType::detType::Gobbi};
-	std::vector<parType*> particle{&neutron, &proton, &H2, &H3, &H3_fake, &He3, &alpha, &He6, &Li6, &Li7, &Li8, &Li9, &Be7, &Be9};
-	size_t Nparticles{particle.size()};
+	const std::vector<parType*> particle{&neutron, &proton, &H2, &H3, &H3_fake, &He3, &alpha, &He6, &Li6, &Li7, &Li8, &Li9, &Be7, &Be9};
+	const size_t Nparticles{particle.size()};
 
 	// Various kinematic values
 	float Vcmframevector[3];

@@ -24,6 +24,7 @@
 
 #include "calibrate.h"
 #include "correl2.h"
+#include "Gobbi.h"
 #include "histo.h"
 #include "Input.h"
 #include "silicon.h"
@@ -38,11 +39,10 @@
 class Det {
 
 public:
-	Det(Input& in, histo& hist, SortConfig& config, int run);
+	Det(Input& in, histo& hist, SortConfig& config, size_t run);
 	~Det();
 
-	bool analyze();
-	int match();
+	void analyze();
 
 	float getEnergy(int board, int chan, int Ehigh);
 
@@ -79,40 +79,18 @@ public:
 	std::unique_ptr<wood> Li7_ta_fake; // missing the p
 	std::unique_ptr<wood> B9_paa;
 
-	double Targetdist;
-	float TargetThickness;
-
-	double** slopes;
-	double** intercepts;
-
 	histo& Histo;
-	calibrate* FrontEcal;
-	calibrate* BackEcal;
-	calibrate* DeltaEcal;
-	calibrate* FrontTimecal;
-	calibrate* BackTimecal;
-	calibrate* DeltaTimecal;
-
-	calibrate* DiamondEcal{nullptr};
-
-	silicon* Silicon[4];
+	Gobbi gobbi;
 	correl2 Correl;
 
-	int counter = 0;
-	int counter2 = 0;
-
-	correl2 Correl_saved;
-	int passnum = 0;
-	solution* swapfrag;
-	solution* oldfrag;
+	double Targetdist;      // cm
+	double TargetThickness; // mg/cm^2
+	size_t hinpboards;      // total number of HINP boards used
+	size_t hinpchans;       // number of channels per HINP board (should always be 32)
+	size_t runnum;
 	
-	std::vector<float> diamond_Ecal;
-	
-	int runnum;
-	int diamond_calch = -1;
-	
-	//Record particle combinations, start with most important
-	int a_p = 0;
+	// Record particle combinations, start with most important
+	size_t a_p{0};
 
 private:
 	const Input::GobbiInput& input;

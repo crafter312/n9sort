@@ -40,6 +40,10 @@ int main() {
 
 	// Capture the start time
 	auto start = chrono::high_resolution_clock::now();
+
+#ifndef rel
+	cout << "WARNING: compile time variable `rel` not defined, using Newtonian mechanics" << endl;
+#endif
 	
 	// Load config file for sort code
 	SortConfig sortConfig("../config/sort.config");
@@ -59,7 +63,7 @@ int main() {
 	ROOT::EnableImplicitMT(nthreads);
 	
 	// Initialize some variables up here so that they are accessible inside the lambda function
-	int runnum;
+	size_t runnum;
 	size_t numentries = 0;
 	
 	// Counters for certain particle combinations, using atomic to be thread-safe
@@ -81,7 +85,7 @@ int main() {
 		const char* otname = sortConfig.GetOtreeName().c_str();
 
 		// Initialize analysis classes
-		histo Histo(f);
+		histo Histo(f, sortConfig);
 		Det det(input, Histo, sortConfig, runnum);
 		
 		// Thread-local event loop

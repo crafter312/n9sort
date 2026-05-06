@@ -11,17 +11,24 @@
 class CEinstein : public CKinematics
 {
  public:
-  float const c;
-  float const nMass;
-  float const scale;
+  double const c;
+  double const nMass;
+  double const scale;
   CEinstein();
-  //void AddVelocities(float*, float*, float, float*);
-  //void FindCenterOfMass(float* , float, float*, float);
-  //float getVelocity(float,float);
-  float getMomentum(float eKin,float mass);
-  float getKE(float pc,float mass);
-  float transformMomentum(float* mom,float* vreference,float energyTot,
-    float*momNew);
-  float gamma(float vel);
+  //void AddVelocities(double*, double*, double, double*);
+  //void FindCenterOfMass(double* , double, double*, double);
+  //double getVelocity(double,double);
+  double getMomentum(double eKin, double mass);
+  double getKE(double pc, double mass);
+  double transformMomentum(double* mom, double* vreference, double energyTot, double* momNew);
+  double gamma(double vel);
+
+	// Simple assignment operator
+	// Classes that store instances of this class can now use a default assignment operator
+	CEinstein& operator=(const CEinstein& other) { 
+		if (this == &other) return *this;
+		CKinematics::operator=(other);
+		return *this;
+	}
 };
 #endif 

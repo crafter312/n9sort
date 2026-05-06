@@ -5,16 +5,16 @@ using namespace std;
 CEinstein::CEinstein():c(30.),nMass(931.478),scale(1.),CKinematics() {} 
 
 //*********************************************************
-float CEinstein::getMomentum(float eKin, float mass)
+double CEinstein::getMomentum(double eKin, double mass)
 {
-  float pc = sqrt(pow(eKin+mass,2) - pow(mass,2));
+  double pc = sqrt(pow(eKin+mass,2) - pow(mass,2));
   return pc;
 }
 
 //*********************************************************
-float CEinstein::getKE(float pc, float mass)
+double CEinstein::getKE(double pc, double mass)
 {
-  float ek = sqrt(pow(pc,2) + pow(mass,2))-mass;
+  double ek = sqrt(pow(pc,2) + pow(mass,2))-mass;
   return ek;
 }
 //********************************************************
@@ -22,16 +22,16 @@ float CEinstein::getKE(float pc, float mass)
    *transform a momentum vector to new frame
    * and returns the new kinetic energy in MeV
    */
-float CEinstein::transformMomentum(float* mom, float *Vreference, 
-				  float energyTot, float* momNew)
+double CEinstein::transformMomentum(double* mom, double *Vreference, 
+				  double energyTot, double* momNew)
 {
 
   //find momentum parallel and perpendicular to transfrom velocity
-  float dot = 0.;
-  float VVreference = 0.;
-  float perp[3];
-  float para[3];
-  float paraOld = 0.;
+  double dot = 0.;
+  double VVreference = 0.;
+  double perp[3];
+  double para[3];
+  double paraOld = 0.;
   for (int i=0;i<3;i++) 
   {
     dot += mom[i]*Vreference[i];
@@ -50,8 +50,8 @@ float CEinstein::transformMomentum(float* mom, float *Vreference,
   VVreference = sqrt(VVreference); // magnidtiude of velocity shift
 
   //transform parallel component
-  float gamma = 1./sqrt(1-pow(VVreference/c,2));
-  float paraNew = (paraOld - energyTot*VVreference/c)*gamma;
+  double gamma = 1./sqrt(1-pow(VVreference/c,2));
+  double paraNew = (paraOld - energyTot*VVreference/c)*gamma;
 
   // add perpendicular and new parallel components
   for (int j=0;j<3;j++)
@@ -60,7 +60,7 @@ float CEinstein::transformMomentum(float* mom, float *Vreference,
   }
 
 
-  float energyTotNew = gamma*(energyTot - VVreference*paraOld/c);
+  double energyTotNew = gamma*(energyTot - VVreference*paraOld/c);
   //cout << gamma << " " << energyTot << " " << VVreference << " " << paraOld << endl;
   //cout << mom[0] << " " << mom[1] << " " << mom[2] << endl;
   //cout << Vreference[0] << " " << Vreference[1] << " " << Vreference[1] << endl;
@@ -68,7 +68,7 @@ float CEinstein::transformMomentum(float* mom, float *Vreference,
   return energyTotNew;
 }
 //**************************************************
-float CEinstein::gamma(float vel)
+double CEinstein::gamma(double vel)
 {
   return 1./sqrt(1-pow(vel/c,2));
 }

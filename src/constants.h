@@ -32,8 +32,10 @@
 
 const double m0 = 931.478;
 const double c = 30.;
-const double vfact = c/sqrt(m0);  // velocity (cm/ns) = vfact *sqrt(2.*E(MeV)/A(amu))
+const double vfact = c/sqrt(m0);  // velocity (cm/ns) = vfact * sqrt(2. * E(MeV)/A(amu))
 const double pi = acos(-1.);
+const double deg_to_rad = pi/180;
+const double rad_to_deg = 180/pi;
 
 // Masses excesses from AME2016 compilation
 const double mass_n = 8.07132;
@@ -195,5 +197,11 @@ const std::unordered_map<std::pair<size_t, size_t>, double, pair_hash> Mass_look
             default: return "[Unknown " BOOST_PP_STRINGIZE(name) "]";         \
         }                                                                     \
     }
+
+// Helper to force values into size_t pairs
+template<typename T1, typename T2>
+constexpr std::pair<size_t, size_t> sz_pair(T1 z, T2 a) {
+    return { static_cast<size_t>(z), static_cast<size_t>(a) };
+}
 
 #endif
