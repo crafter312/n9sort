@@ -3,7 +3,7 @@
  * code than the code I started with.
  */
 
-#include "Gobbi.h"
+#include "OldGobbi.h"
 
 #include <stdexcept>
 #include <string>
@@ -16,7 +16,7 @@ using namespace std;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-Gobbi::Gobbi(Input& in, histo& hist, SortConfig& config) : Targetdist(config.GetTargDist()), TargetThickness(config.GetTargThick()), hinpboards(config.GetHinpboards()), hinpchans(config.GetHinpchans()), Histo(hist), input(in.GetGobbi()), input_tdc(in.GetTDC()) {
+OldGobbi::OldGobbi(Input& in, histo& hist, SortConfig& config) : Targetdist(config.GetTargDist()), TargetThickness(config.GetTargThick()), hinpboards(config.GetHinpboards()), hinpchans(config.GetHinpchans()), Histo(hist), input(in.GetGobbi()), input_tdc(in.GetTDC()) {
 	for (size_t id = 0; id < 4; id++) {
 		Silicon[id] = new silicon(TargetThickness, config);
 		Silicon[id]->init(id, config); // tells Silicon what position it is in
@@ -34,7 +34,7 @@ Gobbi::Gobbi(Input& in, histo& hist, SortConfig& config) : Targetdist(config.Get
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-Gobbi::~Gobbi() {
+OldGobbi::~OldGobbi() {
 	delete FrontEcal;
 	delete BackEcal;
 	delete DeltaEcal;
@@ -46,7 +46,7 @@ Gobbi::~Gobbi() {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void Gobbi::analyze() {
+void OldGobbi::analyze() {
 
 	// Reset member variables
 	for (size_t i = 0; i < 4; i++) Silicon[i]->reset();
@@ -258,7 +258,7 @@ void Gobbi::analyze() {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-size_t Gobbi::loadSolutions(correl2& Correl) {
+size_t OldGobbi::loadSolutions(correl2& Correl) {
 	size_t goodMult = 0;
 	for (size_t id = 0; id < 4; id++) {
 		for (size_t isol = 0; isol < Silicon[id]->Nsolution; isol++) {
@@ -277,7 +277,7 @@ size_t Gobbi::loadSolutions(correl2& Correl) {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-solution* Gobbi::getNextEmptySolution(solution* sol) {
+solution* OldGobbi::getNextEmptySolution(solution* sol) {
 	bool foundEmptySolution = false;
 	for (size_t id = 0; id < 4; id++) {
 		silicon* s = Silicon[id];
@@ -296,13 +296,13 @@ solution* Gobbi::getNextEmptySolution(solution* sol) {
 // Pass through function for use with extra calculations external to this
 // Gobbi class. All silicon losses should be the same, so just use the first
 // one.
-float Gobbi::getEin(float energy, float thick, int Z, float A) {
+float OldGobbi::getEin(float energy, float thick, int Z, float A) {
 	return Silicon[0]->losses->getEin(energy, thick, Z, A);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void Gobbi::addFrontHit(size_t tel, size_t ch, size_t i) {
+void OldGobbi::addFrontHit(size_t tel, size_t ch, size_t i) {
 	size_t ER = input.GetE(i);
 	size_t tR = input.GetT(i);
 	size_t ELoR = input.GetELo(i);
@@ -331,7 +331,7 @@ void Gobbi::addFrontHit(size_t tel, size_t ch, size_t i) {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void Gobbi::addBackHit(size_t tel, size_t ch, size_t i) {
+void OldGobbi::addBackHit(size_t tel, size_t ch, size_t i) {
 	size_t ER = input.GetE(i);
 	size_t tR = input.GetT(i);
 	size_t ELoR = input.GetELo(i);
@@ -356,7 +356,7 @@ void Gobbi::addBackHit(size_t tel, size_t ch, size_t i) {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void Gobbi::addDeltaHit(size_t tel, size_t ch, size_t i) {
+void OldGobbi::addDeltaHit(size_t tel, size_t ch, size_t i) {
 	size_t ER = input.GetE(i);
 	size_t tR = input.GetT(i);
 	size_t ELoR = input.GetELo(i);

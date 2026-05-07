@@ -24,7 +24,7 @@
 
 #include "calibrate.h"
 #include "correl2.h"
-#include "Gobbi.h"
+#include "OldGobbi.h"
 #include "histo.h"
 #include "Input.h"
 #include "silicon.h"
@@ -84,7 +84,7 @@ public:
 	std::unique_ptr<wood> N9_5pa;
 
 	histo& Histo;
-	Gobbi gobbi;
+	OldGobbi gobbi;
 	correl2 Correl;
 
 	double Targetdist;      // cm

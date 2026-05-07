@@ -1,5 +1,5 @@
-#ifndef Gobbi_H
-#define Gobbi_H
+#ifndef OldGobbi_H
+#define OldGobbi_H
 
 /* Split off from `Det` (previously `Gobbi`) by Henry Webb (h.s.webb@wustl.edu)
  * 4 May 2026 to match other, newer versions of the Wash U radiochemistry sort
@@ -13,11 +13,11 @@
 #include "silicon.h"
 #include "solution.h"
 
-class Gobbi {
+class OldGobbi {
 
 public:
-	Gobbi(Input& in, histo& hist, SortConfig& config);
-	~Gobbi();
+	OldGobbi(Input& in, histo& hist, SortConfig& config);
+	~OldGobbi();
 
 	void analyze();
 	size_t loadSolutions(correl2& Correl);

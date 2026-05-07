@@ -25,7 +25,7 @@ set(CMAKE_INSTALL_LIBDIR ${PROJECT_BINARY_DIR}/lib)
 add_definitions(-Drel=true)
 
 # Set project sources
-set(SOURCES SortConfig.cpp Det.cpp Gobbi.cpp wood.cpp histo.cpp HINP.cpp silicon.cpp elist.cpp solution.cpp pid.cpp ZApar.cpp einstein.cpp losses.cpp loss2.cpp correl2.cpp parType.cpp calibrate.cpp Input.cpp)
+set(SOURCES SortConfig.cpp Det.cpp OldGobbi.cpp wood.cpp histo.cpp HINP.cpp silicon.cpp elist.cpp solution.cpp pid.cpp ZApar.cpp einstein.cpp losses.cpp loss2.cpp correl2.cpp parType.cpp calibrate.cpp Input.cpp)
 set(LIBHEADERS parType.h wood.h)
 
 list(TRANSFORM SOURCES PREPEND ${SRC}/)
