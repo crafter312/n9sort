@@ -58,6 +58,8 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, SortConfig& config) : hinpbo
   dir7Be = dirInvMass->mkdir("7Be","7Be");
   dir8Be = dirInvMass->mkdir("8Be","8Be");
   dir9B  = dirInvMass->mkdir("9B","9B");
+	dir8C  = dirInvMass->mkdir("8C","8C");
+	dir9N  = dirInvMass->mkdir("9N","9N");
 
   dirSummary->cd();
 
@@ -547,6 +549,12 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, SortConfig& config) : hinpbo
 	Ex_8C_4pa = new TH1I("Ex_8C_4pa","",800,-2,15);
 	ThetaCM_8C_4pa = new TH1I("ThetaCM_8C_4pa","",200,0,10);
 	VCM_8C_4pa = new TH1I("VCM_8C_4pa","",100,0,14);
+
+	// N9
+	dir9N->cd();
+	Erel_9N_5pa = new TH1I("Erel_9N_5pa","",800,0,17);
+	ThetaCM_9N_5pa = new TH1I("ThetaCM_9N_5pa","",200,0,10);
+	VCM_9N_5pa = new TH1I("VCM_9N_5pa","",100,0,14);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

@@ -111,6 +111,14 @@ Det::Det(Input& in, histo& hist, SortConfig& config, size_t run) : input(in.GetG
 	Correl.proton.mask[3]=1;
 	Correl.alpha.mask[0]=1;
 	C8_4pa = make_unique<wood>(Correl, "t_C8_4pa", Histo.dir8C, false);
+	Correl.zeroMask();
+	Correl.proton.mask[0]=1;
+	Correl.proton.mask[1]=1;
+	Correl.proton.mask[2]=1;
+	Correl.proton.mask[3]=1;
+	Correl.proton.mask[4]=1;
+	Correl.alpha.mask[0]=1;
+	N9_5pa = make_unique<wood>(Correl, "t_N9_5pa", Histo.dir9N, false);
 
 	Correl.zeroMask();
 }
@@ -422,9 +430,13 @@ void Det::corr_6Li() {
 		// Reconstructing a+d as a+t, maybe to see if a triton was missidentified
 		// as a deuteron or something?
 
-		solution* fakesol = gobbi.getNextEmptySolution(Correl.H2.Sol[0]); // this gets a solution we know is not being used
-		*fakesol = *(Correl.H2.Sol[0]);                                   // make sure to copy deuteron's information to this new solution
-    fakesol->iA = 3;                                                  // whoops the copied deuteron is now a triton
+		solution* fakesol = gobbi.getNextEmptySolution(Correl.H2.Sol[0]);                  // this gets a solution we know is not being used
+		if (fakesol == nullptr) {                                                          // this should never trigger, but handle nullptr case to be safe
+			cout << "WARNING: next empty solution not found! Skipping bad 7Li..." << endl;
+			return;
+		}
+		*fakesol = *(Correl.H2.Sol[0]);                                                    // make sure to copy deuteron's information to this new solution
+    fakesol->iA = 3;                                                                   // whoops the copied deuteron is now a triton
     fakesol->mass = Mass_t;
 
     // Now we should redo energy loss calc          
@@ -776,6 +788,34 @@ void Det::corr_8C() {
     Histo.Ex_8C_4pa->Fill(Ex);
     Histo.ThetaCM_8C_4pa->Fill(thetaCM);
     Histo.VCM_8C_4pa->Fill(Vcm);
+	}
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void Det::corr_9N() {
+	// p+p+p+p+p+a
+	if (Correl.proton.mult == 5 && Correl.alpha.mult == 1) {
+		Correl.zeroMask();
+		Correl.proton.mask[0]=1;
+		Correl.proton.mask[1]=1;
+		Correl.proton.mask[2]=1;
+		Correl.proton.mask[3]=1;
+		Correl.proton.mask[4]=1;
+		Correl.alpha.mask[0]=1;
+		Correl.makeArray(1, *N9_5pa);
+
+		float Erel_9N = Correl.findErel();
+		float Vcm = Correl.velocityCM;
+    float thetaCM = Correl.thetaCM*rad_to_deg;
+    float cos_thetaH = Correl.cos_thetaH;
+
+		// No mass excess for 9N, so no Q value and no excitation energy
+		C8_4pa->Fill(Erel_9N, -1, Vcm, thetaCM, cos_thetaH, runnum, 8);
+
+    Histo.Erel_9N_5pa->Fill(Erel_9N);
+    Histo.ThetaCM_9N_5pa->Fill(thetaCM);
+    Histo.VCM_9N_5pa->Fill(Vcm);
 	}
 }
 

@@ -278,15 +278,17 @@ size_t Gobbi::loadSolutions(correl2& Correl) {
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 solution* Gobbi::getNextEmptySolution(solution* sol) {
+	bool foundEmptySolution = false;
 	for (size_t id = 0; id < 4; id++) {
 		silicon* s = Silicon[id];
 		for (size_t isol = 0; isol < s->Nsolution; isol++) {
 			if (s->Solution[isol].ipid != sol->ipid) continue;
 			else if (s->Nsolution >= 20)
-				throw invalid_argument("WARNING: max solutions reached, cannot get next empty solution");
-			else return &(s->Solution[s->Nsolution]);
+				throw invalid_argument("ERROR: max solutions reached, cannot get next empty solution");
+			return &(s->Solution[s->Nsolution]);
 		}
 	}
+	return nullptr;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
