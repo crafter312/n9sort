@@ -23,10 +23,9 @@
 #include <utility>
 #include <vector>
 
-#include <ROOT/TBufferMerger.hxx>
-#include <ROOT/TTreeProcessorMT.hxx>
 #include <TFile.h>
 #include <TTree.h>
+#include <TTreeReader.h>
 
 #include "constants.h"
 #include "Det.h"
@@ -50,74 +49,19 @@ int main() {
 	
 	// Setup for multi-threaded progress bar
 	const size_t updateRate = sortConfig.GetUpdateRate();
-	std::atomic<long long> globalProcessed{0};
-	mutex consoleMutex; // To prevent text scrambling
+	long long globalProcessed{0};
 
-	// Create the TBufferMerger: this class orchestrates the parallel writing to an output ROOT file
+	// Create output file
 	string ofname = sortConfig.GetOutputDir() + sortConfig.GetOfileName();
-	ROOT::TBufferMerger merger(ofname.c_str(), "RECREATE");
+	TFile ofile(ofname.c_str(), "RECREATE");
 	cout << GREEN << "Output file: " << ofname << RESET << endl;
-
-	// Enable implicit multi-threading
-	int nthreads = 4;
-	ROOT::EnableImplicitMT(nthreads);
 	
 	// Initialize some variables up here so that they are accessible inside the lambda function
 	size_t runnum;
 	size_t numentries = 0;
 	
-	// Counters for certain particle combinations, using atomic to be thread-safe
-	// Start with 6Li -> npa
-	atomic<size_t> count_ap;
-	
-	/******** EVENT PROCESSING LAMBDA FUNCTION ********/
-	
-	// Define the function that will process a subrange of the tree.
-	// The function must receive only one parameter, a TTreeReader,
-	// and it must be thread safe. To enforce the latter requirement,
-	// TBufferMerger::GetFile will be used for the output file.
-	auto f = [&](TTreeReader &reader) {
-		Input input(reader);
-
-		// Output using thread safe file
-		auto f = merger.GetFile();
-
-		const char* otname = sortConfig.GetOtreeName().c_str();
-
-		// Initialize analysis classes
-		histo Histo(f, sortConfig);
-		Det det(input, Histo, sortConfig, runnum);
-		
-		// Thread-local event loop
-		size_t localCounter = 0;
-		while (reader.Next()) {
-
-			// First, take input file from SpecTcl and refactor into usable hit list format
-			input.ReadAndRefactor();
-			
-			// Perform analysis
-			det.analyze();
-			
-			// Finalize per-event output, if any
-			Histo.Fill();
-			
-			// Handle progress bar
-			localCounter++;
-			if (localCounter >= updateRate) {
-				long long total = globalProcessed.fetch_add(localCounter);
-				lock_guard<mutex> lock(consoleMutex);
-				long double percentage = (long double)total / numentries * 100.0;
-				cout << "\r[ " << setw(7) << fixed << setprecision(4) 
-				     << percentage << "% ] Processing entries..." << setw(10) << " " << flush;
-
-				localCounter = 0;
-			}
-		}
-
-		// Adding counters here that will tick up for different particle combinations
-		// All counters should be of type atomic<> for thread safety
-		count_ap += det.a_p;
-	};
+	// Counters for certain particle combinations
+	size_t count_ap;
 	
 	/******** RUN NUMBER LOOP ********/
 
@@ -182,10 +126,45 @@ int main() {
 		cout << "Processing TTree in file: " << datastring.str() << " (" << numentries_singlefile << ")" << endl;
 
 		// Create a TTreeProcessorMT: this class orchestrates the parallel processing of an input tree
-		ROOT::TTreeProcessorMT tp(datastring.str().c_str(), itname.c_str());
+		TTreeReader ttr(datastring.str().c_str(), itname.c_str());
+		
+		Input input(ttr);
 
-		// Execute multi-threaded tree processing
-		tp.Process(f);
+		const char* otname = sortConfig.GetOtreeName().c_str();
+
+		// Initialize analysis classes
+		histo Histo(&ofile, sortConfig);
+		Det det(input, Histo, sortConfig, runnum);
+		
+		// Thread-local event loop
+		size_t localCounter = 0;
+		while (reader.Next()) {
+
+			// First, take input file from SpecTcl and refactor into usable hit list format
+			input.ReadAndRefactor();
+			
+			// Perform analysis
+			det.analyze();
+			
+			// Finalize per-event output, if any
+			Histo.Fill();
+			
+			// Handle progress bar
+			localCounter++;
+			if (localCounter >= updateRate) {
+				globalProcessed += localCounter;
+				long double percentage = (long double)globalProcessed / numentries * 100.0;
+				cout << "\r[ " << setw(7) << fixed << setprecision(4) 
+				     << percentage << "% ] Processing entries..." << setw(10) << " " << flush;
+
+				localCounter = 0;
+			}
+		}
+
+		// Adding counters here that will tick up for different particle combinations
+		// All counters should be of type atomic<> for thread safety
+		count_ap += det.a_p;
+		
 		cout << endl;
 	}
 

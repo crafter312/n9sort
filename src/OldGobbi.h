@@ -10,8 +10,8 @@
 #include "correl2.h"
 #include "histo.h"
 #include "Input.h"
-#include "silicon.h"
 #include "solution.h"
+#include "telescope.h"
 
 class OldGobbi {
 
@@ -35,7 +35,7 @@ private:
 	const Input::GobbiInput& input;
 	const Input::TDCInput& input_tdc;
 
-	silicon* Silicon[4];
+	telescope* Telescope[4];
 
 	calibrate* FrontEcal;
 	calibrate* BackEcal;

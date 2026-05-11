@@ -1,7 +1,6 @@
 #ifndef histo_
 #define histo_
 
-#include <ROOT/TBufferMerger.hxx>
 #include <TF1.h>
 #include <TFile.h>
 #include <TGraph.h>
@@ -24,11 +23,11 @@ class histo {
 
 private:
 
-	std::shared_ptr<ROOT::TBufferMergerFile> file_read; // thread-safe output ROOT file pointer
+	TFile* file_read;
 
 public:
 
-	histo(std::shared_ptr<ROOT::TBufferMergerFile>, SortConfig& config);
+	histo(TFile* ofile, SortConfig& config);
 	~histo();
 
 	// Global tree for storing pre-solution variables

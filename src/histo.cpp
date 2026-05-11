@@ -6,8 +6,8 @@ using namespace std;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, SortConfig& config) : hinpboards(config.GetHinpboards()), hinpchans(config.GetHinpchans()) {
-  file_read = f;
+histo::histo(TFile* ofile, SortConfig& config) : hinpboards(config.GetHinpboards()), hinpchans(config.GetHinpchans()) {
+  file_read = ofile;
   file_read->cd();
 
   // Create global tree for storing pre-solution variables
