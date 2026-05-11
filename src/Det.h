@@ -27,9 +27,9 @@
 #include "OldGobbi.h"
 #include "histo.h"
 #include "Input.h"
-#include "silicon.h"
 #include "solution.h"
 #include "SortConfig.h"
+#include "telescope.h"
 #include "wood.h"
 
 #include <iostream>

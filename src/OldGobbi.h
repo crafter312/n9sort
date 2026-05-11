@@ -10,8 +10,8 @@
 #include "correl2.h"
 #include "histo.h"
 #include "Input.h"
-#include "silicon.h"
 #include "solution.h"
+#include "telescope.h"
 
 class OldGobbi {
 

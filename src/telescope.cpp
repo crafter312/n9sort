@@ -3,7 +3,7 @@
  * to look more pretty (among other small modifications)
  */
 
-#include "silicon.h"
+#include "telescope.h"
 
 #include <utility>
 
