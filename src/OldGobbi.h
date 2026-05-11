@@ -35,7 +35,7 @@ private:
 	const Input::GobbiInput& input;
 	const Input::TDCInput& input_tdc;
 
-	silicon* Silicon[4];
+	telescope* Telescope[4];
 
 	calibrate* FrontEcal;
 	calibrate* BackEcal;

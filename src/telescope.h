@@ -1,5 +1,5 @@
-#ifndef _silicon
-#define _silicon
+#ifndef _telescope
+#define _telescope
 
 #include <string>
 #include <sstream>
@@ -25,11 +25,11 @@ struct lines
 };
 */
 
-class silicon
+class telescope
 {
  public:
-  silicon(double, SortConfig&);
-  ~silicon();
+  telescope(double, SortConfig&);
+  ~telescope();
   void reset();
   void init(int, SortConfig&);
   void Reduce();

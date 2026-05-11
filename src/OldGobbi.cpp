@@ -18,9 +18,9 @@ using namespace std;
 
 OldGobbi::OldGobbi(Input& in, histo& hist, SortConfig& config) : Targetdist(config.GetTargDist()), TargetThickness(config.GetTargThick()), hinpboards(config.GetHinpboards()), hinpchans(config.GetHinpchans()), Histo(hist), input(in.GetGobbi()), input_tdc(in.GetTDC()) {
 	for (size_t id = 0; id < 4; id++) {
-		Silicon[id] = new silicon(TargetThickness, config);
-		Silicon[id]->init(id, config); // tells Silicon what position it is in
-		Silicon[id]->SetTargetDistance(Targetdist);
+		Telescope[id] = new telescope(TargetThickness, config);
+		Telescope[id]->init(id, config); // tells Telescope what position it is in
+		Telescope[id]->SetTargetDistance(Targetdist);
 	}
 
 	string calDir = config.GetCalDir();
@@ -41,7 +41,7 @@ OldGobbi::~OldGobbi() {
 	delete FrontTimecal;
 	delete BackTimecal;
 	delete DeltaTimecal;
-	for (int i = 0; i < 4; i++) delete Silicon[i];
+	for (int i = 0; i < 4; i++) delete Telescope[i];
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -49,9 +49,9 @@ OldGobbi::~OldGobbi() {
 void OldGobbi::analyze() {
 
 	// Reset member variables
-	for (size_t i = 0; i < 4; i++) Silicon[i]->reset();
+	for (size_t i = 0; i < 4; i++) Telescope[i]->reset();
 
-	// Loop through hits, store in Silicon array and output to Histo
+	// Loop through hits, store in Telescope array and output to Histo
 	size_t nhits = input.GetNhits();
 	for (size_t i = 0; i < nhits; i++) {
 		size_t board = input.GetBoard(i);
@@ -64,7 +64,7 @@ void OldGobbi::analyze() {
 			return;
 		}
 		
-		//Use calibration to get Energy and fill elist class in silicon
+		//Use calibration to get Energy and fill elist class in telescope
 		if (board == 1 || board == 3 || board == 5 || board == 7)
 			addFrontHit((board - 1) / 2, chan, i);
 		else if (board == 2 || board == 4 || board == 6 || board == 8)
@@ -84,67 +84,67 @@ void OldGobbi::analyze() {
 	size_t Pidmulti = 0;
 	for (size_t id = 0; id < 4; id++) {
 
-		// This is the spot where we run Silicon->Neighbours() for addback
-		Silicon[id]->Front.Neighbours(id);
-		Silicon[id]->Back.Neighbours(id);
-		Silicon[id]->Delta.Neighbours(id);
+		// This is the spot where we run Telescope->Neighbours() for addback
+		Telescope[id]->Front.Neighbours(id);
+		Telescope[id]->Back.Neighbours(id);
+		Telescope[id]->Delta.Neighbours(id);
 
 		// Then fill summary histograms after addback
-		for (size_t n = 0; n < Silicon[id]->Front.Nstore; n++) {
-			sumchan = id*hinpchans + Silicon[id]->Front.Order[n].strip;
-			Histo.sumFrontE_addback->Fill(sumchan, Silicon[id]->Front.Order[n].energy);
+		for (size_t n = 0; n < Telescope[id]->Front.Nstore; n++) {
+			sumchan = id*hinpchans + Telescope[id]->Front.Order[n].strip;
+			Histo.sumFrontE_addback->Fill(sumchan, Telescope[id]->Front.Order[n].energy);
 		}
-		for (size_t n = 0; n < Silicon[id]->Back.Nstore; n++) {
-			sumchan = id*hinpchans + Silicon[id]->Back.Order[n].strip;
-			Histo.sumBackE_addback->Fill(sumchan, Silicon[id]->Back.Order[n].energy);
+		for (size_t n = 0; n < Telescope[id]->Back.Nstore; n++) {
+			sumchan = id*hinpchans + Telescope[id]->Back.Order[n].strip;
+			Histo.sumBackE_addback->Fill(sumchan, Telescope[id]->Back.Order[n].energy);
 		}
-		for (size_t n = 0; n < Silicon[id]->Delta.Nstore; n++) {
-			sumchan = id*hinpchans + Silicon[id]->Delta.Order[n].strip;
-			Histo.sumDeltaE_addback->Fill(sumchan, Silicon[id]->Delta.Order[n].energy);
+		for (size_t n = 0; n < Telescope[id]->Delta.Nstore; n++) {
+			sumchan = id*hinpchans + Telescope[id]->Delta.Order[n].strip;
+			Histo.sumDeltaE_addback->Fill(sumchan, Telescope[id]->Delta.Order[n].energy);
 		}
 
 		// Handle simple case of single strip multiplicity
 		bool isSimple = false;
-		if (Silicon[id]->Front.Nstore == 1 && Silicon[id]->Delta.Nstore == 1) {
-			Histo.frontdeltastripnum[id]->Fill(Silicon[id]->Front.Order[0].strip, Silicon[id]->Delta.Order[0].strip);
-			Histo.timediff[id]->Fill(Silicon[id]->Front.Order[0].time - Silicon[id]->Delta.Order[0].time);
+		if (Telescope[id]->Front.Nstore == 1 && Telescope[id]->Delta.Nstore == 1) {
+			Histo.frontdeltastripnum[id]->Fill(Telescope[id]->Front.Order[0].strip, Telescope[id]->Delta.Order[0].strip);
+			Histo.timediff[id]->Fill(Telescope[id]->Front.Order[0].time - Telescope[id]->Delta.Order[0].time);
 
-			if (Silicon[id]->Back.Nstore == 1) {
-				totMulti += Silicon[id]->simpleFront();
-				Histo.sumFrontTimeMult1_cal->Fill(id*hinpchans + Silicon[id]->Front.Order[0].strip, Silicon[id]->Front.Order[0].time);
+			if (Telescope[id]->Back.Nstore == 1) {
+				totMulti += Telescope[id]->simpleFront();
+				Histo.sumFrontTimeMult1_cal->Fill(id*hinpchans + Telescope[id]->Front.Order[0].strip, Telescope[id]->Front.Order[0].time);
 				isSimple = true;
 			}
 		}
 
 		// If higher multiplicity then worry about picking the right one
 		// This also handles the case where Nstore = 0 for any of the chanels
-		if (!isSimple) totMulti += Silicon[id]->multiHit();
+		if (!isSimple) totMulti += Telescope[id]->multiHit();
 
 		// Next, fill E vs. dE and other plots
 
 #ifdef ENABLE_DEBUG
-		cout << "id " << id << ", Nsol " << Silicon[id]->Nsolution << endl;
+		cout << "id " << id << ", Nsol " << Telescope[id]->Nsolution << endl;
 #endif
 
-		for (size_t isol = 0; isol < Silicon[id]->Nsolution; isol++) {
-			Silicon[id]->position(isol); // calculates x,y pos, and lab angle
+		for (size_t isol = 0; isol < Telescope[id]->Nsolution; isol++) {
+			Telescope[id]->position(isol); // calculates x,y pos, and lab angle
 
 #ifdef ENABLE_DEBUG
 			cout << "isol " << isol << endl; 
-			cout << "cos " << cos(Silicon[id]->Solution[isol].theta) << endl;
-			cout << "the " << Silicon[id]->Solution[isol].theta * rad_to_deg << endl;
-			cout << "front strip " << Silicon[id]->Solution[isol].ifront << ", back strip " << Silicon[id]->Solution[isol].iback << endl;
-			cout << "x " << Silicon[id]->Solution[isol].Xpos << ", y " << Silicon[id]->Solution[isol].Ypos << endl;
-			cout << "E " << Silicon[id]->Solution[isol].energy << ", dE " << Silicon[id]->Solution[isol].denergy << endl;
+			cout << "cos " << cos(Telescope[id]->Solution[isol].theta) << endl;
+			cout << "the " << Telescope[id]->Solution[isol].theta * rad_to_deg << endl;
+			cout << "front strip " << Telescope[id]->Solution[isol].ifront << ", back strip " << Telescope[id]->Solution[isol].iback << endl;
+			cout << "x " << Telescope[id]->Solution[isol].Xpos << ", y " << Telescope[id]->Solution[isol].Ypos << endl;
+			cout << "E " << Telescope[id]->Solution[isol].energy << ", dE " << Telescope[id]->Solution[isol].denergy << endl;
 #endif
 
-			Histo.FrontvsBack[id]->Fill(Silicon[id]->Solution[isol].energy, Silicon[id]->Solution[isol].benergy);
-			double Ener = Silicon[id]->Solution[isol].energy + Silicon[id]->Solution[isol].denergy * (1 - cos(Silicon[id]->Solution[isol].theta));
-			Histo.DEE[id]->Fill(Ener, Silicon[id]->Solution[isol].denergy * cos(Silicon[id]->Solution[isol].theta));
-			Histo.xyhitmap->Fill(Silicon[id]->Solution[isol].Xpos, Silicon[id]->Solution[isol].Ypos);
-			double th = Silicon[id]->Solution[isol].theta * rad_to_deg;
-			Histo.Evstheta[id]->Fill(th, Silicon[id]->Solution[isol].energy);
-			Histo.Evstheta_all->Fill(th, Silicon[id]->Solution[isol].energy);
+			Histo.FrontvsBack[id]->Fill(Telescope[id]->Solution[isol].energy, Telescope[id]->Solution[isol].benergy);
+			double Ener = Telescope[id]->Solution[isol].energy + Telescope[id]->Solution[isol].denergy * (1 - cos(Telescope[id]->Solution[isol].theta));
+			Histo.DEE[id]->Fill(Ener, Telescope[id]->Solution[isol].denergy * cos(Telescope[id]->Solution[isol].theta));
+			Histo.xyhitmap->Fill(Telescope[id]->Solution[isol].Xpos, Telescope[id]->Solution[isol].Ypos);
+			double th = Telescope[id]->Solution[isol].theta * rad_to_deg;
+			Histo.Evstheta[id]->Fill(th, Telescope[id]->Solution[isol].energy);
+			Histo.Evstheta_all->Fill(th, Telescope[id]->Solution[isol].energy);
 			Histo.Theta->Fill(th);
 
 			/******** ANGLE DEPENDENT CALIBRATION CORRECTION FOR HIGHER ENERGY POINTS ********/
@@ -153,49 +153,49 @@ void OldGobbi::analyze() {
 			// have left this in for now since all it does is fill some extra histograms.
 
 			// NOTE: SpecTcl should already map channels to strips, and this code has been modified to skip the unpacking and directly read in a SpecTcl output tree
-			int chan = Silicon[id]->Solution[isol].ifront;
+			int chan = Telescope[id]->Solution[isol].ifront;
 
 			// Make a correction to the E silicon energy based on angle
 			double angle_Ecorr = 1.0277e-5*(th*th*th) + 1.6125e-3*(th*th) + 8.3097e-4*th - 1.0227e-3;
-			double Ecorr = Silicon[id]->Solution[isol].energy + angle_Ecorr;
-			double Ecorr_R = FrontEcal->reverseCal(id, Silicon[id]->Solution[isol].ifront, Ecorr);
+			double Ecorr = Telescope[id]->Solution[isol].energy + angle_Ecorr;
+			double Ecorr_R = FrontEcal->reverseCal(id, Telescope[id]->Solution[isol].ifront, Ecorr);
 
 			Histo.AngleCorrE[id][chan]->Fill(Ecorr);
-			Histo.AngleCorr_noCorr[id][chan]->Fill(Silicon[id]->Solution[isol].energy);
+			Histo.AngleCorr_noCorr[id][chan]->Fill(Telescope[id]->Solution[isol].energy);
 			Histo.AngleCorrE_R[id][chan]->Fill(Ecorr_R);
-			Histo.AngleCorrFrontE_cal->Fill(id*hinpchans + Silicon[id]->Solution[isol].ifront, Ecorr);
+			Histo.AngleCorrFrontE_cal->Fill(id*hinpchans + Telescope[id]->Solution[isol].ifront, Ecorr);
 
 			// NOTE: SpecTcl should already map channels to strips, and this code has been modified to skip the unpacking and directly read in a SpecTcl output tree
-			int chandE = Silicon[id]->Solution[isol].ide;
+			int chandE = Telescope[id]->Solution[isol].ide;
 
 			// Make a correction to the dE silicon energy based on angle
 			double angle_dEcorr = -1.0971e-5*(th*th*th) - 1.1446e-3*(th*th) - 8.9371e-4*th + 1.0879e-3;
 			//double angle_dEcorr = 2.0527e-6*(th*th*th) - 1.4281e-3*(th*th) + 1.5589e-4*th - 7.3389e-4; // no Au foilloss
-			double dEcorr = Silicon[id]->Solution[isol].denergy + angle_dEcorr;
-			double dEcorr_R = DeltaEcal->reverseCal(id,Silicon[id]->Solution[isol].ide, dEcorr);
+			double dEcorr = Telescope[id]->Solution[isol].denergy + angle_dEcorr;
+			double dEcorr_R = DeltaEcal->reverseCal(id,Telescope[id]->Solution[isol].ide, dEcorr);
 
 			Histo.AngleCorrDeltaE[id][chandE]->Fill(dEcorr);
-			Histo.AngleCorrDeltaE_noCorr[id][chandE]->Fill(Silicon[id]->Solution[isol].denergy);
+			Histo.AngleCorrDeltaE_noCorr[id][chandE]->Fill(Telescope[id]->Solution[isol].denergy);
 			Histo.AngleCorrDeltaE_R[id][chandE]->Fill(dEcorr_R);
-			Histo.AngleCorrDeltaE_cal->Fill(id*hinpchans + Silicon[id]->Solution[isol].ide, dEcorr);
+			Histo.AngleCorrDeltaE_cal->Fill(id*hinpchans + Telescope[id]->Solution[isol].ide, dEcorr);
 
-			double Etot = Silicon[id]->Solution[isol].energy + Silicon[id]->Solution[isol].denergy;
-			Histo.sumEtot_cal->Fill(id*hinpchans + Silicon[id]->Solution[isol].ifront, Etot);
-			Histo.AngleCorrSum_cal->Fill(id * hinpchans + Silicon[id]->Solution[isol].ifront, Ecorr + dEcorr);
+			double Etot = Telescope[id]->Solution[isol].energy + Telescope[id]->Solution[isol].denergy;
+			Histo.sumEtot_cal->Fill(id*hinpchans + Telescope[id]->Solution[isol].ifront, Etot);
+			Histo.AngleCorrSum_cal->Fill(id * hinpchans + Telescope[id]->Solution[isol].ifront, Ecorr + dEcorr);
 
 #ifdef ENABLE_DEBUG
 			cout << "th " << th << ", angle_Ecorr " << angle_Ecorr << " MeV, angle_dEcorr " << angle_dEcorr << " MeV" << endl;
-			if (Ecorr > 5) cout << "EnergyR " << Silicon[id]->Solution[isol].energyR << ", Ecorr " << Ecorr << ", Ecorr_R " << Ecorr_R << endl;
+			if (Ecorr > 5) cout << "EnergyR " << Telescope[id]->Solution[isol].energyR << ", Ecorr " << Ecorr << ", Ecorr_R " << Ecorr_R << endl;
 #endif
 
 		}
 
-		// Calculate and determine particle identification (PID) in the silicon for each solution
-		Pidmulti += Silicon[id]->getPID();
+		// Calculate and determine particle identification (PID) in the telescope for each solution
+		Pidmulti += Telescope[id]->getPID();
 
 		// Hit maps and other plots based on Pid
-		for (size_t isol = 0; isol < Silicon[id]->Nsolution; isol++) {
-			solution& sol = Silicon[id]->Solution[isol];
+		for (size_t isol = 0; isol < Telescope[id]->Nsolution; isol++) {
+			solution& sol = Telescope[id]->Solution[isol];
 			if (sol.ipid == 0) continue; // enforce that all histograms filled here contain hits with valid PIDs
 
 			double xpos = sol.Xpos;
@@ -243,12 +243,12 @@ void OldGobbi::analyze() {
 		}
 
 		// Calculate sumEnergy, then account for Eloss in target, then set Ekin and momentum of solutions
-		// Eloss files are loaded in silicon
-		Silicon[id]->calcEloss();
+		// Eloss files are loaded in telescope
+		Telescope[id]->calcEloss();
 
 		// Post Eloss calculation plots, I guess?
-		for (size_t isol = 0; isol < Silicon[id]->Nsolution; isol++) {
-			solution& sol = Silicon[id]->Solution[isol];
+		for (size_t isol = 0; isol < Telescope[id]->Nsolution; isol++) {
+			solution& sol = Telescope[id]->Solution[isol];
 			if (sol.iZ == 1 && sol.iA == 1) {
 				Histo.ProtonEnergy->Fill(sol.Ekin, sol.theta * rad_to_deg);
 			}
@@ -261,8 +261,8 @@ void OldGobbi::analyze() {
 size_t OldGobbi::loadSolutions(correl2& Correl) {
 	size_t goodMult = 0;
 	for (size_t id = 0; id < 4; id++) {
-		for (size_t isol = 0; isol < Silicon[id]->Nsolution; isol++) {
-			solution& sol = Silicon[id]->Solution[isol];
+		for (size_t isol = 0; isol < Telescope[id]->Nsolution; isol++) {
+			solution& sol = Telescope[id]->Solution[isol];
 
 			// Only keep solutions that have a valid pid
 			if (sol.ipid > 0) {
@@ -280,12 +280,12 @@ size_t OldGobbi::loadSolutions(correl2& Correl) {
 solution* OldGobbi::getNextEmptySolution(solution* sol) {
 	bool foundEmptySolution = false;
 	for (size_t id = 0; id < 4; id++) {
-		silicon* s = Silicon[id];
-		for (size_t isol = 0; isol < s->Nsolution; isol++) {
-			if (s->Solution[isol].ipid != sol->ipid) continue;
-			else if (s->Nsolution >= 20)
+		telescope* tel = Telescope[id];
+		for (size_t isol = 0; isol < tel->Nsolution; isol++) {
+			if (tel->Solution[isol].ipid != sol->ipid) continue;
+			else if (tel->Nsolution >= 20)
 				throw invalid_argument("ERROR: max solutions reached, cannot get next empty solution");
-			return &(s->Solution[s->Nsolution]);
+			return &(tel->Solution[tel->Nsolution]);
 		}
 	}
 	return nullptr;
@@ -294,10 +294,10 @@ solution* OldGobbi::getNextEmptySolution(solution* sol) {
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 // Pass through function for use with extra calculations external to this
-// Gobbi class. All silicon losses should be the same, so just use the first
+// Gobbi class. All telescope losses should be the same, so just use the first
 // one.
 float OldGobbi::getEin(float energy, float thick, int Z, float A) {
-	return Silicon[0]->losses->getEin(energy, thick, Z, A);
+	return Telescope[0]->losses->getEin(energy, thick, Z, A);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -324,8 +324,8 @@ void OldGobbi::addFrontHit(size_t tel, size_t ch, size_t i) {
 	//if (tel == 1 && (
 
 	if (Energy > .5) { //(tel != 1 || Energy > 2)
-		Silicon[tel]->Front.Add(ch, Energy, ELoR, ER, time);
-		Silicon[tel]->multFront++;
+		Telescope[tel]->Front.Add(ch, Energy, ELoR, ER, time);
+		Telescope[tel]->multFront++;
 	}
 }
 
@@ -349,8 +349,8 @@ void OldGobbi::addBackHit(size_t tel, size_t ch, size_t i) {
 	Histo.BackE_cal[tel][ch]->Fill(Energy);
 
 	if (Energy > .5) {
-		Silicon[tel]->Back.Add(ch, Energy, ELoR, ER, time);
-		Silicon[tel]->multBack++;
+		Telescope[tel]->Back.Add(ch, Energy, ELoR, ER, time);
+		Telescope[tel]->multBack++;
 	}
 }
 
@@ -377,8 +377,8 @@ void OldGobbi::addDeltaHit(size_t tel, size_t ch, size_t i) {
 	if (Energy > .2) {
 		//if (tel == 0 && ch == 0) cout << "EE " << Energy << endl;
 
-		Silicon[tel]->Delta.Add(ch, Energy, ELoR, ER, time);
-		Silicon[tel]->multDelta++;
+		Telescope[tel]->Delta.Add(ch, Energy, ELoR, ER, time);
+		Telescope[tel]->multDelta++;
 	}
 }
 

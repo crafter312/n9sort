@@ -13,7 +13,7 @@ using namespace std;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-silicon::silicon(double thick0, SortConfig& config) {
+telescope::telescope(double thick0, SortConfig& config) {
 	TargetThickness = thick0;
 	SiWidth = 6.45;
 	losses = new CLosses(3, config);
@@ -22,7 +22,7 @@ silicon::silicon(double thick0, SortConfig& config) {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-silicon::~silicon() {
+telescope::~telescope() {
 	delete losses;
 	delete Ran;
 	delete Pid;
@@ -30,7 +30,7 @@ silicon::~silicon() {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void silicon::init(int id0, SortConfig& config) {
+void telescope::init(int id0, SortConfig& config) {
 	id = id0;
 	// -ND checked 5/12/2022 these distances are correct compared to the simulation
 	double const XcenterA[4] = {4.419,2.819,-4.419,-2.819};
@@ -46,13 +46,13 @@ void silicon::init(int id0, SortConfig& config) {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void silicon::SetTargetDistance(double dist)	{
+void telescope::SetTargetDistance(double dist)	{
 	for (size_t i = 0; i < 20; i++) Solution[i].SetTargetDistance(dist);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void silicon::reset() {
+void telescope::reset() {
 	maxFront = 0.;
 	multFront = 0;
 	maxBack = 0.;
@@ -70,7 +70,7 @@ void silicon::reset() {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void silicon::Reduce() {
+void telescope::Reduce() {
 	multFront = Front.Reduce("F");
 	multBack = Back.Reduce("B");
 }
@@ -78,7 +78,7 @@ void silicon::Reduce() {
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 // Subroutine to identify a single particle from strip data
-int silicon::simpleFront() {
+int telescope::simpleFront() {
 	int dstrip = abs(Front.Order[0].strip - Delta.Order[0].strip);
 	if (dstrip < -1 && dstrip > 3) {
 		Nsolution = 0;
@@ -124,7 +124,7 @@ int silicon::simpleFront() {
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 // Finds particle identification - checks to see if particle is inside of z - bananas
-size_t silicon::getPID() {
+size_t telescope::getPID() {
 	size_t pidmulti = 0;
 
 	for (size_t isol = 0; isol < Nsolution; isol++) {
@@ -163,7 +163,7 @@ size_t silicon::getPID() {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-int silicon::calcEloss() {
+int telescope::calcEloss() {
 	for (int isol=0; isol<Nsolution; isol++) {
 		//need PID to calculate energy loss
 		if (!Solution[isol].ipid)
@@ -235,7 +235,7 @@ int silicon::calcEloss() {
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 // Recursive subroutine used for multihit subroutine
-void silicon::loop(int depth)
+void telescope::loop(int depth)
 {
 
 	if (depth == NestDim) //depth starts at 0
@@ -287,7 +287,7 @@ void silicon::loop(int depth)
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 // Extracts multiple particle from strip data 
-int silicon::multiHit() {
+int telescope::multiHit() {
 	int Ntries = min(Front.Nstore,Back.Nstore);
 	Ntries = min(Ntries,Delta.Nstore);
 
@@ -353,7 +353,7 @@ int silicon::multiHit() {
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 // Calculates the x-y position and angles in the array in cm
-void silicon::position(int isol) {
+void telescope::position(int isol) {
 	double Xpos,Ypos;
 
 	if (id == 0) 
@@ -387,7 +387,7 @@ void silicon::position(int isol) {
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 // Calculates the x-y position in the array in cm
-void silicon::positionC(int isol) {
+void telescope::positionC(int isol) {
 	double Xpos,Ypos;
 
 	if (id == 0) 
