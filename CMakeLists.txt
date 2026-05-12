@@ -5,7 +5,7 @@ include(ExternalProject)
 
 project(n9sort)
 
-# Enable C++17
+# Enable C++20
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
