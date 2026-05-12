@@ -17,6 +17,7 @@ private:
 	std::string itreeName;
 	std::string ofileName;
 	std::string otreeName;
+	std::string configDir;
 	std::string lossDir;
 	std::string PIDDir;
 	std::string targetSuffix;
@@ -28,11 +29,14 @@ private:
 	std::string frontTimecalFile;
 	std::string backTimecalFile;
 	std::string deltaTimecalFile;
-	float targdist;
-	float targthick;
+	std::string CsIStripExtentsFile;
+	std::string CsIChannelMapFile;
+	double targdist;
+	double targthick;
 	size_t updateRate;
-	size_t hinpboards; // total number of HINP boards in experimental setup
-	size_t hinpchans; // number of channels per HINP board (this should always be 32)
+	size_t hinpboards;    // total number of HINP boards in experimental setup
+	size_t hinpchans;     // number of channels per HINP board (this should always be 32)
+	double gobbiHoleSize; // size of inner hole in Gobbi 28 (or new Gobbi) in mm
 
 public:
 	SortConfig(std::string configFilePath);
@@ -44,6 +48,7 @@ public:
 	std::string GetItreeName() const { return itreeName; }
 	std::string GetOfileName() const { return ofileName; }
 	std::string GetOtreeName() const { return otreeName; }
+	std::string GetConfigDir() const { return configDir; }
 	std::string GetLossDir() const { return lossDir; }
 	std::string GetPIDDir() const { return PIDDir; }
 	std::string GetTargetSuffix() const { return targetSuffix; }
@@ -55,11 +60,14 @@ public:
 	std::string GetFrontTimecalFile() const { return frontTimecalFile; }
 	std::string GetBackTimecalFile() const { return backTimecalFile; }
 	std::string GetDeltaTimecalFile() const { return deltaTimecalFile; }
-	float GetTargDist() const { return targdist; }
-	float GetTargThick() const { return targthick; }
+	std::string GetCsIStripExtentsFile() const { return CsIStripExtentsFile; }
+	std::string GetCsIChannelMapFile() const { return CsIChannelMapFile; }
+	double GetTargDist() const { return targdist; }
+	double GetTargThick() const { return targthick; }
 	size_t GetUpdateRate() const { return updateRate; }
 	size_t GetHinpboards() const { return hinpboards; }
 	size_t GetHinpchans() const { return hinpchans; }
+	double GetGobbiHoleSize() const { return gobbiHoleSize; }
 };
 
 #endif

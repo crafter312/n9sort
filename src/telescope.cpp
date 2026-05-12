@@ -1,11 +1,36 @@
 /* Class dealing with a single Hira Si telescope
  * Modified by Henry Webb (h.s.webb@wustl.edu) May 2026
- * to look more pretty (among other small modifications)
+ * to look more pretty (among other small modifications).
+ * CsI option is designed to be generalized, should work
+ * for both New Gobbi with 4 CsI per telescope and
+ * Gobbi 28 with 7 CsI per telescope
  */
+
+//       .-.      _______                             .  '  *   .  . '
+//      {}``; |==|_______D                              .  * * -+-  
+//      / ('        /|\                             .    * .    '  *
+//  (  /  |        / | \                                * .  ' .  . 
+//   \(_)_]]      /  |  \                            *   *  .   .
+//                                                     '   *
+
+// Upstream view of Gobbi
+//        ____
+//       |    |____                  
+//       | 4  |    |              
+//      _|____| 1  |
+//     |    |_|____|
+//     | 3  |    |
+//     |____| 2  |
+//          |____|
 
 #include "telescope.h"
 
-#include <utility>
+#include <cmath>
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include <stdexcept>
+#include <string>
 
 #include "constants.h"
 
@@ -13,11 +38,31 @@ using namespace std;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-telescope::telescope(double thick0, SortConfig& config) {
+telescope::telescope(double thick0, SortConfig& config, bool csi) : hasCsI(csi) {
 	TargetThickness = thick0;
 	SiWidth = 6.45;
+	SiFrame = 7.237;
+	holeSize = config.GetGobbiHoleSize() * .1; // convert from mm to cm
 	losses = new CLosses(3, config);
 	Ran = new TRandom();
+	
+	// Read in front/back CsI strip extents from file
+	if (hasCsI) {
+		string inextentsfile = config.GetConfigDir() + config.GetCsIStripExtentsFile();
+		ifstream inextents(inextentsfile);
+		if (inextents.fail()) throw invalid_argument(string(BOLDRED) + string("CsI silicon strip extents file ") + inextentsfile + string(" does not exist or failed to open") + string(RESET));
+		else cout << GREEN << "CsI silicon strip extents file " << inextentsfile << " opened" << RESET << endl;
+		
+		size_t Fmin, Fmax, Bmin, Bmax;
+		while (inextents.good()) {
+			inextents >> Fmin >> Fmax >> Bmin >> Bmax;
+			CsIFextents.emplace_back(Fmin, Fmax);
+			CsIBextents.emplace_back(Bmin, Bmax);
+			NCsI++;
+		}
+	}
+	
+	PidCsI.resize(NCsI);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -25,23 +70,49 @@ telescope::telescope(double thick0, SortConfig& config) {
 telescope::~telescope() {
 	delete losses;
 	delete Ran;
-	delete Pid;
+	
+	if (hasCsI) for (size_t i = 0; i < NCsI; i++) delete PidCsI[i];
+	else delete Pid;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
+// Assume that is OldGobbi if no CsI, adjustible Gobbi 28 if yes CsI
+// see above for Gobbi upstream view diagram
 void telescope::init(int id0, SortConfig& config) {
+	if (id0 != 0 || id0 != 1 || id0 != 2 || id0 != 3) throw invalid_argument(string(BOLDRED) + string("ERROR: telescope id0 must be 0, 1, 2, or 3") + string(RESET));
 	id = id0;
+	
 	// -ND checked 5/12/2022 these distances are correct compared to the simulation
-	double const XcenterA[4] = {4.419,2.819,-4.419,-2.819};
-	double const YcenterA[4] = {2.819,-4.419,-2.819,4.419};
+	double XcenterA[4] = {4.419,2.819,-4.419,-2.819};
+	double YcenterA[4] = {2.819,-4.419,-2.819,4.419};
+	ostringstream outstring;
+	if (hasCsI) {
+		double halfHole = holeSize * .5;
+		double halfFrame = SiFrame * .5;
+		XcenterA[0] = halfFrame + halfHole;
+		XcenterA[1] = halfFrame - halfHole;
+		XcenterA[2] = -halfFrame - halfHole;
+		XcenterA[3] = -halfFrame + halfHole;
+		YcenterA[0] = halfFrame - halfHole;
+		YcenterA[1] = -halfFrame - halfHole;
+		YcenterA[2] = -halfFrame + halfHole;
+		YcenterA[3] = halfFrame + halfHole;
+		
+		for (size_t i = 0; i < NCsI; i++) {
+			outstring.str("");
+			outstring << "pid_quad" << id + 1 << "_CsI" << i;
+			PidCsI[i] = new pid(outstring.str(), config);
+		}
+		Pid = nullptr;
+	}
+	else {
+		outstring << "pid_quad" << id + 1;
+		Pid = new pid(outstring.str(), config);
+		for (size_t i = 0; i < NCsI; i++) PidCsI[i] = nullptr;
+	}
 	Xcenter = XcenterA[id];
 	Ycenter = YcenterA[id];
-
-	ostringstream outstring;
-	outstring << "pid_quad" << id+1;
-
-	Pid = new pid(outstring.str(), config);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -53,17 +124,16 @@ void telescope::SetTargetDistance(double dist)	{
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void telescope::reset() {
-	maxFront = 0.;
 	multFront = 0;
-	maxBack = 0.;
 	multBack = 0;
 	multDelta = 0;
-	maxDelta = 0.;
+	multCsI = 0;
 
 	Front.reset();
 	Back.reset();
 	Delta.reset();
-	if (Nsolution > 100) cout << "here post F,B,D reset, need to reset " << Nsolution << " solutions" << endl;
+	CsI.reset();
+	if (Nsolution > 100) cout << "here post F,B,(D|CsI) reset, need to reset " << Nsolution << " solutions" << endl;
 	for (size_t i = 0; i < Nsolution; i++) Solution[i].reset();
 	Nsolution = 0;
 }
@@ -91,12 +161,15 @@ int telescope::simpleFront() {
 	}
 
 	double timediff = Front.Order[0].time - Delta.Order[0].time;
-	//cout << "Front.Order[0].time " << Front.Order[0].time << " - Delta.Order[0].time " << Delta.Order[0].time << " = " << timediff << endl;
 	//if ( timediff < -500. || timediff > 100) 
 	//{
 	//	Nsolution = 0;
 	//	return 0;
 	//}
+
+#ifdef ENABLE_DEBUG
+	cout << "Front.Order[0].time " << Front.Order[0].time << " - Delta.Order[0].time " << Delta.Order[0].time << " = " << timediff << endl;
+#endif
 
 	Solution[0].energy = Front.Order[0].energy;
 	Solution[0].energyR = Front.Order[0].energyR;
@@ -112,12 +185,69 @@ int telescope::simpleFront() {
 	Solution[0].ide = Delta.Order[0].strip;
 	Solution[0].itele = id; 
 	Solution[0].timediff = timediff;
-	//Solution[0].Nbefore = Front.Order[i].Nbefore;
-	//Solution[0].Norder = Front.Order[i].Norder;
-
-	//cout << "ifront " << Solution[0].ifront << ", strip " << Front.Order[0].strip << endl;
-
+	//Solution[0].Nbefore = Front.Order[0].Nbefore;
+	//Solution[0].Norder = Front.Order[0].Norder;
 	Nsolution = 1;
+
+#ifdef ENABLE_DEBUG
+	cout << "ifront " << Solution[0].ifront << ", strip " << Front.Order[0].strip << endl;
+#endif
+
+	return 1;
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+// Subroutine for simple E-CsI matching (1 each F, B, and CsI)
+int telescope::simpleECsI() {
+	if (!hasCsI) return 0;
+
+	// Here we check the CsI is behind the x-y potions of the E silicon
+	// If it doesn't match, then we return early and do not create a solution
+	int Fstrip = Front.Order[0].strip;
+	int Bstrip = Back.Order[0].strip;
+	if (CsI.Order[0].strip < 0) throw invalid_argument(string(BOLDRED) + string("ERROR: CsI strip # cannot be negative") + string(RESET));
+	size_t CsIstrip = CsI.Order[0].strip;
+	if ((Fstrip < CsIFextents[CsIstrip].first) || (Fstrip > CsIFextents[CsIstrip].second) || (Bstrip < CsIBextents[CsIstrip].first) || (Bstrip > CsIBextents[CsIstrip].second)) {
+		Nsolution = 0;
+		return 0;
+	}
+
+	// This won't work until your calibrations are good. but it should be turned on
+	// Essentially, we want to ensure that the front and back hits are also good
+	if (fabs(Front.Order[0].energy - Back.Order[0].energy) > 10.) {
+		Nsolution = 0;
+		return 0;
+	}
+
+	double timediff = CsI.Order[0].time - Front.Order[0].time;
+	Solution[0].energy = CsI.Order[0].energy;
+	Solution[0].energyR = CsI.Order[0].energyR;
+	Solution[0].energylow = CsI.Order[0].energy; //The later code uses high gain and low gain for gobbi
+	Solution[0].energylowR = CsI.Order[0].energyR; //To make the code simpler, just clone CsI high into low gain
+	Solution[0].benergy = Back.Order[0].energy;
+	Solution[0].benergyR = Back.Order[0].energyR;
+	Solution[0].denergy = Front.Order[0].energy;
+	Solution[0].denergylow = Front.Order[0].energylow;
+	Solution[0].denergyR = Front.Order[0].energyR;
+	Solution[0].qdc = CsI.Order[0].qdc;
+
+	Solution[0].ifront = Front.Order[0].strip;
+	Solution[0].iback = Back.Order[0].strip;
+	Solution[0].ide = -1;
+	Solution[0].iCsI= CsI.Order[0].strip;
+	Solution[0].itele = id; 
+	Solution[0].CsITime = CsI.Order[0].time;
+	Solution[0].timediff = timediff;
+	Solution[0].fTime = Front.Order[0].time;
+	Solution[0].isSiCsI = true;
+	Solution[0].itele = id;
+	Nsolution = 1;
+	
+#ifdef ENABLE_DEBUG
+	cout << "telescope::simple iCsI = " <<  Solution[0].iCsI << " itele = " << id << "solution = 0" << endl;
+#endif
+  
 	return 1;
 }
 
@@ -126,25 +256,34 @@ int telescope::simpleFront() {
 // Finds particle identification - checks to see if particle is inside of z - bananas
 size_t telescope::getPID() {
 	size_t pidmulti = 0;
-
 	for (size_t isol = 0; isol < Nsolution; isol++) {
 		Solution[isol].ipid = 0;
-
-		double energy = Solution[isol].energy;
 		double denergy = Solution[isol].denergy * cos(Solution[isol].theta);
 
-		bool FoundPid = Pid->getPID(energy, denergy);
+		double energy;
+		bool FoundPid;
+		pid* pidtemp;
+		if (hasCsI) {
+			energy = Solution[isol].energyR;
+			pidtemp = PidCsI[Solution[isol].iCsI];
+			FoundPid = pidtemp->getPID(energy, denergy);
+		}
+		else {
+			energy = Solution[isol].energy;
+			pidtemp = Pid;
+			FoundPid = pidtemp->getPID(energy, denergy);
+		}
 
 		// No particle id is found
 		if (!FoundPid) continue;
 		else pidmulti++;
 
-		Solution[isol].iZ = Pid->Z;
-		Solution[isol].iA = Pid->A;
-		Solution[isol].mass = Pid->mass;
+		Solution[isol].iZ = pidtemp->Z;
+		Solution[isol].iA = pidtemp->A;
+		Solution[isol].mass = pidtemp->mass;
 
 		size_t pidnum;
-		pair<size_t, size_t> ZA(Pid->Z, Pid->A);
+		pair<size_t, size_t> ZA(pidtemp->Z, pidtemp->A);
 		if (ZA == sz_pair(1, 1)) pidnum = 1;      // proton
 		else if (ZA == sz_pair(1, 2)) pidnum = 2; // deuteron
 		else if (ZA == sz_pair(1, 3)) pidnum = 3; // triton
@@ -153,7 +292,7 @@ size_t telescope::getPID() {
 		else if (ZA == sz_pair(2, 6)) pidnum = 6; // 6He
 		else if (ZA == sz_pair(3, 6)) pidnum = 7; // 6Li
 		else if (ZA == sz_pair(3, 7)) pidnum = 8; // 7Li
-		else pidnum = 10;                  // default case to be thorough, should only happen if there is a Z-line that doesn't have a case in this switch block
+		else pidnum = 10;                         // default case to be thorough, should only happen if there is a Z-line that doesn't have a case in this switch block
 
 		Solution[isol].ipid = pidnum;
 	}
@@ -164,35 +303,35 @@ size_t telescope::getPID() {
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 int telescope::calcEloss() {
-	for (int isol=0; isol<Nsolution; isol++) {
-		//need PID to calculate energy loss
-		if (!Solution[isol].ipid)
-		{
+	for (size_t isol = 0; isol < Nsolution; isol++) {
+
+		// Need PID to calculate energy loss
+		if (Solution[isol].ipid < 1) {
 			Solution[isol].Ekin = 0;
 			return 0;
 		}
 
-		//kinetics calc, add Delta and energy for total energy
+		// Kinetics calc, add Delta and energy for total energy
 		double sumEnergy = Solution[isol].denergy + Solution[isol].energy;
-		double pc_before = sqrt(pow(sumEnergy+Solution[isol].mass,2) - pow(Solution[isol].mass,2));
-		double velocity_before = pc_before/(sumEnergy+Solution[isol].mass);
+		double pc_before = sqrt(pow(sumEnergy + Solution[isol].mass, 2) - (Solution[isol].mass*Solution[isol].mass));
+		double velocity_before = pc_before / (sumEnergy + Solution[isol].mass);
+		double thick = (.5 * TargetThickness) / cos(Solution[isol].theta);
+		double ein = losses->getEin(sumEnergy, thick, Solution[isol].iZ, Solution[isol].mass / m0);
 
-		double thick = TargetThickness/2/cos(Solution[isol].theta);
-
-		double ein = losses->getEin(sumEnergy,thick,Solution[isol].iZ,Solution[isol].mass/m0);
-
-		//out << "loss correction " << ein - sumEnergy << endl;
+#ifdef ENABLE_DEBUG
+		out << "loss correction " << ein - sumEnergy << endl;
+#endif
 
 		Solution[isol].Ekin = ein;
-		//calc momentum vector, energyTot, and velocity
+
+		// Calc momentum vector, energyTot, and velocity
 		Solution[isol].getMomentum();
 
+		if (hasCsI) continue;
 
-		//protons can punch through at high energies
-		if (Solution[isol].iA == 1 && Solution[isol].iZ == 1)
-		{
-			if (Solution[isol].Ekin > 15.5)
-			{
+		// Protons can punch through at high energies
+		if (Solution[isol].iA == 1 && Solution[isol].iZ == 1) {
+			if (Solution[isol].Ekin > 15.5) {
 				Solution[isol].iA = 0;
 				Solution[isol].iZ = 0;
 				Solution[isol].Ekin = 0;
@@ -200,121 +339,113 @@ int telescope::calcEloss() {
 			}
 		}
 
-		//deuterons can punch through
-		if (Solution[isol].iA == 2 && Solution[isol].iZ == 1)
-		{
-			if (Solution[isol].Ekin > 20.5)
-			{
+		// Deuterons can punch through
+		if (Solution[isol].iA == 2 && Solution[isol].iZ == 1) {
+			if (Solution[isol].Ekin > 20.5) {
 				Solution[isol].iA = 0;
 				Solution[isol].iZ = 0;
 				Solution[isol].Ekin = 0;
 				return 0;
 			}
 		}
-		//Tritons can punch through
-		if (Solution[isol].iA == 3 && Solution[isol].iZ == 1)
-		{
-			if (Solution[isol].Ekin > 24)
-			{
+		
+		// Tritons can punch through
+		if (Solution[isol].iA == 3 && Solution[isol].iZ == 1) {
+			if (Solution[isol].Ekin > 24) {
 				Solution[isol].iA = 0;
 				Solution[isol].iZ = 0;
 				Solution[isol].Ekin = 0;
 				return 0;
 			}
 		}
-
-
 	}
-
-
-
 
 	return 1;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-// Recursive subroutine used for multihit subroutine
-void telescope::loop(int depth)
-{
+// Recursive subroutine used for multihit subroutine for fronts, backs, and deltas
+void telescope::loopDEE(int depth) {
 
-	if (depth == NestDim) //depth starts at 0
-	{
+	if (depth == NestDim) { // depth starts at 0
 		int dstrip = 0;
 		double de = 0.;
-		for (int i=0;i<NestDim;i++)
-		{
+		for (size_t i = 0; i < NestDim; i++) {
 			dstrip += abs(Delta.Order[NestArray[i]].strip - Front.Order[i].strip);
 			de += abs(Back.Order[NestArray[i]].energy - Front.Order[i].energy);
 		}
 
-		//cout << " 1 " << zline[0].n << endl;
+#ifdef ENABLE_DEBUG
+		cout << " 1 " << zline[0].n << endl;
+#endif
 
-		if (dstrip < dstripMin)
-		{
+		if (dstrip < dstripMin){
 			dstripMin = dstrip;
-			for (int i=0;i<NestDim;i++) {arrayD[i] = NestArray[i];}
+			for (size_t i = 0; i < NestDim; i++) arrayD[i] = NestArray[i];
 		}
-		//cout << " 2 " << zline[0].n << endl;
 
-		if (de < deMin)
-		{
+#ifdef ENABLE_DEBUG
+		cout << " 2 " << zline[0].n << endl;
+#endif
+
+		if (de < deMin) {
 			deMin = de;
-			for (int i=0;i<NestDim;i++) {arrayB[i] = NestArray[i];}
+			for (size_t i = 0; i < NestDim; i++) arrayB[i] = NestArray[i];
 		}
-		//cout << "leave" << " " << zline[0].n << endl;
+
+#ifdef ENABLE_DEBUG
+		cout << "leave" << " " << zline[0].n << endl;
+#endif
+
 		return;
 	}
 
-	//cout << "recurse " << zline[0].n << endl;
-	for (int i=0;i<NestDim;i++)
-	{
+#ifdef ENABLE_DEBUG
+	cout << "recurse " << zline[0].n << endl;
+#endif
+
+	for (size_t i = 0; i < NestDim; i++) {
 		NestArray[depth] = i;
-		int leave = 0;
-		for (int j=0;j<depth;j++)
-		{
-			if (NestArray[j] == i)
-			{
-				leave =1;
+		bool leave = false;
+		for (size_t j = 0; j < depth; j++) {
+			if (NestArray[j] == i) {
+				leave = true;
 				break; 
 			}
 		}
 		if (leave) continue;
-		loop(depth+1);
+		loopDEE(depth + 1);
 	}
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-// Extracts multiple particle from strip data 
+// Extracts multiple particle from strip data for fronts, backs, and deltas
 int telescope::multiHit() {
-	int Ntries = min(Front.Nstore,Back.Nstore);
-	Ntries = min(Ntries,Delta.Nstore);
+	int Ntries = min(Front.Nstore, Back.Nstore);
+	Ntries = min(Ntries, Delta.Nstore);
 
-	if (Ntries > 4) Ntries =4;
+	if (Ntries > 4) Ntries = 4;
 	Nsolution = 0;
 	if (Ntries <= 0) return 0;
 
-	for (NestDim = Ntries;NestDim>0;NestDim--)
-	{
+	for (NestDim = Ntries; NestDim > 0; NestDim--) {
 		dstripMin = 1000;
 		deMin = 10000.;
 
-		//look for best solution
-		loop(0);
+		// Look for best solution
+		loopDEE(0);
 
-		//check to see if best possible solution is reasonable
-		int leave = 0;
-		for (int i=0;i<NestDim;i++)
-		{
-			if (abs(Delta.Order[arrayD[i]].strip - Front.Order[i].strip) > 2) 
-			{
-				leave = 1;
+		// Check to see if best possible solution is reasonable
+		bool leave = false;
+		for (size_t i = 0; i < NestDim; i++) {
+			if (abs(Delta.Order[arrayD[i]].strip - Front.Order[i].strip) > 2) {
+				leave = true;
 				break;
 			}
-			if (fabs(Back.Order[arrayB[i]].energy - Front.Order[i].energy) > 2.) 
-			{
-				leave = 1;
+			if (fabs(Back.Order[arrayB[i]].energy - Front.Order[i].energy) > 2.) {
+				leave = true;
 				break;
 			}
 			double timediff = Front.Order[i].time - Delta.Order[arrayD[i]].time;
@@ -324,11 +455,10 @@ int telescope::multiHit() {
 			//	return 0;
 			//}
 		}
-
 		if (leave) continue;
-		// now load solution
-		for (int i=0;i<NestDim;i++)
-		{
+
+		// Now load solution
+		for (size_t i = 0; i < NestDim; i++) {
 			double timediff = Front.Order[i].time - Delta.Order[arrayD[i]].time;
 			Solution[i].energy = Front.Order[i].energy;
 			Solution[i].energyR = Front.Order[i].energyR;
@@ -344,9 +474,219 @@ int telescope::multiHit() {
 		}
 
 		Nsolution = NestDim;
-
 		break;
 	}
+	return Nsolution;
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+// Recursive subroutine used for multihit subroutine for just fronts and backs (used for CsI matching).
+// This version is from Johnathan Phillips' (j.s.phillips@wustl.edu) 22Si code and has deltas removed,
+// along with a whole bunch of extra comments which I have left in.
+void telescope::loopE(int depth) {
+
+	// Only work in this section if we are at the max level of recursion
+	if (depth == NestDim) {
+
+		// As an example for NestDim = 2
+		// For first time through on loop(2) nestarray = {0,1} so we check
+		// if highest energy delta matches with highest energy Front. Then 
+		// check if second highest delta matches highest energy Front.
+
+		double de = 0.;
+		for (size_t i = 0; i < NestDim; i++) {
+
+			// Difference in Front and back energy is how to match FrontE and BackE - need two types for Gobbi
+			// NOTE: this needs high and low calibrations to work
+			if (Front.Order[i].energy < 30.) de += abs(Back.Order[NestArray[i]].energy - Front.Order[i].energy);
+			else de += abs(Back.Order[NestArray[i]].energylow - Front.Order[i].energylow);
+		}
+
+		// Here if it is the lowest total difference in strip# or energy, it is saved in
+		// arrayB (for matching front-back)
+		if (de < deMin) {
+			deMin = de;
+			for (size_t i = 0; i < NestDim; i++) arrayB[i] = NestArray[i];
+		}
+		return;
+	}
+
+	// This section handles how deep we go into the recursion loop.
+	// The key to this section if figuring out what NestArrays to check.
+	// For NestDim = 2, we want to check {0,1} and {1,0}
+	for (size_t i = 0; i < NestDim; i++) {
+		NestArray[depth] = i;
+		bool leave = false;
+
+		// When matching we want to skip items already matched 
+		for (size_t j = 0; j < depth; j++) {
+			if (NestArray[j] == i) {
+				leave = true;
+				break; 
+			}
+		}
+		if (leave) continue;
+		loopE(depth + 1);
+	}
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+// Modification of multiHitdEE() to match E-CsI events, stolen from Johnathan Phillips'
+// (j.s.phillips@wustl.edu) 22Si sort code.
+int telescope::multiHitECsI() {
+	int Ntries = min(Front.Nstore, Back.Nstore);
+	//Ntries = min(Ntries, CsI.Nstore);
+
+	if (Ntries > 4) Ntries = 4;
+	Nsolution = 0;
+	if (Ntries <= 0) return 0;
+
+	
+	NSisolution = 0;
+	for (NestDim = Ntries; NestDim > 0; NestDim--) {
+		dstripMin = 1000;
+		deMin = 10000.;
+
+		// Look for best front/back matching
+		// Solutions are stored in arrayB
+		loopE(0);
+
+		// Check to see if best possible solution is reasonable
+		bool leave = false;
+		for (size_t i = 0; i < NestDim; i++) {
+			if (fabs(Back.Order[arrayB[i]].energy - Front.Order[i].energy) > 10.) {
+				leave = true;
+				break;
+			}
+		}
+		if (leave) continue;
+		NSisolution = NestDim;
+	}
+	
+	// Save some time and just exit if there are no Si Front/Back solutions
+	if (NSisolution == 0) return 0;
+
+	// Now assign each of these solutions a CsI detector location
+	vector<vector<size_t>> sil(NCsI, vector<size_t>()); // contains a lits of solutions for each Csi
+
+	// Look at all the front/back solutions and see how many are on each CsI
+	for (size_t i = 0; i < NSisolution; i++) {
+		int ifront = Front.Order[i].strip;
+		int iback = Back.Order[arrayB[i]].strip;
+		for (size_t icsi = 0; icsi < NCsI; icsi++) {
+			if ((ifront < CsIFextents[icsi].first) || (ifront > CsIFextents[icsi].second) || (iback < CsIBextents[icsi].first) || (iback > CsIBextents[icsi].second)) continue;
+
+			sil[icsi].push_back(i);
+			break;
+		}
+	}
+
+	// Make array of detect csi energies
+	vector<double> energy(NCsI, -1.);
+	vector<double> energyR(NCsI, -1.);
+	vector<short> order(NCsI, -1);
+
+	// Store the CsI raw energy info in an array that corresponds to the position it is in
+	for (size_t i = 0; i < CsI.Nstore; i++) {
+		energy[CsI.Order[i].strip] = CsI.Order[i].energy;
+		order[CsI.Order[i].strip] = i;
+	}
+
+	// Define the remove constants as some index that won't happen
+	int removeFirst = -1;
+	int removeSecond = -1;
+
+	// Loop over CsI location
+	for (size_t icsi = 0; icsi < NCsI; icsi++) {
+		size_t multcsi = sil[icsi].size();
+
+		// No solution for this location, ignore
+		if (multcsi == 0) continue;
+
+		// FIXME DEE matching won't work until you have good zlines. Turn off at start
+		// If more than 1 si solution for a single CsI, check if it falls in a zline
+		// CsI can only fire once within readout
+		// Needed for events with mixed E and CsI in the same quad
+		// Can only accept one solution, don't allow it to accept both
+		else if (multcsi > 1) {
+			continue; // ignore for the time being until I have zlines
+/*
+			for (size_t i = 0; i < multcsi; i++) {
+				int ii = sil[icsi][i];
+
+				// Do zline check
+				int zCheck = PidECsI[id]->getEGate(CsI.Order[0].energyR, Front.Order[ii].energy);
+				if (zCheck == 0) continue;
+				else { // need to fill stuff here using the correct "ii" index
+					Solution[Nsolution].energy = energy[icsi];
+					Solution[Nsolution].energyR = CsI.Order[order[icsi]].energyR;
+					Solution[Nsolution].energylow = energy[icsi];
+					Solution[Nsolution].energylowR = CsI.Order[order[icsi]].energyR;
+					Solution[Nsolution].denergy = Front.Order[ii].energy;
+					Solution[Nsolution].denergylow = Front.Order[ii].energylow;
+					Solution[Nsolution].denergyR = Front.Order[ii].energyR;
+					Solution[Nsolution].benergy = Back.Order[arrayB[ii]].energy;
+					Solution[Nsolution].benergylow = Back.Order[arrayB[ii]].energylow;
+					Solution[Nsolution].benergyR = Back.Order[arrayB[ii]].energyR;
+					Solution[Nsolution].qdc = CsI.Order[order[icsi]].qdc;
+
+					Solution[Nsolution].ifront = Front.Order[ii].strip;
+					Solution[Nsolution].iback = Back.Order[arrayB[ii]].strip;
+					Solution[Nsolution].ide = -1;
+					Solution[Nsolution].iCsI = icsi;
+					Solution[Nsolution].itele = id;
+					Solution[Nsolution].isSiCsI = true;
+					Solution[Nsolution].CsITime = CsI.Order[order[icsi]].time;
+					float timediff = CsI.Order[order[icsi]].time - Front.Order[ii].time;
+					Solution[Nsolution].timediff = timediff;
+					Solution[Nsolution].fTime = Front.Order[ii].time;
+					Nsolution++;
+
+					Front.Order[ii].CsIFlag = 1;
+					Back.Order[arrayB[ii]].CsIFlag = 1;
+
+					break; //break out of loop, accept only one solution per quad. Allows for small chance of losing dE solution
+					//I could find a more elegant solution using strip matching for dE and base it on a best score
+				}
+			}
+*/
+		}
+
+		// CsI energy < 0 should not happen, but ignore just in case
+		else if (energy[icsi] <= 0.) continue;
+		else {
+			int ii = sil[icsi][0];
+			Solution[Nsolution].energy = energy[icsi];
+			Solution[Nsolution].energyR = CsI.Order[order[icsi]].energyR;
+			Solution[Nsolution].energylow = energy[icsi];
+			Solution[Nsolution].energylowR = CsI.Order[order[icsi]].energyR;
+			Solution[Nsolution].denergy = Front.Order[ii].energy;
+			Solution[Nsolution].denergylow = Front.Order[ii].energylow;
+			Solution[Nsolution].denergyR = Front.Order[ii].energyR;
+			Solution[Nsolution].benergy = Back.Order[arrayB[ii]].energy;
+			Solution[Nsolution].benergylow = Back.Order[arrayB[ii]].energylow;
+			Solution[Nsolution].benergyR = Back.Order[arrayB[ii]].energyR;
+			Solution[Nsolution].qdc = CsI.Order[order[icsi]].qdc;
+
+			Solution[Nsolution].ifront = Front.Order[ii].strip;
+			Solution[Nsolution].iback = Back.Order[arrayB[ii]].strip;
+			Solution[Nsolution].ide = -1;
+			Solution[Nsolution].iCsI = icsi;
+			Solution[Nsolution].itele = id;
+			Solution[Nsolution].isSiCsI = true;
+			Solution[Nsolution].CsITime = CsI.Order[order[icsi]].time;
+			float timediff = CsI.Order[order[icsi]].time - Front.Order[ii].time;
+			Solution[Nsolution].timediff = timediff;
+			Solution[Nsolution].fTime = Front.Order[ii].time;
+			Nsolution++;
+
+			Front.Order[ii].CsIFlag = 1;
+			Back.Order[arrayB[ii]].CsIFlag = 1;
+		}
+	}
+
 	return Nsolution;
 }
 

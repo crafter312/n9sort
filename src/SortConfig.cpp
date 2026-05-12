@@ -38,6 +38,8 @@ SortConfig::SortConfig(string configFilePath) {
 			ofileName = line.substr(line.find('=') + 2);
 		else if (line.find("otreeName") != string::npos)
 			otreeName = line.substr(line.find('=') + 2);
+		else if (line.find("configDir") != string::npos)
+			configDir = line.substr(line.find('=') + 2);
 		else if (line.find("lossDir") != string::npos)
 			lossDir = line.substr(line.find('=') + 2);
 		else if (line.find("PIDDir") != string::npos)
@@ -60,22 +62,26 @@ SortConfig::SortConfig(string configFilePath) {
 			backTimecalFile = line.substr(line.find('=') + 2);
 		else if (line.find("deltaTimecalFile") != string::npos)
 			deltaTimecalFile = line.substr(line.find('=') + 2);
+		else if (line.find("CsIStripExtentsFile") != string::npos)
+			CsIStripExtentsFile = line.substr(line.find('=') + 2);
+		else if (line.find("CsIChannelMapFile") != string::npos)
+			CsIChannelMapFile = line.substr(line.find('=') + 2);
 		else if (line.find("targdist") != string::npos) {
 			string temps = line.substr(line.find('=') + 2);
 			try {
-				targdist = stof(temps);
+				targdist = stod(temps);
 			}
 			catch (...) {
-				throw invalid_argument("targdist in config file " + configFilePath + " is not a valid float");
+				throw invalid_argument("targdist in config file " + configFilePath + " is not a valid double");
 			}
 		}
 		else if (line.find("targthick") != string::npos) {
 			string temps = line.substr(line.find('=') + 2);
 			try {
-				targthick = std::stof(temps);
+				targthick = std::stod(temps);
 			}
 			catch (...) {
-				throw invalid_argument("targthick in config file " + configFilePath + " is not a valid float");
+				throw invalid_argument("targthick in config file " + configFilePath + " is not a valid double");
 			}
 		}
 		else if (line.find("updateRate") != string::npos) {
@@ -103,6 +109,15 @@ SortConfig::SortConfig(string configFilePath) {
 			}
 			catch (...) {
 				throw invalid_argument("hinpchans in config file " + configFilePath + " is not a valid size_t (unsigned integer)");
+			}
+		}
+		else if (line.find("gobbiHoleSize") != string::npos) {
+			string temps = line.substr(line.find('=') + 2);
+			try {
+				gobbiHoleSize = std::stod(temps);
+			}
+			catch (...) {
+				throw invalid_argument("gobbiHoleSize in config file " + configFilePath + " is not a valid double");
 			}
 		}
 	}
