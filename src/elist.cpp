@@ -1,14 +1,16 @@
-//creates energy order (descending) lists of strips
+// creates energy order (descending) lists of strips
 
 #include "elist.h"
+
 #include <algorithm>
 #include <iostream>
+
 using namespace std;
 
 //***********************************************************************
 //places a new strip energy in an order list from max to min energy
 //updated for high/low gain (HINP4) chips
-void elist::Add(int StripNum, float energy, int energyRlow, int energyR, float time)
+void elist::Add(int StripNum, double energy, int energyRlow, int energyR, double time)
 {
 
   //first find place in list
@@ -66,7 +68,7 @@ void elist::Remove(int entry)
   return;
 }
 
-void elist::Add(int StripNum, float energy, int rawenergy, int time)  //for use with tree
+void elist::Add(int StripNum, double energy, int rawenergy, int time)  //for use with tree
 {
   Order[Nstore].energy = energy;
   Order[Nstore].strip = StripNum;
@@ -136,13 +138,16 @@ void elist::reset()
 {
   for(int i =0;i<Nstore;i++)
   {
-    Order[i].energy = 0;
-    Order[i].energyR = 0;
-    Order[i].energyRlow = 0;
+    Order[i].energy = 0.;
+    Order[i].energyR = 0.;
+    Order[i].energyRlow = 0.;
+    Order[i].energylow = 0.;
+    Order[i].energyMax = 0.;
     Order[i].strip = 0;
-    Order[i].time = 0;
-    Order[i].neighbours=0;
-    Order[i].energyMax=0;
+    Order[i].neighbours = 0;
+    Order[i].time = 0.;
+    Order[i].qdc = 0.;
+    Order[i].CsIFlag = false;
   }
   Nstore = 0;
   mult = 0;
@@ -201,7 +206,7 @@ void elist::Neighbours(int id)
 }
 
 //cut threshold
-void elist::Threshold(float threshold)
+void elist::Threshold(double threshold)
 {
   for(int i=0;i<Nstore;i++)
   {

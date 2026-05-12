@@ -239,7 +239,7 @@ int telescope::simpleECsI() {
 	Solution[0].itele = id; 
 	Solution[0].CsITime = CsI.Order[0].time;
 	Solution[0].timediff = timediff;
-	Solution[0].fTime = Front.Order[0].time;
+	Solution[0].time = Front.Order[0].time;
 	Solution[0].isSiCsI = true;
 	Solution[0].itele = id;
 	Nsolution = 1;
@@ -641,11 +641,11 @@ int telescope::multiHitECsI() {
 					Solution[Nsolution].CsITime = CsI.Order[order[icsi]].time;
 					float timediff = CsI.Order[order[icsi]].time - Front.Order[ii].time;
 					Solution[Nsolution].timediff = timediff;
-					Solution[Nsolution].fTime = Front.Order[ii].time;
+					Solution[Nsolution].time = Front.Order[ii].time;
 					Nsolution++;
 
-					Front.Order[ii].CsIFlag = 1;
-					Back.Order[arrayB[ii]].CsIFlag = 1;
+					Front.Order[ii].CsIFlag = true;
+					Back.Order[arrayB[ii]].CsIFlag = true;
 
 					break; //break out of loop, accept only one solution per quad. Allows for small chance of losing dE solution
 					//I could find a more elegant solution using strip matching for dE and base it on a best score
@@ -679,11 +679,11 @@ int telescope::multiHitECsI() {
 			Solution[Nsolution].CsITime = CsI.Order[order[icsi]].time;
 			float timediff = CsI.Order[order[icsi]].time - Front.Order[ii].time;
 			Solution[Nsolution].timediff = timediff;
-			Solution[Nsolution].fTime = Front.Order[ii].time;
+			Solution[Nsolution].time = Front.Order[ii].time;
 			Nsolution++;
 
-			Front.Order[ii].CsIFlag = 1;
-			Back.Order[arrayB[ii]].CsIFlag = 1;
+			Front.Order[ii].CsIFlag = true;
+			Back.Order[arrayB[ii]].CsIFlag = true;
 		}
 	}
 
