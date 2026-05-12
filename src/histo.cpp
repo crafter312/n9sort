@@ -38,8 +38,13 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, SortConfig& config) : hinpbo
   dir1dFrontTime_R = dirSummary->mkdir("1dFrontTime_R","1dFrontTime_R");
   dir1dBackTime_R  = dirSummary->mkdir("1dBackTime_R","1dBackTime_R");
   dir1dDeltaTime_R = dirSummary->mkdir("1dDeltaTime_R","1dDeltaTime_R");
+  
+  // CsI directories
+  dir1dCsI_Energy = dirSummary->mkdir("1dCsI_Energy","1dCsI_Energy");
+  dir1dCsI_Time   = dirSummary->mkdir("1dCsI_Time","1dCsI_Time");
+  dir1dCsI_QDC    = dirSummary->mkdir("1dCsI_QDC","1dCsI_QDC");
 
-	// Directory for TDC detector
+  // Directory for TDC detector
   dirTDC = new TDirectoryFile("dirTDC", "dirTDC"); // name, title
 
   // Directory for DeltaE-E plots
@@ -58,8 +63,8 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, SortConfig& config) : hinpbo
   dir7Be = dirInvMass->mkdir("7Be","7Be");
   dir8Be = dirInvMass->mkdir("8Be","8Be");
   dir9B  = dirInvMass->mkdir("9B","9B");
-	dir8C  = dirInvMass->mkdir("8C","8C");
-	dir9N  = dirInvMass->mkdir("9N","9N");
+  dir8C  = dirInvMass->mkdir("8C","8C");
+  dir9N  = dirInvMass->mkdir("9N","9N");
 
   dirSummary->cd();
 

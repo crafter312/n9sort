@@ -13,6 +13,7 @@ struct order {
 	int neighbours;    // I smell australian here
 	double time;
 	double qdc;        // used for PSD with CsIs
+	bool qdcflag;      // denotes CsI events with qdc present
 	bool CsIFlag;      // denotes CsI events? Set but never used
 };
 
@@ -33,6 +34,7 @@ public:
 	order Order[nnn];
 	int mult;
 
+	void Add(int, double, int, int, double, double, int);
 	void Add(int, double, int, int, double);
 	void Add(int, double, int, int);
 	void Remove(int);

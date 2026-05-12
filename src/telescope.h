@@ -77,6 +77,9 @@ public:
 	int simpleFrontBack();
 	void position(int);
 	void positionC(int);
+	
+	// Getters
+	size_t GetNCsI() const { return NCsI; }
 
  private:
 	int FrontLow[4];

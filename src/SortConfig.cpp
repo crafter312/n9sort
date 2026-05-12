@@ -34,6 +34,10 @@ SortConfig::SortConfig(string configFilePath) {
 			runNumbersFile = line.substr(line.find('=') + 2);
 		else if (line.find("itreeName") != string::npos)
 			itreeName = line.substr(line.find('=') + 2);
+		else if (line.find("adcBranchName") != string::npos)
+			adcBranchName = line.substr(line.find('=') + 2);
+		else if (line.find("qdcBranchName") != string::npos)
+			qdcBranchName = line.substr(line.find('=') + 2);
 		else if (line.find("ofileName") != string::npos)
 			ofileName = line.substr(line.find('=') + 2);
 		else if (line.find("otreeName") != string::npos)
@@ -54,6 +58,8 @@ SortConfig::SortConfig(string configFilePath) {
 			backEcalFile = line.substr(line.find('=') + 2);
 		else if (line.find("deltaEcalFile") != string::npos)
 			deltaEcalFile = line.substr(line.find('=') + 2);
+		else if (line.find("CsIEcalFile") != string::npos)
+			CsIEcalFile = line.substr(line.find('=') + 2);
 		else if (line.find("diamondEcalFile") != string::npos)
 			diamondEcalFile = line.substr(line.find('=') + 2);
 		else if (line.find("frontTimecalFile") != string::npos)
@@ -62,6 +68,8 @@ SortConfig::SortConfig(string configFilePath) {
 			backTimecalFile = line.substr(line.find('=') + 2);
 		else if (line.find("deltaTimecalFile") != string::npos)
 			deltaTimecalFile = line.substr(line.find('=') + 2);
+		else if (line.find("CsITimecalFile") != string::npos)
+			CsITimecalFile = line.substr(line.find('=') + 2);
 		else if (line.find("CsIStripExtentsFile") != string::npos)
 			CsIStripExtentsFile = line.substr(line.find('=') + 2);
 		else if (line.find("CsIChannelMapFile") != string::npos)

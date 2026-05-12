@@ -77,7 +77,7 @@ int main() {
 	// and it must be thread safe. To enforce the latter requirement,
 	// TBufferMerger::GetFile will be used for the output file.
 	auto f = [&](TTreeReader &reader) {
-		Input input(reader);
+		Input input(reader, sortConfig);
 
 		// Output using thread safe file
 		auto f = merger.GetFile();

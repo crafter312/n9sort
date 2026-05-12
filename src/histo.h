@@ -16,6 +16,7 @@
 #include <memory>
 #include <sstream>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include "SortConfig.h"
@@ -59,6 +60,10 @@ public:
 	TDirectory* dir1dFrontTime_R;
 	TDirectory* dir1dBackTime_R;
 	TDirectory* dir1dDeltaTime_R;
+	
+	TDirectory* dir1dCsI_Energy;
+	TDirectory* dir1dCsI_Time;
+	TDirectory* dir1dCsI_QDC;
 	
 	TDirectoryFile* dirTDC;
 
@@ -134,6 +139,22 @@ public:
 	std::vector<std::vector<TH1I*>> AngleCorrDeltaE;
 	std::vector<std::vector<TH1I*>> AngleCorrDeltaE_noCorr;
 	std::vector<std::vector<TH1I*>> AngleCorrDeltaE_R;
+	
+	// CsI plots (these are created in `Gobbi28.cpp` when reading in the CsI channel mappings)
+	
+	// Summary plots
+	TH2I* sumCsIE_R_um;
+	TH2I* sumCsIE_cal_um;
+	TH2I* sumCsITime_um;
+	
+	// Per-crystal plots 
+	std::unordered_map<size_t, TH1I*> CsI_Energy_R_um;
+	std::unordered_map<size_t, TH1I*> CsI_Energy_cal_um;
+	std::unordered_map<size_t, TH1I*> CsI_QDC_um;
+	std::unordered_map<size_t, TH1I*> CsI_QDC_matched;
+	std::unordered_map<size_t, TH1I*> CsI_Time_um;
+	
+	
 
 	// DeltaE-E plots
 	TH2I* DEE_simple[4];

@@ -20,12 +20,16 @@
 #include <optional>
 #include <vector>
 
+#include "SortConfig.h"
+
 // Ensure that these match the configuration of your hardware system!
 #define HINP_BOARD_COUNT 12
 #define HINP_CHAN_COUNT 32
 #define PSD_CHIP_COUNT 24
 #define PSD_CHAN_COUNT 8
-#define QDC_CHAN_COUNT 2 // CAEN v965, 16 channels with h and l each (32 total parameters)
+#define QDCV965_CHAN_COUNT 2 // CAEN v965, 16 channels with h and l each (32 total parameters)
+#define ADC_CHAN_COUNT 32
+#define QDC_CHAN_COUNT 32
 #define TDC_CHAN_COUNT 16 // CAEN v1190a, 128 channels can be configured to accept up to 16 hits each
 #define TDC_HIT_COUNT 3 // CAEN v1190a, 128 channels can be configured to accept up to 16 hits each
 
@@ -39,7 +43,7 @@
 class Input {
 
 public:
-	Input(TTreeReader&);
+	Input(TTreeReader&, SortConfig&);
 	~Input();
 
 	void ReadAndRefactor();
@@ -80,7 +84,7 @@ public:
 		size_t GetT(size_t i) const     { return t[i]; }
 	};
 
-	struct TexNeutInput {
+	struct PSDInput {
 		// Vectors for input branch readers
 		std::vector<TTreeReaderValue<double>> aRVs;
 		std::vector<TTreeReaderValue<double>> bRVs;
@@ -116,7 +120,30 @@ public:
 		size_t GetT(size_t i) const    { return t[i]; }
 	};
 	
-	struct QDCInput {
+	// Input class supporting variety of CAEN ADC and QDCs which all share a common data format
+	struct ADCQDCInput {
+		// Vectors for input branch readers
+		std::vector<TTreeReaderValue<double>> aqRVs;
+		
+		// Vectors for hit values
+		size_t Nhits{0};
+		std::vector<size_t> chan;
+		std::vector<size_t> aq;
+		
+		void clear() {
+			Nhits = 0;
+			chan.clear();
+			aq.clear();
+		}
+		
+		// Hit getter functions
+		size_t GetNHits() const { return Nhits; }
+		size_t GetChan(size_t i) const { return chan[i]; }
+		size_t GetAQ(size_t i) const { return aq[i]; }
+	};
+	
+	// Input class specifically for CAEN v965 QDC
+	struct QDCInputV965 {
 		// Vectors for input branch readers
 		std::vector<TTreeReaderValue<double>> qhRVs; // high range Q
 		std::vector<TTreeReaderValue<double>> qlRVs; // low range Q
@@ -172,26 +199,32 @@ public:
 		}
 	};
 
-	// Getter functions
+	// Getter functions (modify for expected input format)
 	const GobbiInput& GetGobbi() const { return gobbi; }
-	const TexNeutInput& GetTexNeut() const { return texneut; }
-	const QDCInput& GetQDC() const { return qdc; }
+	const PSDInput& GetTexNeut() const { return texneut; }
+	const QDCInputV965& GetQDCV965() const { return qdcv965; }
+	const ADCQDCInput& GetADC() const { return adc; }
+	const ADCQDCInput& GetQDC() const { return qdc; }
 	const TDCInput& GetTDC() const { return tdc; }
 
 private:
 	// TTreeReader reference for input
 	TTreeReader& reader;
 
+	// Input classes (modify for expected input)
 	GobbiInput gobbi;
-	TexNeutInput texneut;
-	QDCInput qdc;
+	PSDInput texneut;
+	QDCInputV965 qdcv965;
+	ADCQDCInput adc;
+	ADCQDCInput qdc;
 	TDCInput tdc;
 
 	/******** PRIVATE STATIC HELPER FUNCTIONS ********/
 
 	static std::vector<std::string> GenerateColumnNamesHINP(const std::string&);
 	static std::vector<std::string> GenerateColumnNamesPSD(const std::string&);
-	static std::vector<std::string> GenerateColumnNamesQDC(const std::string&);
+	static std::vector<std::string> GenerateColumnNamesADCQDC(const std::string&, const size_t&);
+	static std::vector<std::string> GenerateColumnNamesQDCV965(const std::string&);
 	static std::vector<std::string> GenerateColumnNamesTDC();
 
 };

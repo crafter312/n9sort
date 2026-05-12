@@ -98,7 +98,6 @@ public:
 
 private:
 	const Input::GobbiInput& input;
-	const Input::QDCInput& input_qdc;
 	const Input::TDCInput& input_tdc;
 
 };

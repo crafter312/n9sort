@@ -10,11 +10,14 @@
 #include <string>
 
 class SortConfig {
+
 private:
 	std::string outputDir;
 	std::string dataDir;
 	std::string runNumbersFile;
 	std::string itreeName;
+	std::string adcBranchName;
+	std::string qdcBranchName;
 	std::string ofileName;
 	std::string otreeName;
 	std::string configDir;
@@ -25,10 +28,12 @@ private:
 	std::string frontEcalFile;
 	std::string backEcalFile;
 	std::string deltaEcalFile;
+	std::string CsIEcalFile;
 	std::string diamondEcalFile;
 	std::string frontTimecalFile;
 	std::string backTimecalFile;
 	std::string deltaTimecalFile;
+	std::string CsITimecalFile;
 	std::string CsIStripExtentsFile;
 	std::string CsIChannelMapFile;
 	double targdist;
@@ -46,6 +51,8 @@ public:
 	std::string GetDataDir() const { return dataDir; }
 	std::string GetRunNumbersFile() const { return runNumbersFile; }
 	std::string GetItreeName() const { return itreeName; }
+	std::string GetAdcBranchName() const { return adcBranchName; }
+	std::string GetQdcBranchName() const { return qdcBranchName; }
 	std::string GetOfileName() const { return ofileName; }
 	std::string GetOtreeName() const { return otreeName; }
 	std::string GetConfigDir() const { return configDir; }
@@ -56,10 +63,12 @@ public:
 	std::string GetFrontEcalFile() const { return frontEcalFile; }
 	std::string GetBackEcalFile() const { return backEcalFile; }
 	std::string GetDeltaEcalFile() const { return deltaEcalFile; }
+	std::string GetCsIEcalFile() const { return CsIEcalFile; }
 	std::string GetDiamondEcalFile() const { return diamondEcalFile; }
 	std::string GetFrontTimecalFile() const { return frontTimecalFile; }
 	std::string GetBackTimecalFile() const { return backTimecalFile; }
 	std::string GetDeltaTimecalFile() const { return deltaTimecalFile; }
+	std::string GetCsITimecalFile() const { return CsITimecalFile; }
 	std::string GetCsIStripExtentsFile() const { return CsIStripExtentsFile; }
 	std::string GetCsIChannelMapFile() const { return CsIChannelMapFile; }
 	double GetTargDist() const { return targdist; }

@@ -25,7 +25,7 @@ using namespace std;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-Det::Det(Input& in, histo& hist, SortConfig& config, size_t run) : input(in.GetGobbi()), Targetdist(config.GetTargDist()), TargetThickness(config.GetTargThick()), hinpboards(config.GetHinpboards()), hinpchans(config.GetHinpchans()), Histo(hist), gobbi(in, hist, config), input_qdc(in.GetQDC()),input_tdc(in.GetTDC()), runnum(run) {
+Det::Det(Input& in, histo& hist, SortConfig& config, size_t run) : input(in.GetGobbi()), Targetdist(config.GetTargDist()), TargetThickness(config.GetTargThick()), hinpboards(config.GetHinpboards()), hinpchans(config.GetHinpchans()), Histo(hist), gobbi(in, hist, config), input_tdc(in.GetTDC()), runnum(run) {
 
 	// Initialize wood class instances for ROOT TTree output
 	Correl.zeroMask();
