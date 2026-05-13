@@ -11,8 +11,8 @@ class CLosses
  public:
    CLosses(int,SortConfig&);
    ~CLosses();
-   float getEin(float,float,int,float);
-   float getEout(float,float,int,float);
+   double getEin(double,double,size_t,double);
+   double getEout(double,double,size_t,double);
 
 };
 

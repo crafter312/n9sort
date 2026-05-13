@@ -56,7 +56,7 @@ Double_t gausPeak(Double_t *x,Double_t *par){
 
 
 
-void findPeaksFromHistogramFile(TString inputFile="HINPEs.root", TString detector = "Front", TString source="5peak", Int_t rebinFactor=2, Bool_t testing=kTRUE){
+void findPeaksFromHistogramFile(TString inputFile="HINPEs.root", TString detector = "Back", TString source="U232", Int_t rebinFactor=2, Bool_t testing=kTRUE){
   
   histoFile = TFile::Open(inputFile,"READ");
   cout << "Opening file: " << histoFile->GetName() << endl;
@@ -68,7 +68,7 @@ void findPeaksFromHistogramFile(TString inputFile="HINPEs.root", TString detecto
   Int_t numChans = 32; // fix this to default per chip
   Int_t numDetectorElements = 0;
 
-  TString histoprefix = "SpecTcl_hinp1_mb1_e_";
+  TString histoprefix = "SpecTcl_hinpa_mb1_e_";
   
 
   //Not using histopath for the spectcl tree files unpacked by HINPtree_unpack.C
@@ -94,6 +94,10 @@ void findPeaksFromHistogramFile(TString inputFile="HINPEs.root", TString detecto
     numPeaks = 5;
   }
   
+  if (source.Contains("U232") == kTRUE) {
+    numPeaks = 3;
+  }
+
   if (source.Contains("5peak") == kTRUE) {
     numPeaks = 5;
   }
@@ -205,6 +209,12 @@ void findPeaksFromHistogramFile(TString inputFile="HINPEs.root", TString detecto
         h1->GetXaxis()->SetRangeUser(400,1500);
       if(source.Contains("Ra226") == kTRUE && detector.Contains("Delta") == kTRUE)
         h1->GetXaxis()->SetRangeUser(300,1300);
+      if(source.Contains("U232") == kTRUE && detector.Contains("Front") == kTRUE)
+        h1->GetXaxis()->SetRangeUser(1000,1600);
+      if(source.Contains("U232") == kTRUE && detector.Contains("Back") == kTRUE)
+        h1->GetXaxis()->SetRangeUser(950,1600);
+      if(source.Contains("U232") == kTRUE && detector.Contains("Delta") == kTRUE)
+        h1->GetXaxis()->SetRangeUser(1000,1600);
       if(source.Contains("5peak") == kTRUE && detector.Contains("Front"))
         h1->GetXaxis()->SetRangeUser(200,1300);
       if(source.Contains("5peak") == kTRUE && detector.Contains("Back"))

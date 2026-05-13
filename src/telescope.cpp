@@ -43,7 +43,7 @@ telescope::telescope(double thick0, SortConfig& config, bool csi) : hasCsI(csi) 
 	SiWidth = 6.45;
 	SiFrame = 7.237;
 	holeSize = config.GetGobbiHoleSize() * .1; // convert from mm to cm
-	losses = new CLosses(3, config);
+	losses = new CLosses(8, config);
 	Ran = new TRandom();
 	
 	// Read in front/back CsI strip extents from file

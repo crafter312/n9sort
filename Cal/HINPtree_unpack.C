@@ -41,7 +41,7 @@ vector<string> generate_column_names_hinp(const string& parname, string silname)
 		for (int chan = 0; chan < CHAN_COUNT; chan++) {
 			b = (board < 10 ? "0" : "") + to_string(board);
 			c = (chan < 10 ? "0" : "") + to_string(chan);
-			columns.push_back("SpecTcl_hinp1_mb1_" + parname + "_" + b + "." + c);
+			columns.push_back("SpecTcl_hinpa_mb1_" + parname + "_" + b + "." + c);
 		}
 	}
 	return columns;
@@ -50,8 +50,8 @@ vector<string> generate_column_names_hinp(const string& parname, string silname)
 void HINPtree_unpack() {
 
   // Get number of entries from input file
-	string iprefix = "run-509-510";
-	string path = "../../SpecTcl_6Liplus2IAS/";
+	string iprefix = "run-5";
+	string path = "~/DAQ/SpecTclHira/";
 	size_t numentries;
 
 	TFile *file = TFile::Open((path + iprefix + ".root").c_str());
