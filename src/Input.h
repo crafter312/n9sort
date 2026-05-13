@@ -23,14 +23,14 @@
 #include "SortConfig.h"
 
 // Ensure that these match the configuration of your hardware system!
-#define HINP_BOARD_COUNT 12
+#define HINP_BOARD_COUNT 8
 #define HINP_CHAN_COUNT 32
 #define PSD_CHIP_COUNT 24
 #define PSD_CHAN_COUNT 8
 #define QDCV965_CHAN_COUNT 2 // CAEN v965, 16 channels with h and l each (32 total parameters)
 #define ADC_CHAN_COUNT 32
 #define QDC_CHAN_COUNT 32
-#define TDC_CHAN_COUNT 16 // CAEN v1190a, 128 channels can be configured to accept up to 16 hits each
+#define TDC_CHAN_COUNT 48 // CAEN v1190a, 128 channels can be configured to accept up to 16 hits each
 #define TDC_HIT_COUNT 3 // CAEN v1190a, 128 channels can be configured to accept up to 16 hits each
 
 // Number of columns per parameter type in the input file
@@ -137,7 +137,7 @@ public:
 		}
 		
 		// Hit getter functions
-		size_t GetNHits() const { return Nhits; }
+		size_t GetNhits() const { return Nhits; }
 		size_t GetChan(size_t i) const { return chan[i]; }
 		size_t GetAQ(size_t i) const { return aq[i]; }
 	};
@@ -162,7 +162,7 @@ public:
 		}
 		
 		// Hit getter functions
-		size_t GetNHits() const { return Nhits; }
+		size_t GetNhits() const { return Nhits; }
 		size_t GetChan(size_t i) const { return chan[i]; }
 		size_t GetQH(size_t i) const { return qh[i]; }
 		size_t GetQL(size_t i) const { return ql[i]; }
@@ -184,8 +184,8 @@ public:
 		}
 		
 		// Hit getter functions
-		size_t GetNHits(size_t ch) const { return Nhits[ch]; }
-		std::optional<double> GetT(size_t ch, size_t i) { return (i >= t[ch].size()) ? std::nullopt : std::optional<double>(t[ch][i]); }
+		size_t GetNhits(size_t ch) const { return Nhits[ch]; }
+		std::optional<double> GetT(size_t ch, size_t i) const { return (i >= t[ch].size()) ? std::nullopt : std::optional<double>(t[ch][i]); }
 		
 		// Group channel hits into single vector for interface with TexNeut
 		// Make sure that this properly accesses the TDC channels dedicated to TexNeut (4-16 in my case)
@@ -221,11 +221,11 @@ private:
 
 	/******** PRIVATE STATIC HELPER FUNCTIONS ********/
 
-	static std::vector<std::string> GenerateColumnNamesHINP(const std::string&);
+	static std::vector<std::string> GenerateColumnNamesHINP(const std::string&, const std::string&);
 	static std::vector<std::string> GenerateColumnNamesPSD(const std::string&);
 	static std::vector<std::string> GenerateColumnNamesADCQDC(const std::string&, const size_t&);
 	static std::vector<std::string> GenerateColumnNamesQDCV965(const std::string&);
-	static std::vector<std::string> GenerateColumnNamesTDC();
+	static std::vector<std::string> GenerateColumnNamesTDC(const std::string&);
 
 };
 

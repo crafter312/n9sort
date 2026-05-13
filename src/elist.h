@@ -34,7 +34,7 @@ public:
 	order Order[nnn];
 	int mult;
 
-	void Add(int, double, int, int, double, double, int);
+	void Add(int, double, double, int, int, double, double, int);
 	void Add(int, double, int, int, double);
 	void Add(int, double, int, int);
 	void Remove(int);

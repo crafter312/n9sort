@@ -27,11 +27,20 @@ using namespace std;
 
 Det::Det(Input& in, histo& hist, SortConfig& config, size_t run) : input(in.GetGobbi()), Targetdist(config.GetTargDist()), TargetThickness(config.GetTargThick()), hinpboards(config.GetHinpboards()), hinpchans(config.GetHinpchans()), Histo(hist), gobbi(in, hist, config), input_tdc(in.GetTDC()), runnum(run) {
 
+#ifdef ENABLE_DEBUG
+	cout << "Det::Det 1" << endl;
+#endif
+
 	// Initialize wood class instances for ROOT TTree output
 	Correl.zeroMask();
 	Correl.proton.mask[0] = 1;
 	Correl.H3.mask[0] = 1;
 	He4_pt = make_unique<wood>(Correl, "t_He4_pt", Histo.dir4He, false);
+	
+#ifdef ENABLE_DEBUG
+	cout << "Det::Det 2" << endl;
+#endif
+	
 	Correl.zeroMask();
 	Correl.H2.mask[0] = 1;
 	Correl.H2.mask[1] = 1;
@@ -104,6 +113,11 @@ Det::Det(Input& in, histo& hist, SortConfig& config, size_t run) : input(in.GetG
 	Correl.alpha.mask[0] = 1;
 	Correl.alpha.mask[1] = 1;
 	B9_paa = make_unique<wood>(Correl, "t_B9_paa", Histo.dir9B, false);
+	
+#ifdef ENABLE_DEBUG
+	cout << "Det::Det 3" << endl;
+#endif
+	
 	Correl.zeroMask();
 	Correl.proton.mask[0]=1;
 	Correl.proton.mask[1]=1;
@@ -119,6 +133,10 @@ Det::Det(Input& in, histo& hist, SortConfig& config, size_t run) : input(in.GetG
 	Correl.proton.mask[4]=1;
 	Correl.alpha.mask[0]=1;
 	N9_5pa = make_unique<wood>(Correl, "t_N9_5pa", Histo.dir9N, false);
+	
+#ifdef ENABLE_DEBUG
+	cout << "Det::Det 4" << endl;
+#endif
 
 	Correl.zeroMask();
 }

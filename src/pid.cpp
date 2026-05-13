@@ -9,6 +9,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <stdexcept>
 
 using namespace std;
 
@@ -19,10 +20,7 @@ pid::pid(string file, SortConfig& config) : Z(-1), A(-1) {
 	// Open zline file
 	string name = config.GetPIDDir() + file + ".zline";
 	ifstream ifile(name.c_str());
-	if (!ifile.is_open()) {
-		cout << "could not open zline file " << name << endl;
-		abort();
-	}
+	if (!ifile.is_open()) throw invalid_argument(string(BOLDRED) + string("ERROR: Could not open zline file ") + name + string(RESET));
 
 	// Read zline file
 	ifile >> nlines;

@@ -16,8 +16,10 @@ private:
 	std::string dataDir;
 	std::string runNumbersFile;
 	std::string itreeName;
+	std::string hinpBranchName;
 	std::string adcBranchName;
 	std::string qdcBranchName;
+	std::string tdcBranchName;
 	std::string ofileName;
 	std::string otreeName;
 	std::string configDir;
@@ -36,8 +38,9 @@ private:
 	std::string CsITimecalFile;
 	std::string CsIStripExtentsFile;
 	std::string CsIChannelMapFile;
-	double targdist;
-	double targthick;
+	double targdist;      // in cm
+	double targthick;     // in mg/cm^2
+	double alThick;       // thickness of aluminum absorbers in front of Gobbi (mg/cm^2)
 	size_t updateRate;
 	size_t hinpboards;    // total number of HINP boards in experimental setup
 	size_t hinpchans;     // number of channels per HINP board (this should always be 32)
@@ -51,8 +54,10 @@ public:
 	std::string GetDataDir() const { return dataDir; }
 	std::string GetRunNumbersFile() const { return runNumbersFile; }
 	std::string GetItreeName() const { return itreeName; }
+	std::string GetHinpBranchName() const { return hinpBranchName; }
 	std::string GetAdcBranchName() const { return adcBranchName; }
 	std::string GetQdcBranchName() const { return qdcBranchName; }
+	std::string GetTdcBranchName() const { return tdcBranchName; }
 	std::string GetOfileName() const { return ofileName; }
 	std::string GetOtreeName() const { return otreeName; }
 	std::string GetConfigDir() const { return configDir; }
@@ -73,6 +78,7 @@ public:
 	std::string GetCsIChannelMapFile() const { return CsIChannelMapFile; }
 	double GetTargDist() const { return targdist; }
 	double GetTargThick() const { return targthick; }
+	double GetAlThick() const { return alThick; }
 	size_t GetUpdateRate() const { return updateRate; }
 	size_t GetHinpboards() const { return hinpboards; }
 	size_t GetHinpchans() const { return hinpchans; }

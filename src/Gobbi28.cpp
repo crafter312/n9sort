@@ -5,11 +5,13 @@
 
 #include "Gobbi28.h"
 
+#include <algorithm>
 #include <stdexcept>
 #include <string>
 #include <utility>
 
 #include <TH1I.h>
+#include <TH2I.h>
 
 #include "constants.h"
 #include "solution.h"
@@ -20,11 +22,15 @@ using namespace std;
 
 Gobbi28::Gobbi28(Input& in, histo& hist, SortConfig& config) : Targetdist(config.GetTargDist()), TargetThickness(config.GetTargThick()), hinpboards(config.GetHinpboards()), hinpchans(config.GetHinpchans()), Histo(hist), input(in.GetGobbi()), input_qdc(in.GetQDC()), input_adc(in.GetADC()), input_tdc(in.GetTDC()) {
 	for (size_t id = 0; id < 4; id++) {
-		Telescope[id] = new telescope(TargetThickness, config);
+		Telescope[id] = new telescope(TargetThickness, config, true);
 		Telescope[id]->init(id, config); // tells Telescope what position it is in
 		Telescope[id]->SetTargetDistance(Targetdist);
 	}
 	NCsI = Telescope[0]->GetNCsI(); // same for every telescope
+
+#ifdef ENABLE_DEBUG
+	cout << "Gobbi28::Gobbi28 1" << endl;
+#endif
 
 	string calDir = config.GetCalDir();
 	FrontEcal = new calibrate(4, hinpchans, calDir + config.GetFrontEcalFile(), 1, false);
@@ -33,47 +39,100 @@ Gobbi28::Gobbi28(Input& in, histo& hist, SortConfig& config) : Targetdist(config
 	FrontTimecal = new calibrate(4, hinpchans, calDir + config.GetFrontTimecalFile(), 1, false);
 	BackTimecal = new calibrate(4, hinpchans, calDir + config.GetBackTimecalFile(), 1, false);
 	CsITimecal = new calibrate(4, NCsI, calDir + config.GetCsITimecalFile(), 1, false);
-	
+
+#ifdef ENABLE_DEBUG
+	cout << "Gobbi28::Gobbi28 2" << endl;
+#endif
+
 	// Read in CsI mappings from file
 	string incsimapfile = config.GetConfigDir() + config.GetCsIChannelMapFile();
 	ifstream incsimap(incsimapfile);
 	if (incsimap.fail()) throw invalid_argument(string(BOLDRED) + string("CsI channel map file ") + incsimapfile + string(" does not exist or failed to open") + string(RESET));
-	else cout << GREEN << "CsI channel map file " << inextentsfile << " opened" << RESET << endl;
 	
+#ifdef ENABLE_DEBUG
+	else cout << GREEN << "CsI channel map file " << incsimapfile << " opened" << RESET << endl;
+#endif
+
+#ifdef ENABLE_DEBUG
+	cout << "Gobbi28::Gobbi28 3" << endl;
+#endif
+
 	size_t chan, tel, id;
+	size_t maxid = 0;
 	string name;
 	while (incsimap.good()) {
 		incsimap >> chan >> tel >> id;
+		
+#ifdef ENABLE_DEBUG
+		cout << "chan " << chan << " tel " << tel << " id " << id << endl;
+#endif
+		
 		if ((tel != 0) && (tel != 1) && (tel != 2) && (tel != 3)) throw invalid_argument(string(BOLDRED) + string("CsI telescope # must be 0, 1, 2, or 3") + string(RESET));
+		if (telCsImap.find(chan) != telCsImap.end()) continue; // avoid cases of duplicate ADC channel
 		telCsImap[chan] = tel;
 		idCsImap[chan] = id;
 		
 		if (chan > maxadcchan) maxadcchan = chan;
+		if (id > maxid) maxid = id;
 		
 		//// Make per-CsI crystal histograms
 		
-		Histo->dir1dCsI_Energy->cd();
-		name = "CsI_Energy_" + string(chan) + "_R_unmatched";
-		Histo->CsI_Energy_R_um[chan] = new TH1I(name.c_str(), "", 1024, 0, 4096);
-		name = "CsI_Energy_" + string(chan) + "_cal_unmatched";
-		Histo->CsI_Energy_cal_um[chan] = new TH1I(name.c_str(), "", 512, 0, 200);
+		Histo.dir1dCsI_Energy->cd();
+		name = "CsI_Energy_" + to_string(chan) + "_R_unmatched";
+		Histo.CsI_Energy_R_um[chan] = new TH1I(name.c_str(), "", 1024, 0, 4096);
+		name = "CsI_Energy_" + to_string(chan) + "_cal_unmatched";
+		Histo.CsI_Energy_cal_um[chan] = new TH1I(name.c_str(), "", 512, 0, 200);
 		
-		Histo->dir1dCsI_QDC->cd();
-		name = "CsI_QDC_" + string(chan) + "_um";
-		Histo->CsI_QDC_um[chan] = new TH1I(name.c_str(), "", 1024, 0, 4096);
-		name = "CsI_QDC_" + string(chan) + "_matched";
-		Histo->CsI_QDC_matched[chan] = new TH1I(name.c_str(), "", 1024, 0, 4096);
+		Histo.dir1dCsI_QDC->cd();
+		name = "CsI_QDC_" + to_string(chan) + "_um";
+		Histo.CsI_QDC_um[chan] = new TH1I(name.c_str(), "", 1024, 0, 4096);
+		name = "CsI_QDC_" + to_string(chan) + "_matched";
+		Histo.CsI_QDC_matched[chan] = new TH1I(name.c_str(), "", 1024, 0, 4096);
 		
-		Histo->dir1dCsI_Time->cd();
-		name = "CsI_Time_" + string(chan) + "_um";
-		Histo->CsI_Time_um[tdcstart + chan] = new TH1I(name.c_str(), "", 1000, -500, 500);
+		Histo.dir1dCsI_Time->cd();
+		name = "CsI_Time_" + to_string(chan) + "_um";
+		Histo.CsI_Time_um[tdcstart + chan] = new TH1I(name.c_str(), "", 1000, -500, 500);
+		
+		Histo.dirPSD->cd();
+		name = "CsIonly_PSD_" + to_string(chan);
+		Histo.CsIonly_PSD[chan] = new TH2I(name.c_str(), "", 4096, 0, 4096, 4096, 0, 4096);
 	}
 	
+#ifdef ENABLE_DEBUG
+	cout << "Gobbi28::Gobbi28 4" << endl;
+#endif
+	
+	// Make CsI histograms indexed by telescope and per-telescope ID, instead of ADC channel
+	for (size_t i = 0; i < 4; i++) {
+		Histo.CsI_Energy_R[i].reserve(maxid);
+		Histo.CsI_Energy_R_center[i].reserve(maxid);
+		Histo.DEE_CsI[i].reserve(maxid);
+		
+#ifdef ENABLE_DEBUG
+		cout << "Gobbi28::Gobbi28 4a" << endl;
+#endif
+		
+		for (size_t j = 0; j < maxid; j++) {
+			Histo.dir1dCsI_Energy->cd();
+			name = "CsI_Energy_" + to_string(i) + "_" + to_string(j); // i is telescope, j is CsI ID
+			Histo.CsI_Energy_R[i][j] = new TH1I(name.c_str(), "", 1024, 0, 4096);
+			name = "CsI_Energy_R_center_" + to_string(i) + "_" + to_string(j); // i is telescope, j is CsI ID
+			Histo.CsI_Energy_R_center[i][j] = new TH1I(name.c_str(), "", 1024, 0, 4096);
+			Histo.dirDEEplots->cd();
+			name = "DEE_CsI_" + to_string(i) + "_" + to_string(j); // i is telescope, j is CsI ID
+			Histo.DEE_CsI[i][j] = new TH2I(name.c_str(), "", 512, 0, 4096, 500, 0, 50);
+		}
+	}
+
+#ifdef ENABLE_DEBUG
+	cout << "Gobbi28::Gobbi28 5" << endl;
+#endif
+
 	// Make CsI summary plots
-	Histo->dirSummary->cd();
-	Histo->sumCsIE_R_um   = new TH2I("sumCsIE_R_um", "", maxadcchan, 0, maxadcchan, 1024, 0, 4096);
-	Histo->sumCsIE_cal_um = new TH2I("sumCsIE_cal_um", "", maxadcchan, 0, maxadcchan, 512, 0, 200);
-	Histo->sumCsITime_um  = new TH2I("sumCsITime_um", "", maxadcchan, 0, maxadcchan, 1000, -500, 500);
+	Histo.dirSummary->cd();
+	Histo.sumCsIE_R_um   = new TH2I("sumCsIE_R_um", "", maxadcchan, 0, maxadcchan, 1024, 0, 4096);
+	Histo.sumCsIE_cal_um = new TH2I("sumCsIE_cal_um", "", maxadcchan, 0, maxadcchan, 512, 0, 200);
+	Histo.sumCsITime_um  = new TH2I("sumCsITime_um", "", maxadcchan, 0, maxadcchan, 1000, -500, 500);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -121,71 +180,82 @@ void Gobbi28::analyze() {
 	}
 	
 	// Loop through CsI ADC/QDC/TDC hits, match and store in Telescope array
-	
+	addCsIHits();
 
 	// Loop through telescopes and perform additional analysis
 	size_t sumchan = 0;
-	size_t totMulti = 0;
 	size_t Pidmulti = 0;
 	for (size_t id = 0; id < 4; id++) {
-
-		// This is the spot where we run Telescope->Neighbours() for addback
-		Telescope[id]->Front.Neighbours(id);
-		Telescope[id]->Back.Neighbours(id);
-
-		// Then fill summary histograms after addback
-		for (size_t n = 0; n < Telescope[id]->Front.Nstore; n++) {
-			sumchan = id*hinpchans + Telescope[id]->Front.Order[n].strip;
-			Histo.sumFrontE_addback->Fill(sumchan, Telescope[id]->Front.Order[n].energy);
-		}
-		for (size_t n = 0; n < Telescope[id]->Back.Nstore; n++) {
-			sumchan = id*hinpchans + Telescope[id]->Back.Order[n].strip;
-			Histo.sumBackE_addback->Fill(sumchan, Telescope[id]->Back.Order[n].energy);
-		}
-
-		// Handle simple case of single strip multiplicity
-		bool isSimple = false;
-		if (Telescope[id]->Front.Nstore == 1 && Telescope[id]->Delta.Nstore == 1) {
-			Histo.frontdeltastripnum[id]->Fill(Telescope[id]->Front.Order[0].strip, Telescope[id]->Delta.Order[0].strip);
-			Histo.timediff[id]->Fill(Telescope[id]->Front.Order[0].time - Telescope[id]->Delta.Order[0].time);
-
-			if (Telescope[id]->Back.Nstore == 1) {
-				totMulti += Telescope[id]->simpleFront();
-				Histo.sumFrontTimeMult1_cal->Fill(id*hinpchans + Telescope[id]->Front.Order[0].strip, Telescope[id]->Front.Order[0].time);
-				isSimple = true;
-			}
-		}
-
-		// If higher multiplicity then worry about picking the right one
-		// This also handles the case where Nstore = 0 for any of the chanels
-		if (!isSimple) totMulti += Telescope[id]->multiHit();
-
-		// Next, fill E vs. dE and other plots
 
 #ifdef ENABLE_DEBUG
 		cout << "id " << id << ", Nsol " << Telescope[id]->Nsolution << endl;
 #endif
 
+		// This is the spot where we run Telescope->Neighbours() for addback
+		Telescope[id]->Front.Neighbours(id);
+		Telescope[id]->Back.Neighbours(id);
+		
+		int FrontN = Telescope[id]->Front.Nstore;
+		int BackN  = Telescope[id]->Back.Nstore;
+		int CsIN   = Telescope[id]->CsI.Nstore;
+
+		// Then fill summary histograms after addback
+		for (size_t n = 0; n < FrontN; n++) {
+			sumchan = id*hinpchans + Telescope[id]->Front.Order[n].strip;
+			Histo.sumFrontE_addback->Fill(sumchan, Telescope[id]->Front.Order[n].energy);
+		}
+		for (size_t n = 0; n < BackN; n++) {
+			sumchan = id*hinpchans + Telescope[id]->Back.Order[n].strip;
+			Histo.sumBackE_addback->Fill(sumchan, Telescope[id]->Back.Order[n].energy);
+		}
+		
+		// No point if not at least one front and one back
+		if (FrontN < 1 || BackN < 1) continue;
+
+		// Simple case of single strip multiplicity in front/back for CsI-less position map
+		// Useful for alpha calibrations or other data without CsI information
+		if (FrontN == 1 && BackN == 1) {
+			Telescope[id]->testingHitE();
+			Histo.xyhitmap_sionly->Fill(Telescope[id]->tempSol.Xpos, Telescope[id]->tempSol.Ypos);
+			Histo.sumFrontTimeMult1_cal->Fill(id*hinpchans + Telescope[id]->Front.Order[0].strip, Telescope[id]->Front.Order[0].time);
+			Histo.FrontvsBack_sionly[id]->Fill(Telescope[id]->tempSol.energy, Telescope[id]->tempSol.benergy);
+		}
+		
+		// For everything else, no point if there is not at least one CsI hit
+		if (CsIN < 1) continue;
+		
+		// Handle simple case of one hit each in front, back, and CsI
+		if (FrontN == 1 && BackN == 1 && CsIN == 1) NsimpleECsI = Telescope[id]->simpleECsI();
+		else NmultiECsI = Telescope[id]->multiHitECsI();
+
+		// Next, fill E vs. dE and other plots
 		for (size_t isol = 0; isol < Telescope[id]->Nsolution; isol++) {
-			Telescope[id]->position(isol); // calculates x,y pos, and lab angle
+			Telescope[id]->position(isol); // calculates (x, y) pos and lab angle
+			solution& sol = Telescope[id]->Solution[isol];
 
 #ifdef ENABLE_DEBUG
 			cout << "isol " << isol << endl; 
-			cout << "cos " << cos(Telescope[id]->Solution[isol].theta) << endl;
-			cout << "the " << Telescope[id]->Solution[isol].theta * rad_to_deg << endl;
-			cout << "front strip " << Telescope[id]->Solution[isol].ifront << ", back strip " << Telescope[id]->Solution[isol].iback << endl;
-			cout << "x " << Telescope[id]->Solution[isol].Xpos << ", y " << Telescope[id]->Solution[isol].Ypos << endl;
-			cout << "E " << Telescope[id]->Solution[isol].energy << ", dE " << Telescope[id]->Solution[isol].denergy << endl;
+			cout << "cos " << cos(sol.theta) << endl;
+			cout << "the " << sol.theta * rad_to_deg << endl;
+			cout << "front strip " << sol.ifront << ", back strip " << sol.iback << endl;
+			cout << "x " << sol.Xpos << ", y " << sol.Ypos << endl;
+			cout << "E " << sol.energy << ", dE " << sol.denergy << endl;
 #endif
 
-			Histo.FrontvsBack[id]->Fill(Telescope[id]->Solution[isol].energy, Telescope[id]->Solution[isol].benergy);
-			double Ener = Telescope[id]->Solution[isol].energy + Telescope[id]->Solution[isol].denergy * (1 - cos(Telescope[id]->Solution[isol].theta));
-			Histo.DEE[id]->Fill(Ener, Telescope[id]->Solution[isol].denergy * cos(Telescope[id]->Solution[isol].theta));
-			Histo.xyhitmap->Fill(Telescope[id]->Solution[isol].Xpos, Telescope[id]->Solution[isol].Ypos);
-			double th = Telescope[id]->Solution[isol].theta * rad_to_deg;
-			Histo.Evstheta[id]->Fill(th, Telescope[id]->Solution[isol].energy);
-			Histo.Evstheta_all->Fill(th, Telescope[id]->Solution[isol].energy);
+			double th = sol.theta * rad_to_deg;
+			size_t icsi = sol.iCsI;
+			
+			Histo.DEE_CsI[id][icsi]->Fill(sol.energyR, sol.denergy * cos(sol.theta));
+			Histo.FrontvsBack[id]->Fill(sol.benergy, sol.denergy);
+			Histo.xyhitmap->Fill(sol.Xpos, sol.Ypos);
+			Histo.tphitmap->Fill(th * cos(sol.phi), th * sin(sol.phi));
+			Histo.Evstheta[id]->Fill(th, sol.energy);
+			Histo.Evstheta_all->Fill(th, sol.energy);
 			Histo.Theta->Fill(th);
+			Histo.CsI_Energy_R[id][icsi]->Fill(sol.energyR);
+			
+			if (Telescope[id]->isCenter(sol.ifront, sol.iback))
+				Histo.CsI_Energy_R_center[id][icsi]->Fill(sol.energyR);
 
 			/******** ANGLE DEPENDENT CALIBRATION CORRECTION FOR HIGHER ENERGY POINTS ********/
 			// This was added my Nicholas Dronchi, and can generally be ignored or bypassed
@@ -193,39 +263,25 @@ void Gobbi28::analyze() {
 			// have left this in for now since all it does is fill some extra histograms.
 
 			// NOTE: SpecTcl should already map channels to strips, and this code has been modified to skip the unpacking and directly read in a SpecTcl output tree
-			int chan = Telescope[id]->Solution[isol].ifront;
-
-			// Make a correction to the E silicon energy based on angle
-			double angle_Ecorr = 1.0277e-5*(th*th*th) + 1.6125e-3*(th*th) + 8.3097e-4*th - 1.0227e-3;
-			double Ecorr = Telescope[id]->Solution[isol].energy + angle_Ecorr;
-			double Ecorr_R = FrontEcal->reverseCal(id, Telescope[id]->Solution[isol].ifront, Ecorr);
-
-			Histo.AngleCorrE[id][chan]->Fill(Ecorr);
-			Histo.AngleCorr_noCorr[id][chan]->Fill(Telescope[id]->Solution[isol].energy);
-			Histo.AngleCorrE_R[id][chan]->Fill(Ecorr_R);
-			Histo.AngleCorrFrontE_cal->Fill(id*hinpchans + Telescope[id]->Solution[isol].ifront, Ecorr);
-
-			// NOTE: SpecTcl should already map channels to strips, and this code has been modified to skip the unpacking and directly read in a SpecTcl output tree
-			int chandE = Telescope[id]->Solution[isol].ide;
+			int chandE = sol.ide;
 
 			// Make a correction to the dE silicon energy based on angle
-			double angle_dEcorr = -1.0971e-5*(th*th*th) - 1.1446e-3*(th*th) - 8.9371e-4*th + 1.0879e-3;
-			//double angle_dEcorr = 2.0527e-6*(th*th*th) - 1.4281e-3*(th*th) + 1.5589e-4*th - 7.3389e-4; // no Au foilloss
-			double dEcorr = Telescope[id]->Solution[isol].denergy + angle_dEcorr;
-			double dEcorr_R = DeltaEcal->reverseCal(id,Telescope[id]->Solution[isol].ide, dEcorr);
+			double angle_dEcorr = 1.0277e-5*(th*th*th) + 1.6125e-3*(th*th) + 8.3097e-4*th - 1.0227e-3;
+			double dEcorr = sol.denergy + angle_dEcorr;
+			double dEcorr_R = FrontEcal->reverseCal(id, chandE, dEcorr);
 
 			Histo.AngleCorrDeltaE[id][chandE]->Fill(dEcorr);
-			Histo.AngleCorrDeltaE_noCorr[id][chandE]->Fill(Telescope[id]->Solution[isol].denergy);
+			Histo.AngleCorrDeltaE_noCorr[id][chandE]->Fill(sol.denergy);
 			Histo.AngleCorrDeltaE_R[id][chandE]->Fill(dEcorr_R);
-			Histo.AngleCorrDeltaE_cal->Fill(id*hinpchans + Telescope[id]->Solution[isol].ide, dEcorr);
+			Histo.AngleCorrDeltaE_cal->Fill(id*hinpchans + chandE, dEcorr);
 
-			double Etot = Telescope[id]->Solution[isol].energy + Telescope[id]->Solution[isol].denergy;
-			Histo.sumEtot_cal->Fill(id*hinpchans + Telescope[id]->Solution[isol].ifront, Etot);
-			Histo.AngleCorrSum_cal->Fill(id * hinpchans + Telescope[id]->Solution[isol].ifront, Ecorr + dEcorr);
+			double Etot = sol.energy + sol.denergy;
+			Histo.sumEtot_cal->Fill(id*hinpchans + sol.ifront, Etot);
+			Histo.AngleCorrSum_cal->Fill(id*hinpchans + sol.ifront, sol.energy + dEcorr);
 
 #ifdef ENABLE_DEBUG
-			cout << "th " << th << ", angle_Ecorr " << angle_Ecorr << " MeV, angle_dEcorr " << angle_dEcorr << " MeV" << endl;
-			if (Ecorr > 5) cout << "EnergyR " << Telescope[id]->Solution[isol].energyR << ", Ecorr " << Ecorr << ", Ecorr_R " << Ecorr_R << endl;
+			cout << "th " << th << ", angle_dEcorr " << angle_dEcorr << " MeV" << endl;
+			if (dEcorr > 5) cout << "dEnergyR " << sol.denergyR << ", dEcorr " << dEcorr << ", dEcorr_R " << dEcorr_R << endl;
 #endif
 
 		}
@@ -240,10 +296,6 @@ void Gobbi28::analyze() {
 
 			double xpos = sol.Xpos;
 			double ypos = sol.Ypos;
-
-			// Gated on or A time
-			if (input_tdc.t[1][0] >= -80 && input_tdc.t[1][0] <= -50)
-				Histo.xyhitmap_tgate_orA->Fill(xpos, ypos);
 
 			// Gate on specific (Z, A) PID results
 			double tdiff = sol.timediff;
@@ -403,9 +455,16 @@ void Gobbi28::addCsIHits() {
 	// Fill unmatched QDC histograms
 	size_t nQhits = input_qdc.GetNhits();
 	for (size_t iq = 0; iq < nQhits; iq++) {
+	
+		// Test for valid QDC channel
+		size_t qdcchan = input_qdc.GetChan(iq);
+		if (Histo.CsI_QDC_um.find(qdcchan) == Histo.CsI_QDC_um.end()) {
+			cout << string(BOLDRED) << "WARNING: QDC channel " << to_string(qdcchan) << " not found in CsI map" << string(RESET) << endl;
+			continue;
+		}
 		
 		// Assume that qdc and adc channels are the same for each CsI
-		Histo->CsI_QDC_um[input_qdc.GetChan(iq)]->Fill(input_qdc.GetAQ(iq));
+		Histo.CsI_QDC_um[qdcchan]->Fill(input_qdc.GetAQ(iq));
 	}
 	
 	// Fill unmatched TDC histograms
@@ -413,14 +472,14 @@ void Gobbi28::addCsIHits() {
 	for (size_t it = tdcstart; it <= tdcstart + maxadcchan; it++) {
 		
 		// Skip if no output histogram exists for this tdc channel
-		if (Histo->CsI_Time_um.find(it) == Histo->CsI_Time_um.end()) continue;
+		if (Histo.CsI_Time_um.find(it) == Histo.CsI_Time_um.end()) continue;
 		
 		// Test to see if this tdc channel contains at least one hit
 		optional<double> T = input_tdc.GetT(it, 0);
 		if (T == nullopt) continue;
 		
-		Histo->CsI_Time_um[it]->Fill(T.value());
-		Histo->sumCsITime_um->Fill(it - tdcstart, T.value());
+		Histo.CsI_Time_um[it]->Fill(T.value());
+		Histo.sumCsITime_um->Fill(it - tdcstart, T.value());
 	}
 	
 	// Fill unmatched ADC histograms
@@ -433,21 +492,27 @@ void Gobbi28::addCsIHits() {
 		size_t id = idCsImap[adcchan];
 		double Ecal = CsIEcal->getEnergy(tel, id, ER);
 		
-		Histo->CsI_Energy_R_um[adcchan]->Fill(ER);
-		Histo->CsI_Energy_cal_um[adcchan]->Fill(Ecal);
-		Histo->sumCsIE_R_um->Fill(adcchan, ER);
-		Histo->sumCsIE_cal_um->Fill(adcchan, Ecal);
+		// Test for valid ADC channel
+		if (Histo.CsI_Energy_R_um.find(adcchan) == Histo.CsI_Energy_R_um.end()) {
+			cout << string(BOLDRED) << "WARNING: ADC channel " << to_string(adcchan) << " not found in CsI map" << string(RESET) << endl;
+			continue;
+		}
+		
+		Histo.CsI_Energy_R_um[adcchan]->Fill(ER);
+		Histo.CsI_Energy_cal_um[adcchan]->Fill(Ecal);
+		Histo.sumCsIE_R_um->Fill(adcchan, ER);
+		Histo.sumCsIE_cal_um->Fill(adcchan, Ecal);
 		
 		for (size_t iq = 0; iq < nQhits; iq++) {
 			size_t qdcchan = input_qdc.GetChan(iq);
 			size_t Q = input_qdc.GetAQ(iq);
 			
-			if (qdcchan == qdcchan) Histo->CsI_QDC_matched[adcchan]->Fill(Q);
+			if (qdcchan == qdcchan) Histo.CsI_QDC_matched[adcchan]->Fill(Q);
 			
 			for (size_t it = tdcstart; it <= tdcstart + maxadcchan; it++) {
 				
 				// Skip if no output histogram exists for this tdc channel
-				if (Histo->CsI_Time_um.find(it) == Histo->CsI_Time_um.end()) continue;
+				if (Histo.CsI_Time_um.find(it) == Histo.CsI_Time_um.end()) continue;
 				
 				// Test to see if this tdc channel contains at least one hit
 				optional<double> T = input_tdc.GetT(it, 0);
@@ -457,6 +522,8 @@ void Gobbi28::addCsIHits() {
 				
 				Telescope[tel]->CsI.Add(id, Ecal, 0., 0, ER, T.value(), Q, true);
 				Telescope[tel]->multCsI++;
+				
+				Histo.CsIonly_PSD[adcchan]->Fill(ER, Q);
 			}
 		}
 	}

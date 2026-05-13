@@ -47,13 +47,16 @@ public:
 	void Reduce();
 	int simpleFront();
 	int multiHit();
+	int testingHitE();
 	int simpleECsI();
 	int multiHitECsI();
 	void SetTargetDistance(double);
 	size_t getPID();
 	int calcEloss();
+	bool isCenter(size_t ifront, size_t iback);
 
 	CLosses* losses;
+	CLosses* Allosses;
 	double TargetThickness;
 
 	int id;
@@ -69,6 +72,7 @@ public:
 	elist CsI;
 
 	solution Solution[20];
+	solution tempSol;
 	int Nsolution = 0;
 
 	pid* Pid;
@@ -98,6 +102,8 @@ public:
 	// FB silicon strip extents for CsI crystal matching (min, max, inclusive)
 	std::vector<std::pair<size_t, size_t>> CsIFextents;
 	std::vector<std::pair<size_t, size_t>> CsIBextents;
+	std::vector<size_t> CsIFmids;
+	std::vector<size_t> CsIBmids;
 	size_t NCsI{0};
 
 	//for nested loops
@@ -111,6 +117,7 @@ public:
 	int dstripMin;
 	size_t NSisolution;
 	
+	double alThick; // thickness of aluminum absorbers, in mg/cm^2
 	bool hasCsI;
 
 };

@@ -8,7 +8,7 @@
 using namespace std;
 
 // New elist function with qdc added as option, old functions kept for backwards compatability
-void elist::Add(int StripNum, double energy, int energyRlow, int energyR, double time, double qdc, int qdcflag)
+void elist::Add(int StripNum, double energy, double energylow, int energyRlow, int energyR, double time, double qdc, int qdcflag)
 {
 
   //first find place in list
@@ -37,6 +37,7 @@ void elist::Add(int StripNum, double energy, int energyRlow, int energyR, double
   //add present energy to list
   Order[i].energy = energy;
   Order[i].energyR = energyR;
+  Order[i].energylow = energylow;
   Order[i].energyRlow = energyRlow;
   Order[i].strip = StripNum;
   Order[i].time = time;
@@ -196,7 +197,13 @@ void elist::reset()
   
 }
 //*********************************************************************
-  //looks for cross talks events
+//   _.+._
+// (^\/^\/^)
+//  \@*@*@/
+//  {_____} Just as the queen would prefer to spell it
+//Note from 8/29/2024, leave the spelling for old time's sake
+//Copied from Johnathan Phillips' sort code
+//looks for cross talks events
 void elist::Neighbours(int id)
 {
   if (Nstore <1) return; // nothing to look at 

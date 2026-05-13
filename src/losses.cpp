@@ -14,12 +14,12 @@ using namespace std;
 /**
  * constructor
  * \param Zmax0 is the maximum Z nucleus whose loss table should be stored in this class
- * \param config is a reference to the sort code's config class, used to retrieve paths of files containing energy loss tables
+ * \param path is the directory relative to the program build location containing files with energy loss tables
+ * \param mat is a string denoting which material the energy loss is required for, and therefore which files get loaded
  */
-CLosses::CLosses(int Zmax0, SortConfig& config) {
+CLosses::CLosses(int Zmax0, string path, string mat) {
 	Zmax = Zmax0;
-	string path = config.GetLossDir();
-	string suffix = "_" + config.GetTargetSuffix() + ".loss";
+	string suffix = "_" + mat + ".loss";
 	string filename;
 	loss = new CLoss2*[Zmax];
 	for (size_t iZ = 1; iZ <= Zmax; iZ++) {

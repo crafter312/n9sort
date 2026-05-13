@@ -25,6 +25,10 @@ public:
 	size_t loadSolutions(correl2& Correl);
 	solution* getNextEmptySolution(solution* sol);
 	float getEin(float, float, int, float);
+	
+	// Counters
+	size_t NsimpleECsI{0}; // # simple events with one each of front, back, and CsI in a telescope
+	size_t NmultiECsI{0};  // # more complex events with more than one of one of front, back, and CsI in a telescope
 
 private:
 	double Targetdist;

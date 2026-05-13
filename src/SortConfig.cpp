@@ -34,10 +34,14 @@ SortConfig::SortConfig(string configFilePath) {
 			runNumbersFile = line.substr(line.find('=') + 2);
 		else if (line.find("itreeName") != string::npos)
 			itreeName = line.substr(line.find('=') + 2);
+		else if (line.find("hinpBranchName") != string::npos)
+			hinpBranchName = line.substr(line.find('=') + 2);
 		else if (line.find("adcBranchName") != string::npos)
 			adcBranchName = line.substr(line.find('=') + 2);
 		else if (line.find("qdcBranchName") != string::npos)
 			qdcBranchName = line.substr(line.find('=') + 2);
+		else if (line.find("tdcBranchName") != string::npos)
+			tdcBranchName = line.substr(line.find('=') + 2);
 		else if (line.find("ofileName") != string::npos)
 			ofileName = line.substr(line.find('=') + 2);
 		else if (line.find("otreeName") != string::npos)
@@ -90,6 +94,15 @@ SortConfig::SortConfig(string configFilePath) {
 			}
 			catch (...) {
 				throw invalid_argument("targthick in config file " + configFilePath + " is not a valid double");
+			}
+		}
+		else if (line.find("alThick") != string::npos) {
+			string temps = line.substr(line.find('=') + 2);
+			try {
+				alThick = std::stod(temps);
+			}
+			catch (...) {
+				throw invalid_argument("alThick in config file " + configFilePath + " is not a valid double");
 			}
 		}
 		else if (line.find("updateRate") != string::npos) {

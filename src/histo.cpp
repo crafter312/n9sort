@@ -49,6 +49,7 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, SortConfig& config) : hinpbo
 
   // Directory for DeltaE-E plots
   dirDEEplots = new TDirectoryFile("DEEplots","DEEplots");
+  dirPSD = dirDEEplots->mkdir("PSDplots","PSDplots");
   dirhitmaps  = new TDirectoryFile("hitmaps","hitmaps");
 
   // Directory for all correlations and inv-mass
@@ -123,11 +124,13 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, SortConfig& config) : hinpbo
   sumFrontTimeMult1_cal->SetOption("colz");
 
   ostringstream name;
-  //FrontvsBack = new TH2I("FrontvsBack","",500,0,20,500,0,20);
   for (int i=0;i<4;i++) {
   	name.str("");
   	name << "FrontvsBack_" << i;
   	FrontvsBack[i] = new TH2I(name.str().c_str(),"",500,0,80,500,0,80);
+  	name.str("");
+  	name << "FrontvsBack_sionly_" << i;
+  	FrontvsBack_sionly[i] = new TH2I(name.str().c_str(),"",500,0,80,500,0,80);
   }
 
 
@@ -310,6 +313,8 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, SortConfig& config) : hinpbo
   dirhitmaps->cd();
   xyhitmap_allE = new TH2I("xyhitmap_allE","", 100,-10,10,100,-10,10);
   xyhitmap = new TH2I("xyhitmap","", 100,-10,10,100,-10,10);
+  tphitmap = new TH2I("tphitmap","",1000,-40,40,1000,-40,40);
+  xyhitmap_sionly = new TH2I("xyhitmap_sionly","", 100,-10,10,100,-10,10);
   xyhitmap_tgate_orA = new TH2I("xyhitmap_tgate_orA","", 100,-10,10,100,-10,10);
   protonhitmap = new TH2I("protonhitmap","", 100,-10,10,100,-10,10);
   deuteronhitmap = new TH2I("deuteronhitmap","", 100,-10,10,100,-10,10);

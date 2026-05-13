@@ -29,12 +29,26 @@ using namespace std;
 // NOTE: correl2 object's masks must be set correctly before instantiating this class
 // in order for initialization to proceed correctly for the desired reconstruction!
 wood::wood(correl2& correl, string name, TDirectory* dir, bool gamma0) : gamma(gamma0) {
+
+#ifdef ENABLE_DEBUG
+	cout << "wood::wood 1" << endl;
+#endif
+
 	correl.initWood(this);
+	
+#ifdef ENABLE_DEBUG
+	cout << "wood::wood 2" << endl;
+#endif
+	
 	dir->cd();
 	t = new TTree(name.c_str(), name.c_str());
 	if (gobbiFrags.size() > 0) t->Branch("gobbiFrags", &gobbiFrags);
 	if (texNeutFrags.size() > 0) t->Branch("texNeutFrags", &texNeutFrags);
 	if (s800Frags.size() > 0) t->Branch("s800Frags", &s800Frags);
+
+#ifdef ENABLE_DEBUG
+	cout << "wood::wood 3" << endl;
+#endif
 
 	// Non-fragment branches
 	t->Branch("Erel", &Erel);
@@ -56,6 +70,11 @@ wood::wood(correl2& correl, string name, TDirectory* dir, bool gamma0) : gamma(g
 
 	t->Branch("runnum", &runnum);
 	t->Branch("beamZ", &beamZ);
+	
+#ifdef ENABLE_DEBUG
+	cout << "wood::wood 4" << endl;
+#endif
+	
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -65,6 +84,11 @@ wood::~wood() {}
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void wood::initFrag(size_t i, parType::detType det) {
+
+#ifdef ENABLE_DEBUG
+	cout << "wood::initFrag 1" << endl;
+#endif
+
 	switch (det) {
 		case parType::detType::Gobbi:
 			gobbiFrags.emplace_back();

@@ -24,9 +24,29 @@ void correl2::zeroMask() {
 
 void correl2::initWood(wood* w) {
 	N = 0;
+	
+#ifdef ENABLE_DEBUG
+	cout << "correl2::initWood Nparticles " << Nparticles << endl;
+#endif
+	
 	for (size_t i = 0; i < Nparticles; i++) {
+	
+#ifdef ENABLE_DEBUG
+		cout << "correl2::initWood i " << i << endl;
+#endif
+	
 		for (int j = 0; j < particle[i]->mult; j++) {
+		
+#ifdef ENABLE_DEBUG
+			cout << "correl2::initWood particle[i]->mult " << particle[i]->mult << endl;
+#endif
+		
 			if (particle[i]->mask[j]) {
+			
+#ifdef ENABLE_DEBUG
+				cout << "correl2::initWood adding particle" << endl;
+#endif
+			
 				w->initFrag(N, particle[i]->detector);
 				N++;
 			}

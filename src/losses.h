@@ -1,7 +1,6 @@
 #ifndef losses_
 #define losses_
 #include "loss2.h"
-#include "SortConfig.h"
 
 class CLosses
 {
@@ -9,7 +8,7 @@ class CLosses
    CLoss2 ** loss;
    int Zmax;
  public:
-   CLosses(int,SortConfig&);
+   CLosses(int,string,string);
    ~CLosses();
    double getEin(double,double,size_t,double);
    double getEout(double,double,size_t,double);

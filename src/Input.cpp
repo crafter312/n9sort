@@ -26,14 +26,14 @@ using namespace std;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-vector<string> Input::GenerateColumnNamesHINP(const string& parname) {
+vector<string> Input::GenerateColumnNamesHINP(const string& branchname, const string& parname) {
 	vector<string> columns;
 	string b, c;
 	for (size_t board = 1; board <= HINP_BOARD_COUNT; board++) {
 		for (size_t chan = 0; chan < HINP_CHAN_COUNT; chan++) {
 			b = (board < 10 ? "0" : "") + to_string(board);
 			c = (chan < 10 ? "0" : "") + to_string(chan);
-			columns.push_back("SpecTcl_hinp1_mb1_" + parname + "_" + b + "." + c);
+			columns.push_back(branchname + "_" + parname + "_" + b + "." + c);
 		}
 	}
 	return columns;
@@ -80,13 +80,14 @@ vector<string> Input::GenerateColumnNamesQDCV965(const string& parname) {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-vector<string> Input::GenerateColumnNamesTDC() {
+vector<string> Input::GenerateColumnNamesTDC(const string& branchname) {
 	vector<string> columns;
 	string cha;
 	for (size_t chan = 0; chan < TDC_CHAN_COUNT; chan++) {
 		for (int hit = 0; hit < TDC_HIT_COUNT; hit++) {
-			cha = (chan < 10 ? "0" : "") + to_string(chan);
-			columns.push_back("SpecTcl_tdc1_" + cha + "." + to_string(hit));
+			cha = (chan < 10 ? "00" : "") + to_string(chan);
+			cha = ((chan < 100) && (chan >= 10) ? "0" : "") + cha;
+			columns.push_back(branchname + "_" + cha + "." + to_string(hit));
 		}
 	}
 	return columns;
@@ -109,12 +110,12 @@ Input::Input(TTreeReader& r, SortConfig& config) : reader(r) {
 	tdc.tRVs.reserve(TDC_NCOLUMNS);
 
 	// Generate column names for reading from input tree
-	vector<string> e_columns     = GenerateColumnNamesHINP("e");
-	vector<string> eLo_columns   = GenerateColumnNamesHINP("eLo");
-	vector<string> hinpt_columns = GenerateColumnNamesHINP("t");
+	vector<string> e_columns     = GenerateColumnNamesHINP(config.GetHinpBranchName(), "e");
+	vector<string> eLo_columns   = GenerateColumnNamesHINP(config.GetHinpBranchName(), "eLo");
+	vector<string> hinpt_columns = GenerateColumnNamesHINP(config.GetHinpBranchName(), "t");
 	vector<string> adc_columns   = GenerateColumnNamesADCQDC(config.GetAdcBranchName(), ADC_CHAN_COUNT);
 	vector<string> qdc_columns   = GenerateColumnNamesADCQDC(config.GetQdcBranchName(), QDC_CHAN_COUNT);
-	vector<string> tdct_columns  = GenerateColumnNamesTDC();
+	vector<string> tdct_columns  = GenerateColumnNamesTDC(config.GetTdcBranchName());
 	
 	//// Create reader values for all columns, iteratively
 

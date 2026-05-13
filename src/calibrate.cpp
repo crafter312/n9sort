@@ -18,7 +18,10 @@ calibrate::calibrate(int Ntele0, int Nstrip0, string name, int order0, bool weav
   Ntele = Ntele0;
   order = order0;
 
-  //cout << Nstrip << " " << name << endl;
+#ifdef ENABLE_DEBUG
+  cout << "Ntele " << Ntele << " Nstrip " << Nstrip << endl;
+  cout << "calibrate::calibrate 1" << endl;
+#endif
 
   Coeff = new coeff*[Ntele];
   for (int i=0;i<Ntele;i++)
@@ -27,12 +30,15 @@ calibrate::calibrate(int Ntele0, int Nstrip0, string name, int order0, bool weav
   }
 
   ifstream file(name);
-	if (file.fail()) throw invalid_argument(string(BOLDRED) + string("Calibration file ") + name + string(" does not exist or failed to open") + string(RESET));
+  if (file.fail()) throw invalid_argument(string(BOLDRED) + string("Calibration file ") + name + string(" does not exist or failed to open") + string(RESET));
+  
+#ifdef ENABLE_DEBUG
+  else cout << GREEN << "Calibration file " << name << " opened" << RESET << endl;
+#endif
 
-  string title;
-  //  getline(file,title);
-  // cout << title << endl;
-  //getline(file,title);
+#ifdef ENABLE_DEBUG
+  cout << "calibrate::calibrate 2" << endl;
+#endif
 
   int itele,istrip;
   int board,chan;
@@ -40,7 +46,10 @@ calibrate::calibrate(int Ntele0, int Nstrip0, string name, int order0, bool weav
   for(;;)
   {
     file >>  itele >> istrip >> slope >> intercept;
-    //cout << itele << " " << istrip << " " << slope << " " << intercept <<endl;
+
+#ifdef ENABLE_DEBUG
+    cout << itele << " " << istrip << " " << slope << " " << intercept <<endl;
+#endif
 
     if (weave)
     {
@@ -54,12 +63,16 @@ calibrate::calibrate(int Ntele0, int Nstrip0, string name, int order0, bool weav
       {
         chan = (istrip)*2+1;
       }
+
+#ifdef ENABLE_DEBUG
+      cout << "Board# " << board << " new chip# " << chan << endl;
+#endif
+
     }
     else
     {
       chan = istrip;
     }
-    //cout << "Board# " << board << " new chip# " << chan << endl;
 
     if (order >=2) file >> a2;
     else a2 = 0.;
@@ -68,11 +81,28 @@ calibrate::calibrate(int Ntele0, int Nstrip0, string name, int order0, bool weav
     if (file.eof()) break;
     if (file.bad()) break;
 
+#ifdef ENABLE_DEBUG
+    cout << "itele " << itele << " chan " << chan << endl;
+#endif
+
+    if (itele >= Ntele) throw invalid_argument(string(BOLDRED) + string("ERROR: itele " + to_string(itele) + string(" greater than max telescopes ") + to_string(Ntele) + string(RESET)));
+    if (chan >= Nstrip) throw invalid_argument(string(BOLDRED) + string("ERROR: chan " + to_string(chan) + string(" greater than max # CsIs per telescope ") + to_string(Nstrip) + string(RESET)));
+
     Coeff[itele][chan].slope = slope;
     Coeff[itele][chan].intercept = intercept;
     Coeff[itele][chan].a2 = a2;
     Coeff[itele][chan].a3 = a3;
+    
+#ifdef ENABLE_DEBUG
+    cout << "calibrate::calibrate loop end" << endl;
+#endif
+    
   }
+  
+#ifdef ENABLE_DEBUG
+	cout << "calibrate::calibrate 3" << endl;
+#endif
+  
   file.close();
   file.clear();  
 

@@ -68,6 +68,7 @@ public:
 	TDirectoryFile* dirTDC;
 
 	TDirectoryFile* dirDEEplots; // directory for deltaE-E plots used in particle identificaiton
+	TDirectory* dirPSD;          // directory for PSD plots
 	TDirectoryFile* dirhitmaps;  // directory for all particle type hitmaps
 
 	TDirectoryFile* dirInvMass;  // directory for all correlations and inv-mass
@@ -104,8 +105,8 @@ public:
 	TH2I* sumBackTime_cal;
 	TH2I* sumDeltaTime_R;
 	TH2I* sumDeltaTime_cal;
-	//TH2I* FrontvsBack;
 	TH2I* FrontvsBack[4];
+	TH2I* FrontvsBack_sionly[4];
 
 	TH2I* sumFrontTimeMult1_cal;
 
@@ -153,6 +154,10 @@ public:
 	std::unordered_map<size_t, TH1I*> CsI_QDC_um;
 	std::unordered_map<size_t, TH1I*> CsI_QDC_matched;
 	std::unordered_map<size_t, TH1I*> CsI_Time_um;
+	std::unordered_map<size_t, TH2I*> CsIonly_PSD;
+	std::vector<TH1I*> CsI_Energy_R[4];
+	std::vector<TH1I*> CsI_Energy_R_center[4];
+	std::vector<TH2I*> DEE_CsI[4];
 	
 	
 
@@ -164,6 +169,8 @@ public:
 
 	TH2I* xyhitmap_allE;
 	TH2I* xyhitmap;
+	TH2I* tphitmap;
+	TH2I* xyhitmap_sionly;
 	TH2I* xyhitmap_tgate_orA;
 	TH2I* protonhitmap;
 	TH2I* deuteronhitmap;

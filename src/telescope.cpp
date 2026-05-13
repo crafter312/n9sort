@@ -38,12 +38,13 @@ using namespace std;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-telescope::telescope(double thick0, SortConfig& config, bool csi) : hasCsI(csi) {
+telescope::telescope(double thick0, SortConfig& config, bool csi) : alThick(config.GetAlThick()), hasCsI(csi) {
 	TargetThickness = thick0;
 	SiWidth = 6.45;
 	SiFrame = 7.237;
 	holeSize = config.GetGobbiHoleSize() * .1; // convert from mm to cm
-	losses = new CLosses(8, config);
+	losses = new CLosses(6, config.GetLossDir(), config.GetTargetSuffix());
+	Allosses = new CLosses(6, config.GetLossDir(), "Al");
 	Ran = new TRandom();
 	
 	// Read in front/back CsI strip extents from file
@@ -51,13 +52,20 @@ telescope::telescope(double thick0, SortConfig& config, bool csi) : hasCsI(csi) 
 		string inextentsfile = config.GetConfigDir() + config.GetCsIStripExtentsFile();
 		ifstream inextents(inextentsfile);
 		if (inextents.fail()) throw invalid_argument(string(BOLDRED) + string("CsI silicon strip extents file ") + inextentsfile + string(" does not exist or failed to open") + string(RESET));
+		
+#ifdef ENABLE_DEBUG
 		else cout << GREEN << "CsI silicon strip extents file " << inextentsfile << " opened" << RESET << endl;
+#endif
 		
 		size_t Fmin, Fmax, Bmin, Bmax;
 		while (inextents.good()) {
 			inextents >> Fmin >> Fmax >> Bmin >> Bmax;
+			if (Fmin >= Fmax) throw invalid_argument(string(BOLDRED) + string("ERROR: Fmin >= Fmax from " + inextentsfile + string(RESET)));
+			if (Bmin >= Bmax) throw invalid_argument(string(BOLDRED) + string("ERROR: Bmin >= Bmax from " + inextentsfile + string(RESET)));
 			CsIFextents.emplace_back(Fmin, Fmax);
 			CsIBextents.emplace_back(Bmin, Bmax);
+			CsIFmids.emplace_back(((CsIFextents[NCsI].second - CsIFextents[NCsI].first) / (size_t)2) + CsIFextents[NCsI].first);
+			CsIBmids.emplace_back(((CsIBextents[NCsI].second - CsIBextents[NCsI].first) / (size_t)2) + CsIBextents[NCsI].first);
 			NCsI++;
 		}
 	}
@@ -69,10 +77,11 @@ telescope::telescope(double thick0, SortConfig& config, bool csi) : hasCsI(csi) 
 
 telescope::~telescope() {
 	delete losses;
+	delete Allosses;
 	delete Ran;
 	
-	if (hasCsI) for (size_t i = 0; i < NCsI; i++) delete PidCsI[i];
-	else delete Pid;
+	if (hasCsI) for (size_t i = 0; i < NCsI; i++) if (PidCsI[i] != nullptr) delete PidCsI[i];
+	else if (Pid != nullptr) delete Pid;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -80,12 +89,22 @@ telescope::~telescope() {
 // Assume that is OldGobbi if no CsI, adjustible Gobbi 28 if yes CsI
 // see above for Gobbi upstream view diagram
 void telescope::init(int id0, SortConfig& config) {
-	if (id0 != 0 || id0 != 1 || id0 != 2 || id0 != 3) throw invalid_argument(string(BOLDRED) + string("ERROR: telescope id0 must be 0, 1, 2, or 3") + string(RESET));
+
+#ifdef ENABLE_DEBUG
+	cout << "id0 " << id0 << endl;
+#endif
+
+	if (id0 < 0 || id0 > 3) throw invalid_argument(string(BOLDRED) + string("ERROR: telescope id0 must be 0, 1, 2, or 3") + string(RESET));
 	id = id0;
 	
 	// -ND checked 5/12/2022 these distances are correct compared to the simulation
 	double XcenterA[4] = {4.419,2.819,-4.419,-2.819};
 	double YcenterA[4] = {2.819,-4.419,-2.819,4.419};
+	
+#ifdef ENABLE_DEBUG
+	cout << "telescope::init 1" << endl;
+#endif
+	
 	ostringstream outstring;
 	if (hasCsI) {
 		double halfHole = holeSize * .5;
@@ -102,15 +121,30 @@ void telescope::init(int id0, SortConfig& config) {
 		for (size_t i = 0; i < NCsI; i++) {
 			outstring.str("");
 			outstring << "pid_quad" << id + 1 << "_CsI" << i;
-			PidCsI[i] = new pid(outstring.str(), config);
+			try {
+				PidCsI[i] = new pid(outstring.str(), config);
+			}
+			catch (...) {
+				PidCsI[i] = nullptr;
+			}
 		}
 		Pid = nullptr;
 	}
 	else {
 		outstring << "pid_quad" << id + 1;
-		Pid = new pid(outstring.str(), config);
+		try {
+			Pid = new pid(outstring.str(), config);
+		}
+		catch (...) {
+			Pid = nullptr;
+		}
 		for (size_t i = 0; i < NCsI; i++) PidCsI[i] = nullptr;
 	}
+	
+#ifdef ENABLE_DEBUG
+	cout << "telescope::init 2" << endl;
+#endif
+	
 	Xcenter = XcenterA[id];
 	Ycenter = YcenterA[id];
 }
@@ -135,6 +169,7 @@ void telescope::reset() {
 	CsI.reset();
 	if (Nsolution > 100) cout << "here post F,B,(D|CsI) reset, need to reset " << Nsolution << " solutions" << endl;
 	for (size_t i = 0; i < Nsolution; i++) Solution[i].reset();
+	tempSol.reset();
 	Nsolution = 0;
 }
 
@@ -194,6 +229,52 @@ int telescope::simpleFront() {
 #endif
 
 	return 1;
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+// Subroutine to identify a position map from alpha calibrations;
+// it stores the answer in a dedicated temporary solution.
+int telescope::testingHitE() {
+	tempSol.energy = Front.Order[0].energy;
+	tempSol.energylow = Front.Order[0].energylow;
+	tempSol.energylowR = Front.Order[0].energyRlow;
+	tempSol.energyR = Front.Order[0].energyR;
+	tempSol.benergy = Back.Order[0].energy;
+	tempSol.benergyR = Back.Order[0].energyR;
+	tempSol.denergy = -1;
+	tempSol.denergyR = -1;;
+	tempSol.ifront = Front.Order[0].strip;
+	tempSol.iback = Back.Order[0].strip;
+	tempSol.ide = -1;
+	tempSol.iCsI = -1;
+	tempSol.itele = id;
+	tempSol.timediff = -1000000.0;
+	tempSol.isSiCsI = false;
+	
+	double Xpos,Ypos;
+	if (id == 0) {
+		Xpos = Xcenter + (((double)tempSol.iback+Ran->Rndm())/32.-0.5)*SiWidth;
+		Ypos = Ycenter + (((double)tempSol.ifront+Ran->Rndm())/32.-0.5)*SiWidth;
+	}
+	else if (id == 1) {
+		Xpos = Xcenter + (((double)tempSol.ifront+Ran->Rndm())/32.-0.5)*SiWidth;
+		Ypos = Ycenter + (0.5-((double)tempSol.iback+Ran->Rndm())/32.)*SiWidth;
+	}
+	else if (id == 2) {
+		Xpos = Xcenter + (0.5-((double)tempSol.iback+Ran->Rndm())/32.)*SiWidth;
+		Ypos = Ycenter + (0.5-((double)tempSol.ifront+Ran->Rndm())/32.)*SiWidth;
+	}
+	else if (id == 3) {
+		Xpos = Xcenter + (0.5-((double)tempSol.ifront+Ran->Rndm())/32.)*SiWidth;
+		Ypos = Ycenter + (((double)tempSol.iback+Ran->Rndm())/32.-0.5)*SiWidth;
+	}
+
+	tempSol.Xpos = Xpos;
+	tempSol.Ypos = Ypos;
+	tempSol.angle();
+	
+	return 0;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -264,11 +345,13 @@ size_t telescope::getPID() {
 		bool FoundPid;
 		pid* pidtemp;
 		if (hasCsI) {
+			if (PidCsI[Solution[isol].iCsI] == nullptr) continue;
 			energy = Solution[isol].energyR;
 			pidtemp = PidCsI[Solution[isol].iCsI];
 			FoundPid = pidtemp->getPID(energy, denergy);
 		}
 		else {
+			if (Pid == nullptr) return 0;
 			energy = Solution[isol].energy;
 			pidtemp = Pid;
 			FoundPid = pidtemp->getPID(energy, denergy);
@@ -315,11 +398,13 @@ int telescope::calcEloss() {
 		double sumEnergy = Solution[isol].denergy + Solution[isol].energy;
 		double pc_before = sqrt(pow(sumEnergy + Solution[isol].mass, 2) - (Solution[isol].mass*Solution[isol].mass));
 		double velocity_before = pc_before / (sumEnergy + Solution[isol].mass);
+		double alThickTh = alThick / cos(Solution[isol].theta);
+		double alEin = Allosses->getEin(sumEnergy, alThickTh, Solution[isol].iZ, Solution[isol].mass / m0);
 		double thick = (.5 * TargetThickness) / cos(Solution[isol].theta);
-		double ein = losses->getEin(sumEnergy, thick, Solution[isol].iZ, Solution[isol].mass / m0);
+		double ein = losses->getEin(alEin, thick, Solution[isol].iZ, Solution[isol].mass / m0);
 
 #ifdef ENABLE_DEBUG
-		out << "loss correction " << ein - sumEnergy << endl;
+		cout << "loss correction " << ein - sumEnergy << endl;
 #endif
 
 		Solution[isol].Ekin = ein;
@@ -328,10 +413,12 @@ int telescope::calcEloss() {
 		Solution[isol].getMomentum();
 
 		if (hasCsI) continue;
+		
+		// TODO: Double check punch through energies with Lise++; Should angle correct sumEnergy?
 
 		// Protons can punch through at high energies
 		if (Solution[isol].iA == 1 && Solution[isol].iZ == 1) {
-			if (Solution[isol].Ekin > 15.5) {
+			if (sumEnergy > 15.5) {
 				Solution[isol].iA = 0;
 				Solution[isol].iZ = 0;
 				Solution[isol].Ekin = 0;
@@ -341,7 +428,7 @@ int telescope::calcEloss() {
 
 		// Deuterons can punch through
 		if (Solution[isol].iA == 2 && Solution[isol].iZ == 1) {
-			if (Solution[isol].Ekin > 20.5) {
+			if (sumEnergy > 20.5) {
 				Solution[isol].iA = 0;
 				Solution[isol].iZ = 0;
 				Solution[isol].Ekin = 0;
@@ -351,7 +438,7 @@ int telescope::calcEloss() {
 		
 		// Tritons can punch through
 		if (Solution[isol].iA == 3 && Solution[isol].iZ == 1) {
-			if (Solution[isol].Ekin > 24) {
+			if (sumEnergy > 24) {
 				Solution[isol].iA = 0;
 				Solution[isol].iZ = 0;
 				Solution[isol].Ekin = 0;
@@ -376,34 +463,18 @@ void telescope::loopDEE(int depth) {
 			de += abs(Back.Order[NestArray[i]].energy - Front.Order[i].energy);
 		}
 
-#ifdef ENABLE_DEBUG
-		cout << " 1 " << zline[0].n << endl;
-#endif
-
 		if (dstrip < dstripMin){
 			dstripMin = dstrip;
 			for (size_t i = 0; i < NestDim; i++) arrayD[i] = NestArray[i];
 		}
-
-#ifdef ENABLE_DEBUG
-		cout << " 2 " << zline[0].n << endl;
-#endif
 
 		if (de < deMin) {
 			deMin = de;
 			for (size_t i = 0; i < NestDim; i++) arrayB[i] = NestArray[i];
 		}
 
-#ifdef ENABLE_DEBUG
-		cout << "leave" << " " << zline[0].n << endl;
-#endif
-
 		return;
 	}
-
-#ifdef ENABLE_DEBUG
-	cout << "recurse " << zline[0].n << endl;
-#endif
 
 	for (size_t i = 0; i < NestDim; i++) {
 		NestArray[depth] = i;
@@ -569,7 +640,7 @@ int telescope::multiHitECsI() {
 	if (NSisolution == 0) return 0;
 
 	// Now assign each of these solutions a CsI detector location
-	vector<vector<size_t>> sil(NCsI, vector<size_t>()); // contains a lits of solutions for each Csi
+	vector<vector<size_t>> sil(NCsI, vector<size_t>()); // contains a lits of silicon solutions for each Csi
 
 	// Look at all the front/back solutions and see how many are on each CsI
 	for (size_t i = 0; i < NSisolution; i++) {
@@ -611,13 +682,13 @@ int telescope::multiHitECsI() {
 		// Needed for events with mixed E and CsI in the same quad
 		// Can only accept one solution, don't allow it to accept both
 		else if (multcsi > 1) {
-			continue; // ignore for the time being until I have zlines
-/*
+			if (PidCsI[icsi] == nullptr) continue; // ignore if zline files are absent
+
 			for (size_t i = 0; i < multcsi; i++) {
 				int ii = sil[icsi][i];
 
 				// Do zline check
-				int zCheck = PidECsI[id]->getEGate(CsI.Order[0].energyR, Front.Order[ii].energy);
+				int zCheck = PidCsI[id]->getPID(CsI.Order[0].energyR, Front.Order[ii].energy);
 				if (zCheck == 0) continue;
 				else { // need to fill stuff here using the correct "ii" index
 					Solution[Nsolution].energy = energy[icsi];
@@ -651,7 +722,6 @@ int telescope::multiHitECsI() {
 					//I could find a more elegant solution using strip matching for dE and base it on a best score
 				}
 			}
-*/
 		}
 
 		// CsI energy < 0 should not happen, but ignore just in case
@@ -753,6 +823,15 @@ void telescope::positionC(int isol) {
 	Solution[isol].Xpos = Xpos;
 	Solution[isol].Ypos = Ypos;
 	double theta = Solution[isol].angle();
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+bool telescope::isCenter(size_t ifront, size_t iback) {
+	for (size_t i = 0; i < NCsI; i++) {
+		if ((ifront == CsIFmids[i] || ifront == (CsIFmids[i] + 1)) && (iback == CsIBmids[i] || iback == (CsIBmids[i] + 1))) return true;
+	}
+	return false;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

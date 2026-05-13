@@ -21,7 +21,7 @@ public:
 	~pid();
 
 	bool getPID(float x, float y);
-  double getMass(int iZ,int iA);
+	double getMass(int iZ,int iA);
 
 	ZApar** par; // individual banana gates
 	int nlines;  // number of banana gated stored 	

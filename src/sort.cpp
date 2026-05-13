@@ -59,7 +59,7 @@ int main() {
 	cout << GREEN << "Output file: " << ofname << RESET << endl;
 
 	// Enable implicit multi-threading
-	int nthreads = 4;
+	int nthreads = 6;
 	ROOT::EnableImplicitMT(nthreads);
 	
 	// Initialize some variables up here so that they are accessible inside the lambda function
