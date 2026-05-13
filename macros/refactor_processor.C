@@ -12,7 +12,7 @@
 #include <utility>
 #include <vector>
 
-#define BOARD_COUNT 12
+#define BOARD_COUNT 8
 #define CHAN_COUNT 32
 #define PSD_CHIP_COUNT 24
 #define PSD_CHAN_COUNT 8 
@@ -30,7 +30,7 @@ vector<string> generate_column_names_hinp(const string& parname) {
 		for (int chan = 0; chan < CHAN_COUNT; chan++) {
 			b = (board < 10 ? "0" : "") + to_string(board);
 			c = (chan < 10 ? "0" : "") + to_string(chan);
-			columns.push_back("SpecTcl_hinp1_mb1_" + parname + "_" + b + "." + c);
+			columns.push_back("SpecTcl_hinpa_mb1_" + parname + "_" + b + "." + c);
 		}
 	}
 	return columns;
@@ -52,9 +52,9 @@ vector<string> generate_column_names_psd(const string& parname) {
 void refactor_processor() {
 
 	// Get number of entries from input file
-	string iprefix = "run-562";
-	string path = "../../SpecTcl_6Liplus2IAS/";
-	string outpath = "../../data/";
+	string iprefix = "run-5";
+	string path = "~/DAQ/SpecTclHira/";
+	string outpath = "~/DAQ/SpecTclHira/";
 	size_t numentries;
 	{
 		TFile *file = TFile::Open((path + iprefix + ".root").c_str());
@@ -120,7 +120,7 @@ void refactor_processor() {
 			tRVs.push_back({reader, hinpt_columns[i].c_str()});
 		}
 
-		vector<TTreeReaderValue<double>> As;
+		/*vector<TTreeReaderValue<double>> As;
 		As.reserve(PSD_NCOLUMNS);
 		vector<TTreeReaderValue<double>> Bs;
 		Bs.reserve(PSD_NCOLUMNS);
@@ -133,19 +133,19 @@ void refactor_processor() {
 			Bs.push_back({reader, b_columns[i].c_str()});
 			Cs.push_back({reader, c_columns[i].c_str()});
 			Ts.push_back({reader, psdt_columns[i].c_str()});
-		}
+		}*/
 
 		vector<size_t> hits_board;
 		vector<size_t> hits_chan;
 		vector<size_t> hits_e;
 		vector<size_t> hits_eLo;
 		vector<size_t> hits_t;
-		vector<size_t> psd_hits_chip;
+		/*vector<size_t> psd_hits_chip;
 		vector<size_t> psd_hits_chan;
 		vector<size_t> psd_hits_a;
 		vector<size_t> psd_hits_b;
 		vector<size_t> psd_hits_c;
-		vector<size_t> psd_hits_t;
+		vector<size_t> psd_hits_t;*/
 
 		// Get thread safe file and create thread-local tree for output
 		auto f = merger.GetFile();
@@ -155,12 +155,12 @@ void refactor_processor() {
 		tpar->Branch("e", &hits_e);
 		tpar->Branch("eLo", &hits_eLo);
 		tpar->Branch("t", &hits_t);
-		tpar->Branch("psd_chip", &psd_hits_chip);
+		/*tpar->Branch("psd_chip", &psd_hits_chip);
 		tpar->Branch("psd_chan", &psd_hits_chan);
 		tpar->Branch("psd_a", &psd_hits_a);
 		tpar->Branch("psd_b", &psd_hits_b);
 		tpar->Branch("psd_c", &psd_hits_c);
-		tpar->Branch("psd_t", &psd_hits_t);
+		tpar->Branch("psd_t", &psd_hits_t);*/
 
 		size_t index;
 		double e, a;
@@ -171,12 +171,12 @@ void refactor_processor() {
 			hits_e.clear();
 			hits_eLo.clear();
 			hits_t.clear();
-			psd_hits_chip.clear();
+			/*psd_hits_chip.clear();
 			psd_hits_chan.clear();
 			psd_hits_a.clear();
 			psd_hits_b.clear();
 			psd_hits_c.clear();
-			psd_hits_t.clear();
+			psd_hits_t.clear();*/
 			for (size_t board = 0; board < BOARD_COUNT; board++) {
 				for (size_t chan = 0; chan < CHAN_COUNT; chan++) {
 					index = (board * CHAN_COUNT) + chan; // make sure this matches the order from generate_column_names_hinp
@@ -190,7 +190,7 @@ void refactor_processor() {
 					hits_t.push_back((size_t)(*(tRVs[index])));
 				}
 			}
-			for (size_t chip = 0; chip < PSD_CHIP_COUNT; chip++) {
+			/*for (size_t chip = 0; chip < PSD_CHIP_COUNT; chip++) {
 				for (size_t chan = 0; chan < PSD_CHAN_COUNT; chan++) {
 					index = (chip * PSD_CHAN_COUNT) + chan; // make sure this matches the order from generate_column_names_psd
 					a = *(As[index]);
@@ -203,7 +203,7 @@ void refactor_processor() {
 					psd_hits_c.push_back((size_t)(*(Cs[index])));
 					psd_hits_t.push_back((size_t)(*(Ts[index])));
 				}
-			}
+			}*/
 			tpar->Fill();
 
 			// Handle progress bar

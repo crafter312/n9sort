@@ -6,20 +6,16 @@ using namespace std;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, event& texneutevent) : texneut(texneutevent) {
+histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, SortConfig& config) : hinpboards(config.GetHinpboards()), hinpchans(config.GetHinpchans()) {
   file_read = f;
   file_read->cd();
 
-	// Create global tree for storing pre-solution variables
-	tpar = new TTree("tpar", "tpar");
-	tpar->Branch("texneut", &texneutout);
+  // Create global tree for storing pre-solution variables
+  //tpar = new TTree("tpar", "tpar");
 
   //// Create subdirectories to store arrays of spectra
-  
-	// TexNeut directory
-  dirTexNeut = new TDirectoryFile("TexNeut", "TexNeut");
 
-	// Directory for summary plots
+  // Directory for summary plots
   dirSummary = new TDirectoryFile("Summary", "Summary"); // name, title
 
   // Energies, Raw+Calibrated
@@ -42,15 +38,18 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, event& texneutevent) : texne
   dir1dFrontTime_R = dirSummary->mkdir("1dFrontTime_R","1dFrontTime_R");
   dir1dBackTime_R  = dirSummary->mkdir("1dBackTime_R","1dBackTime_R");
   dir1dDeltaTime_R = dirSummary->mkdir("1dDeltaTime_R","1dDeltaTime_R");
+  
+  // CsI directories
+  dir1dCsI_Energy = dirSummary->mkdir("1dCsI_Energy","1dCsI_Energy");
+  dir1dCsI_Time   = dirSummary->mkdir("1dCsI_Time","1dCsI_Time");
+  dir1dCsI_QDC    = dirSummary->mkdir("1dCsI_QDC","1dCsI_QDC");
 
-	//Directory for diamond detector
-  dirDiamond = new TDirectoryFile("dirDiamond", "dirDiamond"); // name, title
-
-	//Directory for diamond detector
+  // Directory for TDC detector
   dirTDC = new TDirectoryFile("dirTDC", "dirTDC"); // name, title
 
   // Directory for DeltaE-E plots
   dirDEEplots = new TDirectoryFile("DEEplots","DEEplots");
+  dirPSD = dirDEEplots->mkdir("PSDplots","PSDplots");
   dirhitmaps  = new TDirectoryFile("hitmaps","hitmaps");
 
   // Directory for all correlations and inv-mass
@@ -65,13 +64,8 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, event& texneutevent) : texne
   dir7Be = dirInvMass->mkdir("7Be","7Be");
   dir8Be = dirInvMass->mkdir("8Be","8Be");
   dir9B  = dirInvMass->mkdir("9B","9B");
-
-	dirTexNeut->cd();
-
-	// TexNeut histograms  
-  topDownMap = new TH2I("topDownMap","",16,0,16,6,0,6);
-  barZeroFingers = new TH2I("barZeroFingers","",1024,0,8192,1024,0,8192);
-	neutron_mult = new TH1I("neutron_mult","",10,0.5,10.5);
+  dir8C  = dirInvMass->mkdir("8C","8C");
+  dir9N  = dirInvMass->mkdir("9N","9N");
 
   dirSummary->cd();
 
@@ -82,199 +76,201 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, event& texneutevent) : texne
   //// Create full summaries
 
   // Energies, Raw+Calibrated
-  sumFrontE_R = new TH2I("sumFrontE_R","",4*channum,0,4*channum,1024,0,8192);
+  sumFrontE_R = new TH2I("sumFrontE_R","",4*hinpchans,0,4*hinpchans,1024,0,8192);
   sumFrontE_R->SetOption("colz");
-  sumBackE_R = new TH2I("sumBackE_R","",4*channum,0,4*channum,1024,0,8192);
+  sumBackE_R = new TH2I("sumBackE_R","",4*hinpchans,0,4*hinpchans,1024,0,8192);
   sumBackE_R->SetOption("colz");
-  sumDeltaE_R = new TH2I("sumDeltaE_R","",4*channum,0,4*channum,1024,0,8192);
+  sumDeltaE_R = new TH2I("sumDeltaE_R","",4*hinpchans,0,4*hinpchans,1024,0,8192);
   sumDeltaE_R->SetOption("colz");
-  sumFrontE_cal = new TH2I("sumFrontE_cal","",4*channum,0,4*channum,Nbin,0,Ecal_Emax);
+  sumFrontE_cal = new TH2I("sumFrontE_cal","",4*hinpchans,0,4*hinpchans,Nbin,0,Ecal_Emax);
   sumFrontE_cal->SetOption("colz");
-  sumFrontE_addback = new TH2I("sumFrontE_addback","",4*channum,0,4*channum,Nbin,0,Ecal_Emax);
+  sumFrontE_addback = new TH2I("sumFrontE_addback","",4*hinpchans,0,4*hinpchans,Nbin,0,Ecal_Emax);
   sumFrontE_addback->SetOption("colz");
 
-  sumBackE_cal = new TH2I("sumBackE_cal","",4*channum,0,4*channum,Nbin,0,Ecal_Emax);
+  sumBackE_cal = new TH2I("sumBackE_cal","",4*hinpchans,0,4*hinpchans,Nbin,0,Ecal_Emax);
   sumBackE_cal->SetOption("colz");
-  sumBackE_addback = new TH2I("sumBackE_addback","",4*channum,0,4*channum,Nbin,0,Ecal_Emax);
+  sumBackE_addback = new TH2I("sumBackE_addback","",4*hinpchans,0,4*hinpchans,Nbin,0,Ecal_Emax);
   sumBackE_addback->SetOption("colz");
-  sumDeltaE_cal = new TH2I("sumDeltaE_cal","",4*channum,0,4*channum,Nbin,0,Ecal_Emax);
+  sumDeltaE_cal = new TH2I("sumDeltaE_cal","",4*hinpchans,0,4*hinpchans,Nbin,0,Ecal_Emax);
   sumDeltaE_cal->SetOption("colz");
-  sumDeltaE_addback = new TH2I("sumDeltaE_addback","",4*channum,0,4*channum,Nbin,0,Ecal_Emax);
+  sumDeltaE_addback = new TH2I("sumDeltaE_addback","",4*hinpchans,0,4*hinpchans,Nbin,0,Ecal_Emax);
   sumDeltaE_addback->SetOption("colz");
 
-  sumEtot_cal = new TH2I("sumEtot_cal","",4*channum,0,4*channum,Nbin,0,Ecal_Emax);
+  sumEtot_cal = new TH2I("sumEtot_cal","",4*hinpchans,0,4*hinpchans,Nbin,0,Ecal_Emax);
   sumEtot_cal->SetOption("colz");
-  AngleCorrSum_cal = new TH2I("AngleCorrSum_cal","",4*channum,0,4*channum,Nbin,0,Ecal_Emax);
+  AngleCorrSum_cal = new TH2I("AngleCorrSum_cal","",4*hinpchans,0,4*hinpchans,Nbin,0,Ecal_Emax);
   AngleCorrSum_cal->SetOption("colz");
 
-  AngleCorrFrontE_cal = new TH2I("AngleCorrFrontE_cal","",4*channum,0,4*channum,Nbin/4,0,Ecal_Emax);
+  AngleCorrFrontE_cal = new TH2I("AngleCorrFrontE_cal","",4*hinpchans,0,4*hinpchans,Nbin/4,0,Ecal_Emax);
   AngleCorrFrontE_cal->SetOption("colz");
-  AngleCorrDeltaE_cal = new TH2I("AngleCorrDeltaE_cal","",4*channum,0,4*channum,Nbin/4,0,Delta_Emax);
+  AngleCorrDeltaE_cal = new TH2I("AngleCorrDeltaE_cal","",4*hinpchans,0,4*hinpchans,Nbin/4,0,Delta_Emax);
   AngleCorrDeltaE_cal->SetOption("colz");
 
   // Times
-  sumFrontTime_R = new TH2I("sumFrontTime_R","",4*channum,0,4*channum,512,0,16383);
+  sumFrontTime_R = new TH2I("sumFrontTime_R","",4*hinpchans,0,4*hinpchans,512,0,16383);
   sumFrontTime_R->SetOption("colz");
-  sumFrontTime_cal = new TH2I("sumFrontTime_cal","",4*channum,0,4*channum,512,0,16383);
+  sumFrontTime_cal = new TH2I("sumFrontTime_cal","",4*hinpchans,0,4*hinpchans,512,0,16383);
   sumFrontTime_cal->SetOption("colz");
-  sumBackTime_R = new TH2I("sumBackTime_R","",4*channum,0,4*channum,512,0,16383);
+  sumBackTime_R = new TH2I("sumBackTime_R","",4*hinpchans,0,4*hinpchans,512,0,16383);
   sumBackTime_R->SetOption("colz");
-  sumBackTime_cal = new TH2I("sumBackTime_cal","",4*channum,0,4*channum,512,0,16383);
+  sumBackTime_cal = new TH2I("sumBackTime_cal","",4*hinpchans,0,4*hinpchans,512,0,16383);
   sumBackTime_cal->SetOption("colz");
-  sumDeltaTime_R = new TH2I("sumDeltaTime_R","",4*channum,0,4*channum,512,0,16383);
+  sumDeltaTime_R = new TH2I("sumDeltaTime_R","",4*hinpchans,0,4*hinpchans,512,0,16383);
   sumDeltaTime_R->SetOption("colz");
-  sumDeltaTime_cal = new TH2I("sumDeltaTime_cal","",4*channum,0,4*channum,512,0,16383);
+  sumDeltaTime_cal = new TH2I("sumDeltaTime_cal","",4*hinpchans,0,4*hinpchans,512,0,16383);
   sumDeltaTime_cal->SetOption("colz");
 
-  sumFrontTimeMult1_cal = new TH2I("sumFrontTimeMult1_cal","",4*channum,0,4*channum,512,0,16383);
+  sumFrontTimeMult1_cal = new TH2I("sumFrontTimeMult1_cal","",4*hinpchans,0,4*hinpchans,512,0,16383);
   sumFrontTimeMult1_cal->SetOption("colz");
 
   ostringstream name;
-  //FrontvsBack = new TH2I("FrontvsBack","",500,0,20,500,0,20);
   for (int i=0;i<4;i++) {
   	name.str("");
   	name << "FrontvsBack_" << i;
   	FrontvsBack[i] = new TH2I(name.str().c_str(),"",500,0,80,500,0,80);
+  	name.str("");
+  	name << "FrontvsBack_sionly_" << i;
+  	FrontvsBack_sionly[i] = new TH2I(name.str().c_str(),"",500,0,80,500,0,80);
   }
 
 
   // Create all 1d Front spectra
-  for (int board_i = 0; board_i < E_boardnum / 2; board_i++) {
-    for (int chan_i = 0; chan_i < channum; chan_i++) {
+	// # of Gobbi telescopes is always 4
+	FrontE_R.resize(4);
+	FrontElow_R.resize(4);
+	FrontTime_R.resize(4);
+	FrontE_cal.resize(4);
+	BackE_R.resize(4);
+	BackElow_R.resize(4);
+	BackTime_R.resize(4);
+	BackE_cal.resize(4);
+	AngleCorrE.resize(4);
+	AngleCorr_noCorr.resize(4);
+	AngleCorrE_R.resize(4);
+	DeltaE_R.resize(4);
+	DeltaElow_R.resize(4);
+	DeltaTime_R.resize(4);
+	DeltaE_cal.resize(4);
+	AngleCorrDeltaE.resize(4);
+	AngleCorrDeltaE_noCorr.resize(4);
+	AngleCorrDeltaE_R.resize(4);
+  for (size_t tele_i = 0; tele_i < 4; tele_i++) {
+		FrontE_R[tele_i].resize(hinpchans);
+		FrontElow_R[tele_i].resize(hinpchans);
+		FrontTime_R[tele_i].resize(hinpchans);
+		FrontE_cal[tele_i].resize(hinpchans);
+		BackE_R[tele_i].resize(hinpchans);
+		BackElow_R[tele_i].resize(hinpchans);
+		BackTime_R[tele_i].resize(hinpchans);
+		BackE_cal[tele_i].resize(hinpchans);
+		AngleCorrE[tele_i].resize(hinpchans);
+		AngleCorr_noCorr[tele_i].resize(hinpchans);
+		AngleCorrE_R[tele_i].resize(hinpchans);
+		DeltaE_R[tele_i].resize(hinpchans);
+		DeltaElow_R[tele_i].resize(hinpchans);
+		DeltaTime_R[tele_i].resize(hinpchans);
+		DeltaE_cal[tele_i].resize(hinpchans);
+		AngleCorrDeltaE[tele_i].resize(hinpchans);
+		AngleCorrDeltaE_noCorr[tele_i].resize(hinpchans);
+		AngleCorrDeltaE_R[tele_i].resize(hinpchans);
+
+    for (size_t chan_i = 0; chan_i < hinpchans; chan_i++) {
 
       // Individual Front Energy
       dir1dFrontE_R->cd();
       name.str("");
-      name << "FrontE_R" << board_i << "_" << chan_i;
-      FrontE_R[board_i][chan_i] = new TH1I(name.str().c_str(),"",2048,0,8192);
+      name << "FrontE_R" << tele_i << "_" << chan_i;
+      FrontE_R[tele_i][chan_i] = new TH1I(name.str().c_str(),"",2048,0,8192);
 
       dir1dFrontlowE_R->cd();
       name.str("");
-      name << "FrontElow_R" << board_i << "_" << chan_i;
-      FrontElow_R[board_i][chan_i] = new TH1I(name.str().c_str(),"",1024,0,4095);
+      name << "FrontElow_R" << tele_i << "_" << chan_i;
+      FrontElow_R[tele_i][chan_i] = new TH1I(name.str().c_str(),"",1024,0,4095);
 
       dir1dFrontTime_R->cd();
       name.str("");
-      name << "FrontTime_R" << board_i << "_" << chan_i;
-      FrontTime_R[board_i][chan_i] = new TH1I(name.str().c_str(),"",1024,0,16383);
+      name << "FrontTime_R" << tele_i << "_" << chan_i;
+      FrontTime_R[tele_i][chan_i] = new TH1I(name.str().c_str(),"",1024,0,16383);
 
       dir1dFrontE_cal->cd();
       name.str("");
-      name << "FrontE_cal" << board_i << "_" << chan_i;
-      FrontE_cal[board_i][chan_i] = new TH1I(name.str().c_str(),"",Nbin,5,Ecal_Emax);
+      name << "FrontE_cal" << tele_i << "_" << chan_i;
+      FrontE_cal[tele_i][chan_i] = new TH1I(name.str().c_str(),"",Nbin,5,Ecal_Emax);
 
       // Individual Back Energy
       dir1dBackE_R->cd();
       name.str("");
-      name << "BackE_R" << board_i << "_" << chan_i;
-      BackE_R[board_i][chan_i] = new TH1I(name.str().c_str(),"",2048,0,8192);
+      name << "BackE_R" << tele_i << "_" << chan_i;
+      BackE_R[tele_i][chan_i] = new TH1I(name.str().c_str(),"",2048,0,8192);
 
       dir1dBacklowE_R->cd();
       name.str("");
-      name << "BackElow_R" << board_i << "_" << chan_i;
-      BackElow_R[board_i][chan_i] = new TH1I(name.str().c_str(),"",1024,0,4095);
+      name << "BackElow_R" << tele_i << "_" << chan_i;
+      BackElow_R[tele_i][chan_i] = new TH1I(name.str().c_str(),"",1024,0,4095);
 
       dir1dBackTime_R->cd();
       name.str("");
-      name << "BackTime_R" << board_i << "_" << chan_i;
-      BackTime_R[board_i][chan_i] = new TH1I(name.str().c_str(),"",1024,0,16383);
+      name << "BackTime_R" << tele_i << "_" << chan_i;
+      BackTime_R[tele_i][chan_i] = new TH1I(name.str().c_str(),"",1024,0,16383);
 
       dir1dBackE_cal->cd();
       name.str("");
-      name << "BackE_cal" << board_i << "_" << chan_i;
-      BackE_cal[board_i][chan_i] = new TH1I(name.str().c_str(),"",Nbin,0,Ecal_Emax);
+      name << "BackE_cal" << tele_i << "_" << chan_i;
+      BackE_cal[tele_i][chan_i] = new TH1I(name.str().c_str(),"",Nbin,0,Ecal_Emax);
 
       // Individual DeltaE
       dir1dDeltaE_R->cd();
       name.str("");
-      name << "DeltaE_R" << board_i << "_" << chan_i;
-      DeltaE_R[board_i][chan_i] = new TH1I(name.str().c_str(),"",1024,0,4095);
+      name << "DeltaE_R" << tele_i << "_" << chan_i;
+      DeltaE_R[tele_i][chan_i] = new TH1I(name.str().c_str(),"",1024,0,4095);
 
       dir1dDeltalowE_R->cd();
       name.str("");
-      name << "DeltaElow_R" << board_i << "_" << chan_i;
-      DeltaElow_R[board_i][chan_i] = new TH1I(name.str().c_str(),"",1024,0,4095);
+      name << "DeltaElow_R" << tele_i << "_" << chan_i;
+      DeltaElow_R[tele_i][chan_i] = new TH1I(name.str().c_str(),"",1024,0,4095);
 
       dir1dDeltaTime_R->cd();
       name.str("");
-      name << "DeltaTime_R" << board_i << "_" << chan_i;
-      DeltaTime_R[board_i][chan_i] = new TH1I(name.str().c_str(),"",1024,0,16383);
+      name << "DeltaTime_R" << tele_i << "_" << chan_i;
+      DeltaTime_R[tele_i][chan_i] = new TH1I(name.str().c_str(),"",1024,0,16383);
 
       dir1dDeltaE_cal->cd();
       name.str("");
-      name << "DeltaE_cal" << board_i << "_" << chan_i;
-      DeltaE_cal[board_i][chan_i] = new TH1I(name.str().c_str(),"",Nbin,0,Delta_Emax);
+      name << "DeltaE_cal" << tele_i << "_" << chan_i;
+      DeltaE_cal[tele_i][chan_i] = new TH1I(name.str().c_str(),"",Nbin,0,Delta_Emax);
 
       dirAngleCorrFrontE->cd();
       name.str("");
-      name << "AngleCorrFrontE" << board_i << "_" << chan_i;
-      AngleCorrE[board_i][chan_i] = new TH1I(name.str().c_str(),"",Nbin/3,5,Ecal_Emax);
+      name << "AngleCorrFrontE" << tele_i << "_" << chan_i;
+      AngleCorrE[tele_i][chan_i] = new TH1I(name.str().c_str(),"",Nbin/3,5,Ecal_Emax);
 
       dirAngleCorrDeltaE->cd();
       name.str("");
-      name << "AngleCorrDeltaE" << board_i << "_" << chan_i;
-      AngleCorrDeltaE[board_i][chan_i] = new TH1I(name.str().c_str(),"",Nbin/3,0,Delta_Emax);
-    }
-  }
+      name << "AngleCorrDeltaE" << tele_i << "_" << chan_i;
+      AngleCorrDeltaE[tele_i][chan_i] = new TH1I(name.str().c_str(),"",Nbin/3,0,Delta_Emax);
 
-  for (int board_i = 0; board_i < E_boardnum / 2; board_i++) {
-    for (int chan_i = 0; chan_i < channum; chan_i++) {
-      dirAngleCorrFrontE->cd();
+			// Angle corrected energies I think
+			dirAngleCorrFrontE->cd();
       name.str("");
-      name << "AngleCorrE_noCorr" << board_i << "_" << chan_i;
-      AngleCorr_noCorr[board_i][chan_i] = new TH1I(name.str().c_str(),"",Nbin/3,5,Ecal_Emax);
+      name << "AngleCorrE_noCorr" << tele_i << "_" << chan_i;
+      AngleCorr_noCorr[tele_i][chan_i] = new TH1I(name.str().c_str(),"",Nbin/3,5,Ecal_Emax);
 
       dirAngleCorrDeltaE->cd();
       name.str("");
-      name << "AngleCorrDeltaE_noCorr" << board_i << "_" << chan_i;
-      AngleCorrDeltaE_noCorr[board_i][chan_i] = new TH1I(name.str().c_str(),"",Nbin/3,0,Delta_Emax);
-    }
-  }
+      name << "AngleCorrDeltaE_noCorr" << tele_i << "_" << chan_i;
+      AngleCorrDeltaE_noCorr[tele_i][chan_i] = new TH1I(name.str().c_str(),"",Nbin/3,0,Delta_Emax);
 
-  for (int board_i = 0; board_i < E_boardnum / 2; board_i++) {
-    for (int chan_i = 0; chan_i < channum; chan_i++) {
-      dirAngleCorrFrontE->cd();
+			dirAngleCorrFrontE->cd();
       name.str("");
-      name << "AngleCorrE_R" << board_i << "_" << chan_i;
-      AngleCorrE_R[board_i][chan_i] = new TH1I(name.str().c_str(),"",2048,0,8192);
+      name << "AngleCorrE_R" << tele_i << "_" << chan_i;
+      AngleCorrE_R[tele_i][chan_i] = new TH1I(name.str().c_str(),"",2048,0,8192);
 
       dirAngleCorrDeltaE->cd();
       name.str("");
-      name << "AngleCorrDeltaE_R" << board_i << "_" << chan_i;
-      AngleCorrDeltaE_R[board_i][chan_i] = new TH1I(name.str().c_str(),"",2048,0,8192);
+      name << "AngleCorrDeltaE_R" << tele_i << "_" << chan_i;
+      AngleCorrDeltaE_R[tele_i][chan_i] = new TH1I(name.str().c_str(),"",2048,0,8192);
     }
   }
-
-	//Diamond detector plots
-	dirDiamond->cd();
-	DiamondQDC0 = new TH1I("DiamondQDC0","",1024,0,4192);
-	DiamondQDC0_cal = new TH1I("DiamondQDC0_cal","",625,0,25);
-	DiamondQDC1 = new TH1I("DiamondQDC1","",1024,0,4192);
-	DiamondQDC1_cal = new TH1I("DiamondQDC1_cal","",625,0,25);
-	
-	DiamondQDC0_tgate_orA = new TH1I("DiamondQDC0_tgate_orA","",1024,0,4192);
-	DiamondQDC0_tgate_orA_cal = new TH1I("DiamondQDC0_tgate_orA_cal","",625,0,25);	
-
-	DiamondQDC0_vs_torA = new TH2I("DiamondQDC0_vs_torA","",1024,0,4192,1000,-500,500);
-	DiamondQDC0_vs_torA_cal = new TH2I("DiamondQDC0_vs_torA_cal","",625,0,25,1000,-500,500);
-	
-	for (int i=0;i<4;i++) {
-		name.str("");
-		name << "Diamond_vs_GobbiEsum_" << i;
-		Diamond_vs_GobbiEsum[i] = new TH2I(name.str().c_str(),"",500,0,80,1024,0,4192);
-		
-		name.str("");
-		name << "Diamond_vs_GobbiEsum_cal_" << i;
-		Diamond_vs_GobbiEsum_cal[i] = new TH2I(name.str().c_str(),"",500,0,80,625,0,25);
-		
-		name.str("");
-		name << "Diamond_vs_GobbiEsum_torA_" << i;
-		Diamond_vs_GobbiEsum_torA[i] = new TH2I(name.str().c_str(),"",500,0,80,1024,0,4192);
-		
-		name.str("");
-		name << "Diamond_vs_GobbiEsum_torA_cal_" << i;
-		Diamond_vs_GobbiEsum_torA_cal[i] = new TH2I(name.str().c_str(),"",500,0,80,625,0,25);
-	}
 	
 	//TDC plots
 	dirTDC->cd();
@@ -317,8 +313,8 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, event& texneutevent) : texne
   dirhitmaps->cd();
   xyhitmap_allE = new TH2I("xyhitmap_allE","", 100,-10,10,100,-10,10);
   xyhitmap = new TH2I("xyhitmap","", 100,-10,10,100,-10,10);
-  xyhitmap_EdEgate_1stEL = new TH2I("xyhitmap_EdEgate_1stEL","", 100,-10,10,100,-10,10);
-  xyhitmap_EdEgate_2ndEL = new TH2I("xyhitmap_EdEgate_2ndEL","", 100,-10,10,100,-10,10);
+  tphitmap = new TH2I("tphitmap","",1000,-40,40,1000,-40,40);
+  xyhitmap_sionly = new TH2I("xyhitmap_sionly","", 100,-10,10,100,-10,10);
   xyhitmap_tgate_orA = new TH2I("xyhitmap_tgate_orA","", 100,-10,10,100,-10,10);
   protonhitmap = new TH2I("protonhitmap","", 100,-10,10,100,-10,10);
   deuteronhitmap = new TH2I("deuteronhitmap","", 100,-10,10,100,-10,10);
@@ -330,10 +326,6 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, event& texneutevent) : texne
 
   hitmapof_p = new TH2I("hitmapof_p","", 100,-10,10,100,-10,10);
   hitmapof_6He = new TH2I("hitmapof_6He","", 100,-10,10,100,-10,10);
-  
- 	xyhitmap_DiamondELlow = new TH2I("xyhitmap_DiamondELlow","", 100,-10,10,100,-10,10);
-  xyhitmap_DiamondELpeak = new TH2I("xyhitmap_DiamondELpeak","", 100,-10,10,100,-10,10);
- 	xyhitmap_DiamondELhigh = new TH2I("xyhitmap_DiamondELhigh","", 100,-10,10,100,-10,10);
 
   Evstheta[0] = new TH2I("Evstheta0","",50,0,25,Nbin,0,Ecal_Emax);
   Evstheta[1] = new TH2I("Evstheta1","",50,0,25,Nbin,0,Ecal_Emax);
@@ -381,6 +373,7 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, event& texneutevent) : texne
   Ex_5He_dt = new TH1I("Ex_5He_dt","",800,-2,30);
   ThetaCM_5He_dt = new TH1I("ThetaCM_5He_dt","",200,0,10);
   VCM_5He_dt = new TH1I("VCM_5He_dt","",100,0,14);
+	Erel_dt_costhetaH = new TH2I("Erel_dt_costhetaH","",750,0,30,25,-1,1);
 
   // He6
   dir6He->cd();
@@ -388,6 +381,7 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, event& texneutevent) : texne
   Ex_6He_tt = new TH1I("Ex_6He_tt","",800,-2,30);
   ThetaCM_6He_tt = new TH1I("ThetaCM_6He_tt","",200,0,10);
   VCM_6He_tt = new TH1I("VCM_6He_tt","",100,0,14);
+	Erel_tt_costhetaH = new TH2I("Erel_tt_costhetaH","",750,0,30,25,-1,1);
 
   // Li5
   dir5Li->cd();
@@ -395,11 +389,13 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, event& texneutevent) : texne
   Ex_5Li_pa = new TH1I("Ex_5Li_pa","",800,-2,30);
   ThetaCM_5Li_pa = new TH1I("ThetaCM_5Li_pa","",200,0,10);
   VCM_5Li_pa = new TH1I("VCM_5Li_pa","",100,0,14);
+	Erel_pa_costhetaH = new TH2I("Erel_pa_costhetaH","",750,0,30,25,-1,1);
 
   Erel_5Li_d3He = new TH1I("Erel_5Li_d3He","",800,0,30);
   Ex_5Li_d3He = new TH1I("Ex_5Li_d3He","",800,-2,30);
   ThetaCM_5Li_d3He = new TH1I("ThetaCM_5Li_d3He","",200,0,10);
   VCM_5Li_d3He = new TH1I("VCM_5Li_d3He","",100,0,14);
+	Erel_d3He_costhetaH = new TH2I("Erel_d3He_costhetaH","",750,0,30,25,-1,1);
 
   // Li6
   dir6Li->cd();
@@ -417,8 +413,6 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, event& texneutevent) : texne
   
   Erel_6Li_da = new TH1I("Erel_6Li_da","",2000,0,15);
   Erel_6Li_da_tgate_orA = new TH1I("Erel_6Li_da_tgate_orA","",2000,0,15);
-  Erel_6Li_da_vsDiamond = new TH2I("Erel_6Li_da_vsDiamond","",2000,0,15, 1024,0,4096);
-  Erel_6Li_da_vsDiamond_tgate_orA = new TH2I("Erel_6Li_da_vsDiamond_tgate_orA","",2000,0,15, 1024,0,4096);
   Ex_6Li_da_trans = new TH1I("Ex_6Li_da_trans","",2000,-5,10);
   Ex_6Li_da_long = new TH1I("Ex_6Li_da_long","",2000,-5,10);
   Ex_6Li_da = new TH1I("Ex_6Li_da","",2000,-5,10);
@@ -438,25 +432,6 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, event& texneutevent) : texne
 	react_origin_tdiff = new TH1I("react_origin_tdiff","",2000,-100,100);
 	
 	xyhitmap_6Li_plus = new TH2I("xyhitmap_6Li_plus","",100,-10,10,100,-10,10);
-	
-	sumDiamond_vs_GobbiEsum_cal_6Li_3plus = new TH2I("sumDiamond_vs_GobbiEsum_cal_6Li_3plus","",200,0,80,100,0,25);	
-	
-	sumDiamond_vs_GobbiEsum_cal_6Li_3plus_torA = new TH2I("sumDiamond_vs_GobbiEsum_cal_6Li_3plus_torA","",200,0,80,100,0,25);	
-
-	for (int i=0;i<4;i++) {
-		name.str("");
-		name << "Diamond_vs_GobbiEsum_cal_6Li_" << i;
-		Diamond_vs_GobbiEsum_cal_6Li[i] = new TH2I(name.str().c_str(),"",200,0,80,100,0,25);
-		
-		name.str("");
-		name << "Diamond_vs_GobbiEsum_cal_6Li_torA_" << i;
-		Diamond_vs_GobbiEsum_cal_6Li_torA[i] = new TH2I(name.str().c_str(),"",200,0,80,100,0,25);
-	}
-
-	Diamond_Ex_6Li = new TH1I("Diamond_Ex_6Li","",200,0,36);
-	Diamond_Ex_6Li_torA = new TH1I("Diamond_Ex_6Li_torA","",200,0,36);
-	Diamond_Ex_6Li_3plus = new TH1I("Diamond_Ex_6Li_3plus","",200,0,36);
-	Diamond_Ex_6Li_3plus_torA = new TH1I("Diamond_Ex_6Li_3plus_torA","",200,0,36);
 
   // Li7
 	// p + 6He
@@ -577,6 +552,19 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, event& texneutevent) : texne
   Ex_9B_aa = new TH1I("Ex_8Be_in_9B_aa","",800,-2,15);
   ThetaCM_9B_paa = new TH1I("ThetaCM_9B_paa","",200,0,10);
   VCM_9B_paa = new TH1I("VCM_9B_paa","",100,0,14);
+
+	// C8
+	dir8C->cd();
+	Erel_8C_4pa = new TH1I("Erel_8C_4pa","",800,0,17);
+	Ex_8C_4pa = new TH1I("Ex_8C_4pa","",800,-2,15);
+	ThetaCM_8C_4pa = new TH1I("ThetaCM_8C_4pa","",200,0,10);
+	VCM_8C_4pa = new TH1I("VCM_8C_4pa","",100,0,14);
+
+	// N9
+	dir9N->cd();
+	Erel_9N_5pa = new TH1I("Erel_9N_5pa","",800,0,17);
+	ThetaCM_9N_5pa = new TH1I("ThetaCM_9N_5pa","",200,0,10);
+	VCM_9N_5pa = new TH1I("VCM_9N_5pa","",100,0,14);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -587,67 +575,9 @@ histo::~histo() {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
+// Eventually, this function is where global tree should be filled with pre-solution Gobbi information
 void histo::Fill() {
-
-	// Transfer TexNeut values to output class
-	texneutout.clear();
-	texneutmult = texneut.get_coupledhits();
-	for (size_t i = 0; i < texneutmult; i++) {
-		OutStructs::TexNeutHit texneuthit;
-		texneuthit.bar = texneut.get_barshit(i);
-		texneuthit.chip_top = texneut.get_chip(i, "top");
-		texneuthit.chip_bot = texneut.get_chip(i, "bot");
-		texneuthit.chan_top = texneut.get_chan(i, "top");
-		texneuthit.chan_bot = texneut.get_chan(i, "bot");
-		texneuthit.Aint_top = texneut.get_Aint(i, "top");
-		texneuthit.Aint_bot = texneut.get_Aint(i, "bot");
-		texneuthit.Bint_top = texneut.get_Bint(i, "top");
-		texneuthit.Bint_bot = texneut.get_Bint(i, "bot");
-		texneuthit.Cint_top = texneut.get_Cint(i, "top");
-		texneuthit.Cint_bot = texneut.get_Cint(i, "bot");
-		texneuthit.Tint_top = texneut.get_Tint(i, "top");
-		texneuthit.Tint_bot = texneut.get_Tint(i, "bot");
-		texneuthit.TDCchannel_top = texneut.get_TDCchannel(i, "top");
-		texneuthit.TDCchannel_bot = texneut.get_TDCchannel(i, "bot");
-		texneuthit.TDCvalue_top = texneut.get_TDCvalue(i, "top");
-		texneuthit.TDCvalue_bot = texneut.get_TDCvalue(i, "bot");
-		texneuthit.PSD_top = texneut.get_PSD(i, "top");
-		texneuthit.PSD_bot = texneut.get_PSD(i, "bot");
-		texneuthit.PSD = texneut.get_PSD(i, "pre");
-		texneuthit.E_top = texneut.get_E(i, "top");
-		texneuthit.E_bot = texneut.get_E(i, "bot");
-		texneuthit.E_tot = texneut.get_E(i, "pre");
-
-		// NOTE: Here, reorder the Cartesian axes from TexAT coordinates (Z up) to standard beam physics coordinates (Z beam axis)
-		// See TNLIB detector.cpp for more details, this also swaps from a right handed to a left handed coordinate system
-		// I also recalculate the spherical coordinates because I think Alex does it wrong
-		texneuthit.xi = texneut.get_hitcoord(i, 0);
-		texneuthit.yi = texneut.get_hitcoord(i, 2);
-		texneuthit.zi = texneut.get_hitcoord(i, 1);
-    texneuthit.x = texneut.get_flight_cart(i, 0);
-		texneuthit.y = texneut.get_flight_cart(i, 2);
-		texneuthit.z = texneut.get_flight_cart(i, 1);
-    texneuthit.rho = texneut.get_flight_sphere(i, 0);
-		texneuthit.theta = acos(texneuthit.z / texneuthit.rho);
-		texneuthit.phi = (texneuthit.y < 0 ? -1. : 1.) * acos(texneuthit.x / sqrt((texneuthit.x*texneuthit.x) + (texneuthit.y*texneuthit.y)));
-
-		texneutout.push_back(texneuthit);
-	}
-
-	// Fill global pre-solution tree
-	tpar->Fill();
-
-	// Fill TexNeut histograms
-	vector<int> bars = texneut.get_barshit();
-	vector<double> x = texneut.get_hitcoord(0);
-	vector<double> y = texneut.get_hitcoord(1);
-	vector<int> Aint_top = texneut.get_Aint("top");
-	vector<int> Aint_bottom = texneut.get_Aint("bot");
-	for (int i = 0; i < texneut.get_coupledhits(); i++) {
-		topDownMap->Fill(x[i], y[i]);
-		if (bars[i] == 0)
-			barZeroFingers->Fill(Aint_bottom[i], Aint_top[i]);
-	}
+	
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

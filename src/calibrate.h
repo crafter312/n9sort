@@ -11,10 +11,10 @@ using namespace std;
  */
 struct coeff
 {
-  float slope; //!< slope for calibration
-  float intercept; //!< intercept for calibration
-  float a2;  //!< quadratic coeff if needed
-  float a3; //!< cubic coeff if needed
+  double slope; //!< slope for calibration
+  double intercept; //!< intercept for calibration
+  double a2;  //!< quadratic coeff if needed
+  double a3; //!< cubic coeff if needed
 };
 
 class calibrate
@@ -22,9 +22,9 @@ class calibrate
  public:
   calibrate(int Ntele,int Nstrip,string file,int order,bool weave);
   ~calibrate();
-  float getEnergy(int itele,int istrip,float channel);
-  float getTime(int itele,int istrip,float channel);
-  float reverseCal(int itele, int istrip, float energy);
+  double getEnergy(int itele,int istrip,double channel);
+  double getTime(int itele,int istrip,double channel);
+  double reverseCal(int itele, int istrip, double energy);
   int order;
   int Nstrip;  //!< number of strips
   int Ntele;   //!<number of telescopes

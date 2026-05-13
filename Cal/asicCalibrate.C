@@ -43,7 +43,7 @@
 
 
 
-void calibrate(TString detector="Front"){
+void calibrate(TString detector="Back"){
 
   TCanvas *cChi;
   cChi = new TCanvas("cChi","StripChiSqds");
@@ -61,13 +61,13 @@ void calibrate(TString detector="Front"){
 
   if (detector.Contains("Front"))
   {
-    inputFile1 = "peakpositions_Front_5peak_saveMarch16.txt";
+    inputFile1 = "peakpositions_Front_U232_save.txt";
     //inputFile2 = "peakpositions_Front_Ra226.txt";
     //inputFile3 = "peakpositions_Front_LiAu.txt";
   }
   if (detector.Contains("Back"))
   {
-    inputFile1 = "peakpositions_Back_5peak_saveMarch16.txt";
+    inputFile1 = "peakpositions_Back_U232_saveMay12.txt";
     //inputFile2 = "peakpositions_Back_Ra226.txt";
   }
   if (detector.Contains("Delta"))
@@ -89,7 +89,7 @@ void calibrate(TString detector="Front"){
   fout.open(outFileName);
   
   int numDetectorElements = 4*32;
-  int numPeaks = 5;
+  int numPeaks = 3;
 
   //if (detector.Contains("Front") || detector.Contains("Delta"))
   //{
@@ -116,9 +116,9 @@ void calibrate(TString detector="Front"){
   for (Int_t i=0; i<numDetectorElements; i++) {
    
     //alphas[i][0] = 5804.,alphas[i][1]=5762.,alphas[i][2] = 5479.3, alphas[i][3] = 5153.6, alphas[i][4] = 3182.7; // Lit. values as per NNDC. Am and Pu energies are weighted averages      alphas[i][0] = 5795.,alphas[i][1] = 5479.3, alphas[i][2] = 5148.4, alphas[i][3] = 3182.7; // Lit. values as permajor lines as those do not resolve to separate lines
-    alphas[i][0] = 5804.,alphas[i][1]=5804.,alphas[i][2] = 5479.3, alphas[i][3] = 5153.6, alphas[i][4] = 3182.7; // Lit. values as per NNDC. Am and Pu energies are weighted averages      alphas[i][0]
+    //alphas[i][0] = 5804.,alphas[i][1]=5804.,alphas[i][2] = 5479.3, alphas[i][3] = 5153.6, alphas[i][4] = 3182.7; // Lit. values as per NNDC. Am and Pu energies are weighted averages      alphas[i][0]
     //alphas[i][0] = 7686,alphas[i][1]=6002.,alphas[i][2] = 5489., alphas[i][3] = 5304., alphas[i][4] = 4784.;
-    alphaserr[i][0] = 1.0, alphaserr[i][1] = 1.0,alphaserr[i][2] = 1.0,alphaserr[i][3] = 1.0,alphaserr[i][4] = 1.0;
+    //alphaserr[i][0] = 1.0, alphaserr[i][1] = 1.0,alphaserr[i][2] = 1.0,alphaserr[i][3] = 1.0,alphaserr[i][4] = 1.0;
 
     //alphas[i][4] = 7686.82, alphas[i][5] = 6002.55, alphas[i][6] = 5489.48, alphas[i][7] = 5304.33, alphas[i][8] = 4784.34;
     //alphaserr[i][4] = 1.0, alphaserr[i][5] = 1.0,alphaserr[i][6] = 1.0,alphaserr[i][7] = 1.0,alphaserr[i][8] = 1.0;
@@ -130,6 +130,8 @@ void calibrate(TString detector="Front"){
 
     //alphaserr[i][9] = 1.0;
 
+    alphas[i][0] = 8767.,alphas[i][1]=6758.,alphas[i][2] = 6267.; //Po-212, Po-216, and Rn-220 in U-232 chain
+    alphaserr[i][0] = 1.0, alphaserr[i][1] = 1.0,alphaserr[i][2] = 1.0;
   }
 
 
@@ -151,7 +153,7 @@ void calibrate(TString detector="Front"){
     //fin2 >> ch;
     //fin3 >> ch;
 
-    for (Int_t j=0; j<5; j++) {
+    for (Int_t j=0; j<numPeaks; j++) {
       fin1 >> peaks[j] >> peakerr[j];
       peakerr[j] = 1;
       tenparray[j][i+1] = peaks[j];
@@ -184,7 +186,7 @@ void calibrate(TString detector="Front"){
     } 
 
     cout << "read peaks: ";
-    for (Int_t j=0; j<5; j++){ cout << peaks[j] << " " << peakerr[j] << "  " <<  tenparray[j][i+1] << " " << tenparrayerr[j][i+1] << "  " ;}
+    for (Int_t j=0; j<numPeaks; j++){ cout << peaks[j] << " " << peakerr[j] << "  " <<  tenparray[j][i+1] << " " << tenparrayerr[j][i+1] << "  " ;}
    // for (Int_t j=0; j<5; j++){ cout << peaks[j+4] << " " << peakerr[j+4] << "  " <<  tenparray[j+4][i+1] << " " << tenparrayerr[j+4][i+1] << "  " ;}
   //  cout << peaks[9] << " " << peakerr[9] << "  " <<  tenparray[9][i+1] << " " << tenparrayerr[9][i+1] << "  " ;
 
@@ -192,7 +194,7 @@ void calibrate(TString detector="Front"){
       
     // hack here to get the energies to smaller array expected by TGraph...
     
-    for (Int_t j=0; j<5; j++) {
+    for (Int_t j=0; j<numPeaks; j++) {
       alphastemp[j] = alphas[i][j];
       tenparray[j][0] = alphastemp[j];
       alphastemperr[j] = alphaserr[i][j];
@@ -219,14 +221,14 @@ void calibrate(TString detector="Front"){
     TGraphErrors *g1err = new TGraphErrors();
       //TGraph *g2 = new TGraph(24,stripno,chisqdarray);
 
-    /*
+    
     for (Int_t j=0; j<numPeaks; j++) {
       cout << "peakno: " << j << "  peakch: " << peaks[j] <<  "  peakcherr: " << peakerr[j] << "  peakamplitude: " << alphastemp[j] << "  peakamperr: " << alphastemperr[j] << endl;
-      g1->SetPoint(j, peaks[j], alphastemp[j]);
+      //g1->SetPoint(j, peaks[j], alphastemp[j]);
       g1err->SetPoint(j, peaks[j], alphastemp[j]);
       g1err->SetPointError(j, peakerr[j], alphastemperr[j]);
     }
-    */
+    
 
     //g1->SetPoint(0, peaks[3], alphastemp[3]);
     //g1err->SetPoint(0, peaks[3], alphastemp[3]);
@@ -240,14 +242,14 @@ void calibrate(TString detector="Front"){
     //g1err->SetPoint(1, peaks[9], alphastemp[9]);
     //g1err->SetPointError(1, peakerr[9], alphastemperr[9]);
 
-    g1err->SetPoint(0,peaks[1],alphastemp[1]);
-    g1err->SetPointError(0, peakerr[1], alphastemperr[1]);
-    g1err->SetPoint(1,peaks[2],alphastemp[2]);
-    g1err->SetPointError(2, peakerr[2], alphastemperr[2]);
-    g1err->SetPoint(2,peaks[3],alphastemp[3]);
-    g1err->SetPointError(3, peakerr[3], alphastemperr[3]);
-    g1err->SetPoint(3,peaks[4],alphastemp[4]);
-    g1err->SetPointError(4, peakerr[4], alphastemperr[4]);
+    //g1err->SetPoint(0,peaks[1],alphastemp[1]);
+    //g1err->SetPointError(0, peakerr[1], alphastemperr[1]);
+    //g1err->SetPoint(1,peaks[2],alphastemp[2]);
+    //g1err->SetPointError(2, peakerr[2], alphastemperr[2]);
+    //g1err->SetPoint(2,peaks[3],alphastemp[3]);
+    //g1err->SetPointError(3, peakerr[3], alphastemperr[3]);
+    //g1err->SetPoint(3,peaks[4],alphastemp[4]);
+    //g1err->SetPointError(4, peakerr[4], alphastemperr[4]);
 
 
     g1err->SetMarkerStyle(20);

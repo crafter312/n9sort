@@ -1,73 +1,96 @@
 #include "losses.h"
+
 #include <algorithm>
 #include <cmath>
+#include <stdexcept>
+#include <string>
+
+#include "constants.h"
 
 using namespace std;
 
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
 /**
  * constructor
-\param filename is name of file containing energy loss tables of a particulat particle
-\param mass0 is mass of particle in amu
-*/
+ * \param Zmax0 is the maximum Z nucleus whose loss table should be stored in this class
+ * \param path is the directory relative to the program build location containing files with energy loss tables
+ * \param mat is a string denoting which material the energy loss is required for, and therefore which files get loaded
+ */
+CLosses::CLosses(int Zmax0, string path, string mat) {
+	Zmax = Zmax0;
+	string suffix = "_" + mat + ".loss";
+	string filename;
+	loss = new CLoss2*[Zmax];
+	for (size_t iZ = 1; iZ <= Zmax; iZ++) {
+		switch (iZ) {
+			case 1:
+				filename = path + "Hydrogen" + suffix;
+				break;
+			case 2:
+				filename = path + "Helium" + suffix;
+				break;
+			case 3:
+				filename = path + "Lithium" + suffix;
+				break;
+			case 4:
+				filename = path + "Beryllium" + suffix;
+				break;
+			case 5:
+				filename = path + "Boron" + suffix;
+				break;
+			case 6:
+				filename = path + "Carbon" + suffix;
+				break;
+			case 7:
+				filename = path + "Nitrogen" + suffix;
+				break;
+			case 8:
+				filename = path + "Oxygen" + suffix;
+				break;
+			case 9:
+				filename = path + "Fluorine" + suffix;
+				break;
+			case 10:
+				filename = path + "Neon" + suffix;
+				break;
+			default:
+				throw invalid_argument(string(BOLDRED) + string("loss case for Z = ") + to_string(iZ) + string( " not implemented") + string(RESET));
+		}
+		
+#ifdef ENABLE_DEBUG
+		cout << iZ << endl;
+		cout << filename << endl;
+#endif
 
-CLosses::CLosses(int Zmax0, SortConfig& config)
-{
-  Zmax = Zmax0;
-  string path = config.GetLossDir();
-  string suffix = "_" + config.GetTargetSuffix() + ".loss";
-  string filename;
-  loss = new CLoss2 * [Zmax+1];
-  for (int iZ = 1;iZ <= Zmax;iZ++)
-  {
-    if (iZ == 1)        filename = path + "Hydrogen" + suffix;
-    else if (iZ == 2)   filename = path + "Helium" + suffix;
-    else if (iZ == 3)   filename = path + "Lithium" + suffix;
-    //else if (iZ == 4)   filename = path + "Beryllium" + suffix;
-    //else if (iZ == 5)   filename = path + "Boron" + suffix;
-    //else if (iZ == 6)   filename = path + "Carbon" + suffix;
-    //else if (iZ == 7)   filename = path + "Nitrogen" + suffix;
-    //else if (iZ == 8)   filename = path + "Oxygen" + suffix;
-    //else if (iZ == 9)   filename = path + "Fluorine" + suffix;
-    //else if (iZ == 10)  filename = path + "Neon" + suffix;
-    else
-    {
-      cout << "loss file for Z = " << iZ << " not found "<< endl;
-      break;
-    }
-
-    //      cout << filename << endl; 
-    loss[iZ] = new CLoss2 (filename);
-    //cout << iZ << endl;
-  }
+		loss[iZ - 1] = new CLoss2(filename);
+	}
 }
 
-CLosses::~CLosses()
-{
-  for (int iZ = 1;iZ<=Zmax;iZ++){ delete loss[iZ]; }
-  delete loss;
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+CLosses::~CLosses() {
+	for (size_t i = 0; i < Zmax; i++) delete loss[i];
+	delete loss;
 }
 
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-//**********************************************************
-float CLosses::getEin(float energy, float thick,int Z,float A)
-{
-  if (Z > Zmax)
-  {
-    cout << " no loss info for Z = " << Z << endl;
-    abort();
-  }
-  float energyi = loss[Z]->getEin(energy,thick, A);
-
-
-  return energyi;
+double CLosses::getEin(double energy, double thick, size_t Z, double A) {
+	if (Z > Zmax || Z == 0) throw invalid_argument(string(BOLDRED) + string("No loss info for Z = ") + to_string(Z) + string(RESET));
+	
+	return loss[Z - 1]->getEin(energy, thick, A);
 }
-//**********************************************************
-float CLosses::getEout(float energy, float thick,int Z,float A)
-{
-    if (Z > Zmax)
-    {
-      cout << " no loss info for Z = " << Z << endl;
-      abort();
-    }
-  return loss[Z]->getEout(energy,thick, A);
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+double CLosses::getEout(double energy, double thick, size_t Z, double A) {
+	if (Z > Zmax || Z == 0) throw invalid_argument(string(BOLDRED) + string("No loss info for Z = ") + to_string(Z) + string(RESET));
+	
+	return loss[Z - 1]->getEout(energy, thick, A);
 }
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+
+

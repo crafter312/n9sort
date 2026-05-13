@@ -16,11 +16,10 @@
 #include <memory>
 #include <sstream>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
-#include <eventclass.hpp>
-
-#include "OutStructs.h"
+#include "SortConfig.h"
 
 class histo {
 
@@ -28,37 +27,22 @@ private:
 
 	std::shared_ptr<ROOT::TBufferMergerFile> file_read; // thread-safe output ROOT file pointer
 
-	event& texneut; // hold TexNeut event object reference for easy variable retrieval and saving
-
-	// Variables for global tree branches
-	size_t texneutmult{0};              // number of successful pairs of hits per event in TexNeut, a.k.a. "bars"
-	std::vector<OutStructs::TexNeutHit> texneutout; // hit list from TexNeut data containing bar-wise information, should be "texneutmult" in length
-
 public:
 
-	histo(std::shared_ptr<ROOT::TBufferMergerFile>, event& texneutevent);
+	histo(std::shared_ptr<ROOT::TBufferMergerFile>, SortConfig& config);
 	~histo();
 
 	// Global tree for storing pre-solution variables
-	TTree* tpar;
+	//TTree* tpar;
 
 	void Fill();
-	
-	/******** TEXNEUT STUFF ********/
-	
-	TDirectoryFile* dirTexNeut;
-	
-	TH2I* topDownMap;
-	TH2I* barZeroFingers;
-	TH1I* neutron_mult;
-	
-	/*******************************/
+
+	size_t hinpboards; // total number of HINP boards used
+	size_t hinpchans;  // number of channels per HINP board (should always be 32)
 
 	//TODO: replace with CMake/compile-time variables
 	static const int E_boardnum = 8;  // number of boards associated with E silicon detectors
 	static const int dE_boardnum = 4; // number of boards associated with dE silicon detectors
-	static const int boardnum = 12;   // total number of boards (not used; was 16, should be 12)
-	static const int channum = 32;    // number of channels on each board
 
 	TDirectoryFile* dirSummary;
 
@@ -77,11 +61,14 @@ public:
 	TDirectory* dir1dBackTime_R;
 	TDirectory* dir1dDeltaTime_R;
 	
-	TDirectoryFile* dirDiamond;
+	TDirectory* dir1dCsI_Energy;
+	TDirectory* dir1dCsI_Time;
+	TDirectory* dir1dCsI_QDC;
 	
 	TDirectoryFile* dirTDC;
 
 	TDirectoryFile* dirDEEplots; // directory for deltaE-E plots used in particle identificaiton
+	TDirectory* dirPSD;          // directory for PSD plots
 	TDirectoryFile* dirhitmaps;  // directory for all particle type hitmaps
 
 	TDirectoryFile* dirInvMass;  // directory for all correlations and inv-mass
@@ -95,6 +82,8 @@ public:
 	TDirectory* dir7Be;
 	TDirectory* dir8Be;
 	TDirectory* dir9B;
+	TDirectory* dir8C;
+	TDirectory* dir9N;
 
 	// Summary plots
 	TH2I* sumFrontE_R;
@@ -116,40 +105,24 @@ public:
 	TH2I* sumBackTime_cal;
 	TH2I* sumDeltaTime_R;
 	TH2I* sumDeltaTime_cal;
-	//TH2I* FrontvsBack;
 	TH2I* FrontvsBack[4];
+	TH2I* FrontvsBack_sionly[4];
 
 	TH2I* sumFrontTimeMult1_cal;
 
 	// E silicon plots
-	TH1I* FrontE_R[4][channum];
-	TH1I* FrontElow_R[4][channum];
-	TH1I* FrontTime_R[4][channum];
-	TH1I* FrontE_cal[4][channum];
-	TH1I* BackE_R[4][channum];
-	TH1I* BackElow_R[4][channum];
-	TH1I* BackTime_R[4][channum];
-	TH1I* BackE_cal[4][channum];
+	std::vector<std::vector<TH1I*>> FrontE_R;
+	std::vector<std::vector<TH1I*>> FrontElow_R;
+	std::vector<std::vector<TH1I*>> FrontTime_R;
+	std::vector<std::vector<TH1I*>> FrontE_cal;
+	std::vector<std::vector<TH1I*>> BackE_R;
+	std::vector<std::vector<TH1I*>> BackElow_R;
+	std::vector<std::vector<TH1I*>> BackTime_R;
+	std::vector<std::vector<TH1I*>> BackE_cal;
 
-	TH1I* AngleCorrE[4][channum];
-	TH1I* AngleCorr_noCorr[4][channum];
-	TH1I* AngleCorrE_R[4][channum];
-
-	//Diamond detector plots
-	TH1I* DiamondQDC0;
-	TH1I* DiamondQDC0_cal;
-	TH1I* DiamondQDC1;
-	TH1I* DiamondQDC1_cal;
-	
-	TH1I* DiamondQDC0_tgate_orA;
-	TH1I* DiamondQDC0_tgate_orA_cal;
-	TH2I* DiamondQDC0_vs_torA;
-	TH2I* DiamondQDC0_vs_torA_cal;
-	
-	TH2I* Diamond_vs_GobbiEsum[4];
-	TH2I* Diamond_vs_GobbiEsum_cal[4];
-	TH2I* Diamond_vs_GobbiEsum_torA[4];
-	TH2I* Diamond_vs_GobbiEsum_torA_cal[4];
+	std::vector<std::vector<TH1I*>> AngleCorrE;
+	std::vector<std::vector<TH1I*>> AngleCorr_noCorr;
+	std::vector<std::vector<TH1I*>> AngleCorrE_R;
 	
 	//TDC plots
 	TH1I * TDC_Plot[16];
@@ -159,14 +132,34 @@ public:
 	TH1I * TDC_Plot_TN_shift[12];
 
 	// Delta E silicon plots
-	TH1I* DeltaE_R[4][channum];
-	TH1I* DeltaElow_R[4][channum];
-	TH1I* DeltaTime_R[4][channum];
-	TH1I* DeltaE_cal[4][channum];
+	std::vector<std::vector<TH1I*>> DeltaE_R;
+	std::vector<std::vector<TH1I*>> DeltaElow_R;
+	std::vector<std::vector<TH1I*>> DeltaTime_R;
+	std::vector<std::vector<TH1I*>> DeltaE_cal;
 
-	TH1I* AngleCorrDeltaE[4][channum];
-	TH1I* AngleCorrDeltaE_noCorr[4][channum];
-	TH1I* AngleCorrDeltaE_R[4][channum];
+	std::vector<std::vector<TH1I*>> AngleCorrDeltaE;
+	std::vector<std::vector<TH1I*>> AngleCorrDeltaE_noCorr;
+	std::vector<std::vector<TH1I*>> AngleCorrDeltaE_R;
+	
+	// CsI plots (these are created in `Gobbi28.cpp` when reading in the CsI channel mappings)
+	
+	// Summary plots
+	TH2I* sumCsIE_R_um;
+	TH2I* sumCsIE_cal_um;
+	TH2I* sumCsITime_um;
+	
+	// Per-crystal plots 
+	std::unordered_map<size_t, TH1I*> CsI_Energy_R_um;
+	std::unordered_map<size_t, TH1I*> CsI_Energy_cal_um;
+	std::unordered_map<size_t, TH1I*> CsI_QDC_um;
+	std::unordered_map<size_t, TH1I*> CsI_QDC_matched;
+	std::unordered_map<size_t, TH1I*> CsI_Time_um;
+	std::unordered_map<size_t, TH2I*> CsIonly_PSD;
+	std::vector<TH1I*> CsI_Energy_R[4];
+	std::vector<TH1I*> CsI_Energy_R_center[4];
+	std::vector<TH2I*> DEE_CsI[4];
+	
+	
 
 	// DeltaE-E plots
 	TH2I* DEE_simple[4];
@@ -176,8 +169,8 @@ public:
 
 	TH2I* xyhitmap_allE;
 	TH2I* xyhitmap;
-	TH2I* xyhitmap_EdEgate_1stEL;
-	TH2I* xyhitmap_EdEgate_2ndEL;
+	TH2I* tphitmap;
+	TH2I* xyhitmap_sionly;
 	TH2I* xyhitmap_tgate_orA;
 	TH2I* protonhitmap;
 	TH2I* deuteronhitmap;
@@ -188,10 +181,6 @@ public:
 	TH2I* LiVETOhitmap;
 	TH2I* hitmapof_p;
 	TH2I* hitmapof_6He;
-	
-	TH2I* xyhitmap_DiamondELlow;
-	TH2I* xyhitmap_DiamondELpeak;
-	TH2I* xyhitmap_DiamondELhigh;
 
 	TH2I* Evstheta[4];
 	TH2I* Evstheta_all;
@@ -230,23 +219,27 @@ public:
 	TH1I* Ex_5He_dt;
 	TH1I* ThetaCM_5He_dt;
 	TH1I* VCM_5He_dt;
+	TH2I* Erel_dt_costhetaH;
 
 	// He6
 	TH1I* Erel_6He_tt;
 	TH1I* Ex_6He_tt;
 	TH1I* ThetaCM_6He_tt;
 	TH1I* VCM_6He_tt;
+	TH2I* Erel_tt_costhetaH;
 
 	// Li5
 	TH1I* Erel_5Li_pa;
 	TH1I* Ex_5Li_pa;
 	TH1I* ThetaCM_5Li_pa;
 	TH1I* VCM_5Li_pa;
+	TH2I* Erel_pa_costhetaH;
 
 	TH1I* Erel_5Li_d3He;
 	TH1I* Ex_5Li_d3He;
 	TH1I* ThetaCM_5Li_d3He;
 	TH1I* VCM_5Li_d3He;
+	TH2I* Erel_d3He_costhetaH;
 
 	// Li6
 	// -> p + n + alpa
@@ -262,8 +255,6 @@ public:
 	
 	TH1I* Erel_6Li_da;
 	TH1I* Erel_6Li_da_tgate_orA;
-	TH2I* Erel_6Li_da_vsDiamond;
-	TH2I* Erel_6Li_da_vsDiamond_tgate_orA;
 	TH1I* Ex_6Li_da_trans;
 	TH1I* Ex_6Li_da_long;
 	TH1I* Ex_6Li_da;
@@ -280,18 +271,6 @@ public:
 	TH1I* react_origin_tdiff;
 	
 	TH2I* xyhitmap_6Li_plus;
-	
-	TH2I* sumDiamond_vs_GobbiEsum_cal_6Li_3plus;
-	
-	TH2I* sumDiamond_vs_GobbiEsum_cal_6Li_3plus_torA;
-	
-	TH2I* Diamond_vs_GobbiEsum_cal_6Li[4];
-	TH2I* Diamond_vs_GobbiEsum_cal_6Li_torA[4];
-
-	TH1I* Diamond_Ex_6Li;
-	TH1I* Diamond_Ex_6Li_torA;
-	TH1I* Diamond_Ex_6Li_3plus;
-	TH1I* Diamond_Ex_6Li_3plus_torA;
 
 	// Li7
 	TH1I* Erel_7Li_p6He;
@@ -395,6 +374,17 @@ public:
 	TH1I* Ex_9B_aa;
 	TH1I* ThetaCM_9B_paa;
 	TH1I* VCM_9B_paa;
+
+	// C8
+	TH1I* Erel_8C_4pa;
+	TH1I* Ex_8C_4pa;
+	TH1I* ThetaCM_8C_4pa;
+	TH1I* VCM_8C_4pa;
+
+	// C8
+	TH1I* Erel_9N_5pa;
+	TH1I* ThetaCM_9N_5pa;
+	TH1I* VCM_9N_5pa;
 
 };
 

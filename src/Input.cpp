@@ -26,14 +26,14 @@ using namespace std;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-vector<string> Input::GenerateColumnNamesHINP(const string& parname) {
+vector<string> Input::GenerateColumnNamesHINP(const string& branchname, const string& parname) {
 	vector<string> columns;
 	string b, c;
 	for (size_t board = 1; board <= HINP_BOARD_COUNT; board++) {
 		for (size_t chan = 0; chan < HINP_CHAN_COUNT; chan++) {
 			b = (board < 10 ? "0" : "") + to_string(board);
 			c = (chan < 10 ? "0" : "") + to_string(chan);
-			columns.push_back("SpecTcl_hinp1_mb1_" + parname + "_" + b + "." + c);
+			columns.push_back(branchname + "_" + parname + "_" + b + "." + c);
 		}
 	}
 	return columns;
@@ -56,10 +56,22 @@ vector<string> Input::GenerateColumnNamesPSD(const string& parname) {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-vector<string> Input::GenerateColumnNamesQDC(const string& parname) {
+vector<string> Input::GenerateColumnNamesADCQDC(const string& branchname, const size_t& chancount) {
 	vector<string> columns;
 	string cha;
-	for (size_t chan = 0; chan < QDC_CHAN_COUNT; chan++) {
+	for (size_t chan = 0; chan < chancount; chan++) {
+		cha = (chan < 10 ? "0" : "") + to_string(chan);
+		columns.push_back(branchname + "." + cha);
+	}
+	return columns;
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+vector<string> Input::GenerateColumnNamesQDCV965(const string& parname) {
+	vector<string> columns;
+	string cha;
+	for (size_t chan = 0; chan < QDCV965_CHAN_COUNT; chan++) {
 		cha = (chan < 10 ? "0" : "") + to_string(chan);
 		columns.push_back("SpecTcl_qdc1_" + cha + "." + parname);
 	}
@@ -68,13 +80,14 @@ vector<string> Input::GenerateColumnNamesQDC(const string& parname) {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-vector<string> Input::GenerateColumnNamesTDC() {
+vector<string> Input::GenerateColumnNamesTDC(const string& branchname) {
 	vector<string> columns;
 	string cha;
 	for (size_t chan = 0; chan < TDC_CHAN_COUNT; chan++) {
 		for (int hit = 0; hit < TDC_HIT_COUNT; hit++) {
-			cha = (chan < 10 ? "0" : "") + to_string(chan);
-			columns.push_back("SpecTcl_tdc1_" + cha + "." + to_string(hit));
+			cha = (chan < 10 ? "00" : "") + to_string(chan);
+			cha = ((chan < 100) && (chan >= 10) ? "0" : "") + cha;
+			columns.push_back(branchname + "_" + cha + "." + to_string(hit));
 		}
 	}
 	return columns;
@@ -86,59 +99,44 @@ vector<string> Input::GenerateColumnNamesTDC() {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-Input::Input(TTreeReader& r) : reader(r) {
+Input::Input(TTreeReader& r, SortConfig& config) : reader(r) {
 
 	// Pre-alocate required vector memory
 	gobbi.eRVs.reserve(HINP_NCOLUMNS);
 	gobbi.eLoRVs.reserve(HINP_NCOLUMNS);
 	gobbi.tRVs.reserve(HINP_NCOLUMNS);
-	texneut.aRVs.reserve(PSD_NCOLUMNS);
-	texneut.bRVs.reserve(PSD_NCOLUMNS);
-	texneut.cRVs.reserve(PSD_NCOLUMNS);
-	texneut.tRVs.reserve(PSD_NCOLUMNS);
-	qdc.qhRVs.reserve(QDC_CHAN_COUNT);
-	qdc.qlRVs.reserve(QDC_CHAN_COUNT);
+	adc.aqRVs.reserve(ADC_CHAN_COUNT);
+	qdc.aqRVs.reserve(QDC_CHAN_COUNT);
 	tdc.tRVs.reserve(TDC_NCOLUMNS);
 
 	// Generate column names for reading from input tree
-	vector<string> e_columns     = GenerateColumnNamesHINP("e");
-	vector<string> eLo_columns   = GenerateColumnNamesHINP("eLo");
-	vector<string> hinpt_columns = GenerateColumnNamesHINP("t");
-	vector<string> a_columns     = GenerateColumnNamesPSD("a");
-	vector<string> b_columns     = GenerateColumnNamesPSD("b");
-	vector<string> c_columns     = GenerateColumnNamesPSD("c");
-	vector<string> psdt_columns  = GenerateColumnNamesPSD("t");
-	vector<string> qh_columns    = GenerateColumnNamesQDC("h");
-	vector<string> ql_columns    = GenerateColumnNamesQDC("l");
-	vector<string> tdct_columns  = GenerateColumnNamesTDC();
+	vector<string> e_columns     = GenerateColumnNamesHINP(config.GetHinpBranchName(), "e");
+	vector<string> eLo_columns   = GenerateColumnNamesHINP(config.GetHinpBranchName(), "eLo");
+	vector<string> hinpt_columns = GenerateColumnNamesHINP(config.GetHinpBranchName(), "t");
+	vector<string> adc_columns   = GenerateColumnNamesADCQDC(config.GetAdcBranchName(), ADC_CHAN_COUNT);
+	vector<string> qdc_columns   = GenerateColumnNamesADCQDC(config.GetQdcBranchName(), QDC_CHAN_COUNT);
+	vector<string> tdct_columns  = GenerateColumnNamesTDC(config.GetTdcBranchName());
 	
 	//// Create reader values for all columns, iteratively
 
 	// HINP
 	for (size_t i = 0; i < HINP_NCOLUMNS; i++) {
-		gobbi.eRVs.push_back({reader, e_columns[i].c_str()});
-		gobbi.eLoRVs.push_back({reader, eLo_columns[i].c_str()});
-		gobbi.tRVs.push_back({reader, hinpt_columns[i].c_str()});
+		gobbi.eRVs.emplace_back(reader, e_columns[i].c_str());
+		gobbi.eLoRVs.emplace_back(reader, eLo_columns[i].c_str());
+		gobbi.tRVs.emplace_back(reader, hinpt_columns[i].c_str());
 	}
-
-	// PSD
-	for (size_t i = 0; i < PSD_NCOLUMNS; i++) {
-		texneut.aRVs.push_back({reader, a_columns[i].c_str()});
-		texneut.bRVs.push_back({reader, b_columns[i].c_str()});
-		texneut.cRVs.push_back({reader, c_columns[i].c_str()});
-		texneut.tRVs.push_back({reader, psdt_columns[i].c_str()});
-	}
+	
+	// ADC
+	for (size_t i = 0; i < ADC_CHAN_COUNT; i++)
+		adc.aqRVs.emplace_back(reader, adc_columns[i].c_str());
 
 	// QDC
-	for (size_t i = 0; i < QDC_CHAN_COUNT; i++) {
-		qdc.qhRVs.push_back({reader, qh_columns[i].c_str()});
-		qdc.qlRVs.push_back({reader, ql_columns[i].c_str()});
-	}
+	for (size_t i = 0; i < QDC_CHAN_COUNT; i++)
+		qdc.aqRVs.emplace_back(reader, qdc_columns[i].c_str());
 
 	// TDC
-	for (size_t i = 0; i < TDC_NCOLUMNS; i++) {
-		tdc.tRVs.push_back({reader, tdct_columns[i].c_str()});
-	}
+	for (size_t i = 0; i < TDC_NCOLUMNS; i++)
+		tdc.tRVs.emplace_back(reader, tdct_columns[i].c_str());
 
 }
 
@@ -150,70 +148,67 @@ Input::~Input() {}
 
 void Input::ReadAndRefactor() {
 	gobbi.clear();
-	texneut.clear();
+	adc.clear();
 	qdc.clear();
 	tdc.clear();
 	
 	// Loop through TDC channels to retrieve time hit information
-	size_t chan, hit;
+	size_t chan;
 	double tdc_t;
 	for (size_t i = 0; i < TDC_NCOLUMNS; i++) {
-		//double testt = *(tdc.tRVs[i]);
-		//cout << "test tdc value " << testt << endl;
-		//cout << "test tdc value " << (int)testt << endl;
-		tdc_t = *(tdc.tRVs[i]); //TODO this returns the max 64-bit value for empty channels, temp cut out > 16384
-		//cout << i / (size_t)TDC_HIT_COUNT << " " << tdc_t << endl;
+		tdc_t = *(tdc.tRVs[i]);
+		
+#ifdef ENABLE_DEBUG
+		cout << i / (size_t)TDC_HIT_COUNT << " " << tdc_t << endl;
+#endif
 
 		if (i == 0 && tdc_t != 0) {
-			//cout << "bad event " << badevt << ", skip! tdc_t is " << tdc_t << endl;
+		
+#ifdef ENABLE_DEBUG
+			cout << "bad event " << badevt << ", skip! tdc_t is " << tdc_t << endl;
+#endif
+			
 			badevt++;
 			return;
 		}
-		if (isnan(tdc_t) || (abs(tdc_t) >= 10000)) continue;
+		if (isnan(tdc_t) || (abs(tdc_t) >= 10000)) continue; // the nan portion only works if `tdc_t` is the same type as its column in the input tree
 		chan = i / (size_t)TDC_HIT_COUNT;
-		//if (chan > 3) cout << chan << " " << tdc_t << endl;
 		tdc.Nhits[chan]++;
 		tdc.t[chan].push_back(tdc_t);
 	}
 	
 	// Loop through HINP boards and channels and retrieve hit information
-	size_t e;
+	double e;
 	for (size_t i = 0; i < HINP_NCOLUMNS; i++) {
-		e = *(gobbi.eRVs[i]); //TODO this returns the max 64-bit value for empty channels, temp cut out > 16384
-		if (isnan(e) || (e == 0) || (e >= 16384)) continue;
+		e = *(gobbi.eRVs[i]);
+		if (isnan(e) || (e == 0) || (e >= 16384)) continue; // the nan portion only works if `e` is the same type as its column in the input tree
 		gobbi.Nhits++;
 		gobbi.board.push_back((i / (size_t)HINP_CHAN_COUNT) + 1);
 		gobbi.chan.push_back(i % (size_t)HINP_CHAN_COUNT);
-		gobbi.e.push_back(e);
+		gobbi.e.push_back((size_t)e);
 		gobbi.eLo.push_back((size_t)(*(gobbi.eLoRVs[i])));
 		gobbi.t.push_back((size_t)(*(gobbi.tRVs[i])));
 	}
 	
-	// Loop through PSD chips and channels and retrieve hit information
-	size_t t;
-	for (size_t i = 0; i < PSD_NCOLUMNS; i++) {
-		t = *(texneut.tRVs[i]); //TODO this returns the max 64-bit value for empty channels, temp cut out > 16384
-		if (isnan(t) || (t == 0) || (t >= 16384)) continue;
-		texneut.Nhits++;
-		texneut.chip.push_back((i / (size_t)PSD_CHAN_COUNT) + 1);
-		texneut.chan.push_back(i % (size_t)PSD_CHAN_COUNT);
-		texneut.a.push_back((size_t)(*(texneut.aRVs[i])));
-		texneut.b.push_back((size_t)(*(texneut.bRVs[i])));
-		texneut.c.push_back((size_t)(*(texneut.cRVs[i])));
-		texneut.t.push_back(t);
-	  }
-	
-	// Loop through QDC channels to retrieve high and low range hit information
-	size_t qh;
-	for (size_t i = 0; i < QDC_CHAN_COUNT; i++) {
-		qh = *(qdc.qhRVs[i]); //TODO this returns the max 64-bit value for empty channels, temp cut out > 16384
-		if (isnan(qh) || (qh == 0) || (qh >= 16384)) continue;
-		qdc.Nhits++;
-		qdc.chan.push_back(i);
-		qdc.qh.push_back(qh);
-		qdc.ql.push_back((size_t)(*(qdc.qlRVs[i])));
+	// Loop through ADC channels to retrieve hit information
+	double a;
+	for (size_t i = 0; i < ADC_CHAN_COUNT; i++) {
+		a = *(adc.aqRVs[i]);
+		if (isnan(a) || (a == 0) || (a >= 16384)) continue; // the nan portion only works if `a` is the same type as its column in the input tree
+		adc.Nhits++;
+		adc.chan.push_back(i);
+		adc.aq.push_back((size_t)a);
 	}
 	
+	// Loop through QDC channels to retrieve hit information
+	double q;
+	for (size_t i = 0; i < QDC_CHAN_COUNT; i++) {
+		q = *(qdc.aqRVs[i]);
+		if (isnan(q) || (q == 0) || (q >= 16384)) continue; // the nan portion only works if `q` is the same type as its column in the input tree
+		qdc.Nhits++;
+		qdc.chan.push_back(i);
+		qdc.aq.push_back((size_t)q);
+	}
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

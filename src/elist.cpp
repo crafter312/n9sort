@@ -1,14 +1,58 @@
-//creates energy order (descending) lists of strips
+// creates energy order (descending) lists of strips
 
 #include "elist.h"
+
 #include <algorithm>
 #include <iostream>
+
 using namespace std;
+
+// New elist function with qdc added as option, old functions kept for backwards compatability
+void elist::Add(int StripNum, double energy, double energylow, int energyRlow, int energyR, double time, double qdc, int qdcflag)
+{
+
+  //first find place in list
+  int i = 0;
+  for (;;)
+  {
+    if (i == Nstore) break;
+    if(energy >0)
+    {
+      if (energy > Order[i].energy) break;
+    }
+    else
+    {
+      if(energyR > Order[i].energyR) break;
+    }
+    i++;
+  }
+  if (i == nnn) return; // not enougth room in list 
+
+  //new list length
+  int N = min(nnn,Nstore+1);
+
+  // move those in energy below the new value down the list 
+  for (int j=N-1;j>i;j--) Order[j] = Order[j-1];
+
+  //add present energy to list
+  Order[i].energy = energy;
+  Order[i].energyR = energyR;
+  Order[i].energylow = energylow;
+  Order[i].energyRlow = energyRlow;
+  Order[i].strip = StripNum;
+  Order[i].time = time;
+  Order[i].qdc = qdc;
+  Order[i].qdcflag = qdcflag;
+
+  // increase list length
+  Nstore = N;
+  mult = N;
+}
 
 //***********************************************************************
 //places a new strip energy in an order list from max to min energy
 //updated for high/low gain (HINP4) chips
-void elist::Add(int StripNum, float energy, int energyRlow, int energyR, float time)
+void elist::Add(int StripNum, double energy, int energyRlow, int energyR, double time)
 {
 
   //first find place in list
@@ -66,7 +110,7 @@ void elist::Remove(int entry)
   return;
 }
 
-void elist::Add(int StripNum, float energy, int rawenergy, int time)  //for use with tree
+void elist::Add(int StripNum, double energy, int rawenergy, int time)  //for use with tree
 {
   Order[Nstore].energy = energy;
   Order[Nstore].strip = StripNum;
@@ -136,20 +180,30 @@ void elist::reset()
 {
   for(int i =0;i<Nstore;i++)
   {
-    Order[i].energy = 0;
-    Order[i].energyR = 0;
-    Order[i].energyRlow = 0;
+    Order[i].energy = 0.;
+    Order[i].energyR = 0.;
+    Order[i].energyRlow = 0.;
+    Order[i].energylow = 0.;
+    Order[i].energyMax = 0.;
     Order[i].strip = 0;
-    Order[i].time = 0;
-    Order[i].neighbours=0;
-    Order[i].energyMax=0;
+    Order[i].neighbours = 0;
+    Order[i].time = 0.;
+    Order[i].qdc = 0.;
+    Order[i].qdcflag = false;
+    Order[i].CsIFlag = false;
   }
   Nstore = 0;
   mult = 0;
   
 }
 //*********************************************************************
-  //looks for cross talks events
+//   _.+._
+// (^\/^\/^)
+//  \@*@*@/
+//  {_____} Just as the queen would prefer to spell it
+//Note from 8/29/2024, leave the spelling for old time's sake
+//Copied from Johnathan Phillips' sort code
+//looks for cross talks events
 void elist::Neighbours(int id)
 {
   if (Nstore <1) return; // nothing to look at 
@@ -201,7 +255,7 @@ void elist::Neighbours(int id)
 }
 
 //cut threshold
-void elist::Threshold(float threshold)
+void elist::Threshold(double threshold)
 {
   for(int i=0;i<Nstore;i++)
   {

@@ -1,22 +1,20 @@
 #include "parType.h"
 
-parType::parType(int Z0, int A0)
-{
-  init(Z0,A0);
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+parType::parType(int Z0, int A0, detType det) : Z(Z0), A(A0), detector(det) {}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void parType::zeroMask() {
+  for (size_t i = 0; i < 6; i++) mask[i] = false;
 }
-//*****************************
-void parType::zeroMask()
-{
-  for (int i=0;i<6;i++) mask[i] = false;
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void parType::setMask() {
+  for (size_t i = 0; i < 6; i++) mask[i] = true;
 }
-//*****************************
-void parType::setMask()
-{
-  for (int i=0;i<6;i++) mask[i] = true;
-}
-//**************************************
-void parType::init(int Z0, int A0)
-{
-  Z = Z0;
-  A = A0;
-}
+
+
+
