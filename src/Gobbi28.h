@@ -53,7 +53,6 @@ private:
 	calibrate* CsIEcal;
 	calibrate* FrontTimecal;
 	calibrate* BackTimecal;
-	calibrate* CsITimecal;
 	
 	// Map of CsI ADC/QDC/TDC channel to telescope and id (per-telescope CsI channel)
 	std::unordered_map<size_t, size_t> telCsImap;

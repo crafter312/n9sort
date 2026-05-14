@@ -38,7 +38,6 @@ Gobbi28::Gobbi28(Input& in, histo& hist, SortConfig& config) : Targetdist(config
 	CsIEcal = new calibrate(4, NCsI, calDir + config.GetCsIEcalFile(), 1, false);
 	FrontTimecal = new calibrate(4, hinpchans, calDir + config.GetFrontTimecalFile(), 1, false);
 	BackTimecal = new calibrate(4, hinpchans, calDir + config.GetBackTimecalFile(), 1, false);
-	CsITimecal = new calibrate(4, NCsI, calDir + config.GetCsITimecalFile(), 1, false);
 
 #ifdef ENABLE_DEBUG
 	cout << "Gobbi28::Gobbi28 2" << endl;
@@ -63,14 +62,14 @@ Gobbi28::Gobbi28(Input& in, histo& hist, SortConfig& config) : Targetdist(config
 	while (incsimap.good()) {
 		incsimap >> chan >> tel >> id;
 		
-#ifdef ENABLE_DEBUG
-		cout << "chan " << chan << " tel " << tel << " id " << id << endl;
-#endif
-		
 		if ((tel != 0) && (tel != 1) && (tel != 2) && (tel != 3)) throw invalid_argument(string(BOLDRED) + string("CsI telescope # must be 0, 1, 2, or 3") + string(RESET));
 		if (telCsImap.find(chan) != telCsImap.end()) continue; // avoid cases of duplicate ADC channel
 		telCsImap[chan] = tel;
 		idCsImap[chan] = id;
+		
+#ifdef ENABLE_DEBUG
+		cout << "chan " << chan << " tel " << tel << " id " << id << endl;
+#endif
 		
 		if (chan > maxadcchan) maxadcchan = chan;
 		if (id > maxid) maxid = id;
@@ -143,7 +142,6 @@ Gobbi28::~Gobbi28() {
 	delete CsIEcal;
 	delete FrontTimecal;
 	delete BackTimecal;
-	delete CsITimecal;
 	for (int i = 0; i < 4; i++) delete Telescope[i];
 }
 
@@ -459,7 +457,13 @@ void Gobbi28::addCsIHits() {
 		// Test for valid QDC channel
 		size_t qdcchan = input_qdc.GetChan(iq);
 		if (Histo.CsI_QDC_um.find(qdcchan) == Histo.CsI_QDC_um.end()) {
-			cout << string(BOLDRED) << "WARNING: QDC channel " << to_string(qdcchan) << " not found in CsI map" << string(RESET) << endl;
+			//cout << string(BOLDRED) << "WARNING: QDC channel " << to_string(qdcchan) << " not found in CsI map" << string(RESET) << endl;
+			
+#ifdef ENABLE_DEBUG
+			for (const auto& [key, value] : Histo.CsI_QDC_um) {}
+				cout << key << endl;
+#endif
+			
 			continue;
 		}
 		
@@ -494,7 +498,13 @@ void Gobbi28::addCsIHits() {
 		
 		// Test for valid ADC channel
 		if (Histo.CsI_Energy_R_um.find(adcchan) == Histo.CsI_Energy_R_um.end()) {
-			cout << string(BOLDRED) << "WARNING: ADC channel " << to_string(adcchan) << " not found in CsI map" << string(RESET) << endl;
+			//cout << string(BOLDRED) << "WARNING: ADC channel " << to_string(adcchan) << " not found in CsI map" << string(RESET) << endl;
+			
+#ifdef ENABLE_DEBUG
+			for (const auto& [key, value] : Histo.CsI_Energy_R_um) {}
+				cout << key << endl;
+#endif
+			
 			continue;
 		}
 		
@@ -506,9 +516,12 @@ void Gobbi28::addCsIHits() {
 		for (size_t iq = 0; iq < nQhits; iq++) {
 			size_t qdcchan = input_qdc.GetChan(iq);
 			size_t Q = input_qdc.GetAQ(iq);
-			
 			if (qdcchan == qdcchan) Histo.CsI_QDC_matched[adcchan]->Fill(Q);
 			
+#ifdef ENABLE_DEBUG
+			cout << "Gobbi28::addCsIHits adcchan " << adcchan << " qdcchan " << qdcchan << endl;
+#endif
+
 			for (size_t it = tdcstart; it <= tdcstart + maxadcchan; it++) {
 				
 				// Skip if no output histogram exists for this tdc channel
@@ -517,12 +530,17 @@ void Gobbi28::addCsIHits() {
 				// Test to see if this tdc channel contains at least one hit
 				optional<double> T = input_tdc.GetT(it, 0);
 				if (T == nullopt) continue;
+
+				size_t tdcchan = it - 16;
 				
-				if ((qdcchan != adcchan) || (it != adcchan)) continue;
+#ifdef ENABLE_DEBUG
+				cout << "adcchan " << adcchan << " it - 16 " << tdcchan << endl;
+#endif
+				
+				if ((qdcchan != adcchan) || (tdcchan != adcchan)) continue;
 				
 				Telescope[tel]->CsI.Add(id, Ecal, 0., 0, ER, T.value(), Q, true);
 				Telescope[tel]->multCsI++;
-				
 				Histo.CsIonly_PSD[adcchan]->Fill(ER, Q);
 			}
 		}

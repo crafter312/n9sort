@@ -31,10 +31,11 @@
 
 #include <TRandom.h>
 
+#include "calibrate.h"
 #include "elist.h"
-#include "solution.h"
-#include "pid.h"
 #include "losses.h"
+#include "pid.h"
+#include "solution.h"
 #include "SortConfig.h"
 
 class telescope {
@@ -86,6 +87,12 @@ public:
 	size_t GetNCsI() const { return NCsI; }
 
  private:
+ 	double light2energy(size_t Z, size_t A, size_t tel, size_t id, double energy);
+ 	
+ 	calibrate* calCsI_Alpha;
+	calibrate* calCsI_d;
+	calibrate* calCsI_t;
+ 
 	int FrontLow[4];
 	int FrontHigh[4];
 	int BackLow[4];

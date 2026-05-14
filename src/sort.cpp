@@ -67,8 +67,7 @@ int main() {
 	size_t numentries = 0;
 	
 	// Counters for certain particle combinations, using atomic to be thread-safe
-	// Start with 6Li -> npa
-	atomic<size_t> count_ap;
+	atomic<size_t> count_ap = 0;
 	
 	/******** EVENT PROCESSING LAMBDA FUNCTION ********/
 	

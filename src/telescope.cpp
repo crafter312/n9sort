@@ -70,6 +70,18 @@ telescope::telescope(double thick0, SortConfig& config, bool csi) : alThick(conf
 		}
 	}
 	
+	string calDir = config.GetCalDir();
+	if (hasCsI) {
+		calCsI_d     = new calibrate(4, NCsI, calDir + config.GetCsIEdcalFile(), 1, false);
+		calCsI_t     = new calibrate(4, NCsI, calDir + config.GetCsIEtcalFile(), 1, false);
+  		calCsI_Alpha = new calibrate(4, NCsI, calDir + config.GetCsIEalphacalFile(), 1, false);
+	}
+	else {
+		calCsI_d     = nullptr;
+		calCsI_t     = nullptr;
+		calCsI_Alpha = nullptr;
+	}
+	
 	PidCsI.resize(NCsI);
 }
 
@@ -344,7 +356,8 @@ size_t telescope::getPID() {
 		double energy;
 		bool FoundPid;
 		pid* pidtemp;
-		if (hasCsI) {
+		bool isSiCsI = Solution[isol].isSiCsI;
+		if (hasCsI && isSiCsI) {
 			if (PidCsI[Solution[isol].iCsI] == nullptr) continue;
 			energy = Solution[isol].energyR;
 			pidtemp = PidCsI[Solution[isol].iCsI];
@@ -378,6 +391,10 @@ size_t telescope::getPID() {
 		else pidnum = 10;                         // default case to be thorough, should only happen if there is a Z-line that doesn't have a case in this switch block
 
 		Solution[isol].ipid = pidnum;
+		
+		// At this point, also apply CsI specific calibrations as function of PID
+		if (hasCsI && isSiCsI)
+			Solution[isol].energy = light2energy(ZA.first, ZA.second, Solution[isol].itele, Solution[isol].iCsI, energy);
 	}
 
 	return pidmulti;
@@ -832,6 +849,26 @@ bool telescope::isCenter(size_t ifront, size_t iback) {
 		if ((ifront == CsIFmids[i] || ifront == (CsIFmids[i] + 1)) && (iback == CsIBmids[i] || iback == (CsIBmids[i] + 1))) return true;
 	}
 	return false;
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+// Converts equilivant proton energy to energy for a given isotope
+// i.e. Z and A dependence of CsI light output
+double telescope::light2energy(size_t Z, size_t A, size_t tel, size_t id, double energy) {
+	if (!hasCsI) throw invalid_argument(string(BOLDRED) + string("ERROR: cannot invoke per-particle CsI calibrations for telescope with no CsI") + string(RESET));
+
+	pair<size_t, size_t> ZA(Z, A);
+	if (ZA == sz_pair(1, 2))      // deuterons
+		energy = calCsI_d->getEnergy(tel, id, energy);
+	else if (ZA == sz_pair(1, 3)) // tritons
+		energy = calCsI_t->getEnergy(tel, id, energy);
+	else if (ZA == sz_pair(2, 3)) // 3He, same calibration as alphas
+		energy = calCsI_Alpha->getEnergy(tel, id, energy);
+	else if (ZA == sz_pair(2, 4)) // alphas
+		energy = calCsI_Alpha->getEnergy(tel, id, energy);
+	else throw invalid_argument(string(BOLDRED) + string("ERROR: found no calib for Z = ") + to_string(Z) + string(" A = ") + to_string(A) + string(" tel = ") + to_string(tel) + string(" Csi ID = ") + to_string(id) + string(RESET));
+	return energy;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
