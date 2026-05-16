@@ -73,7 +73,7 @@ Gobbi28::Gobbi28(Input& in, histo& hist, SortConfig& config) : Targetdist(config
 		
 		if (chan > maxadcchan) maxadcchan = chan;
 		if (id > maxid) maxid = id;
-		
+		//cout << "MAXID " << maxid << " id " << id << endl;
 		//// Make per-CsI crystal histograms
 		
 		Histo.dir1dCsI_Energy->cd();
@@ -94,7 +94,7 @@ Gobbi28::Gobbi28(Input& in, histo& hist, SortConfig& config) : Targetdist(config
 		
 		Histo.dirPSD->cd();
 		name = "CsIonly_PSD_" + to_string(chan);
-		Histo.CsIonly_PSD[chan] = new TH2I(name.c_str(), "", 4096, 0, 4096, 4096, 0, 4096);
+		Histo.CsIonly_PSD[chan] = new TH2I(name.c_str(), "", 1024, 0, 4096, 1024, 0, 4096);
 	}
 	
 #ifdef ENABLE_DEBUG
@@ -102,24 +102,40 @@ Gobbi28::Gobbi28(Input& in, histo& hist, SortConfig& config) : Targetdist(config
 #endif
 	
 	// Make CsI histograms indexed by telescope and per-telescope ID, instead of ADC channel
+	size_t nTelCsIs = maxid + 1;
 	for (size_t i = 0; i < 4; i++) {
-		Histo.CsI_Energy_R[i].reserve(maxid);
-		Histo.CsI_Energy_R_center[i].reserve(maxid);
-		Histo.DEE_CsI[i].reserve(maxid);
+		Histo.CsI_Energy_R[i].resize(nTelCsIs);
+		Histo.CsI_Energy_R_center[i].resize(nTelCsIs);
+		Histo.DEE_CsI[i].resize(nTelCsIs);
+		Histo.DEE_CsI_sitgate[i].resize(nTelCsIs);
+		Histo.DEE_CsI_csitgate[i].resize(nTelCsIs);
+		Histo.DEE_CsI_BackE[i].resize(nTelCsIs);
+		Histo.DEE_CsI_fronteven[i].resize(nTelCsIs);
+		Histo.DEE_CsI_frontodd[i].resize(nTelCsIs);
 		
 #ifdef ENABLE_DEBUG
 		cout << "Gobbi28::Gobbi28 4a" << endl;
 #endif
 		
-		for (size_t j = 0; j < maxid; j++) {
+		for (size_t j = 0; j < nTelCsIs; j++) {
 			Histo.dir1dCsI_Energy->cd();
 			name = "CsI_Energy_" + to_string(i) + "_" + to_string(j); // i is telescope, j is CsI ID
 			Histo.CsI_Energy_R[i][j] = new TH1I(name.c_str(), "", 1024, 0, 4096);
-			name = "CsI_Energy_R_center_" + to_string(i) + "_" + to_string(j); // i is telescope, j is CsI ID
+			name = "CsI_Energy_R_center_" + to_string(i) + "_" + to_string(j);
 			Histo.CsI_Energy_R_center[i][j] = new TH1I(name.c_str(), "", 1024, 0, 4096);
 			Histo.dirDEEplots->cd();
-			name = "DEE_CsI_" + to_string(i) + "_" + to_string(j); // i is telescope, j is CsI ID
-			Histo.DEE_CsI[i][j] = new TH2I(name.c_str(), "", 512, 0, 4096, 500, 0, 50);
+			name = "DEE_CsI_" + to_string(i) + "_" + to_string(j);
+			Histo.DEE_CsI[i][j] = new TH2I(name.c_str(), "", 512, 0, 4096, 500, 0, 50); // E is x, DE is y
+			name = "DEE_CsI_sitgate_" + to_string(i) + "_" + to_string(j);
+	  		Histo.DEE_CsI_sitgate[i][j] = new TH2I(name.c_str(), "", 1024, 0, 4096, 500, 0, 80);
+	  		name = "DEE_CsI_csitgate_" + to_string(i) + "_" + to_string(j);
+	  		Histo.DEE_CsI_csitgate[i][j] = new TH2I(name.c_str(), "", 1024, 0, 4096, 500, 0, 80); 
+	  		name = "DEE_CsI_BackE_" + to_string(i) + "_" + to_string(j);
+	  		Histo.DEE_CsI_BackE[i][j] = new TH2I(name.c_str(), "", 1024, 0, 4096, 500, 0, 80);
+			name = "DEE_CsI_fronteven_" + to_string(i) + "_" + to_string(j);
+			Histo.DEE_CsI_fronteven[i][j] = new TH2I(name.c_str(), "", 1024, 0, 4096, 500, 0, 80);
+			name = "DEE_CsI_frontodd_" + to_string(i) + "_" + to_string(j);
+			Histo.DEE_CsI_frontodd[i][j] = new TH2I(name.c_str(), "", 1024, 0, 4096, 500, 0, 80);
 		}
 	}
 
@@ -242,8 +258,13 @@ void Gobbi28::analyze() {
 
 			double th = sol.theta * rad_to_deg;
 			size_t icsi = sol.iCsI;
-			
-			Histo.DEE_CsI[id][icsi]->Fill(sol.energyR, sol.denergy * cos(sol.theta));
+			double denergy_corr = sol.denergy * cos(sol.theta);
+			Histo.DEE_CsI[id][icsi]->Fill(sol.energyR, denergy_corr);
+			if (sol.time >= 6000. && sol.time <= 11000.) Histo.DEE_CsI_sitgate[id][icsi]->Fill(sol.energyR, denergy_corr);
+			if (sol.CsITime >= -100. && sol.CsITime <= -80.) Histo.DEE_CsI_csitgate[id][icsi]->Fill(sol.energyR, denergy_corr);
+			if (sol.ifront % 2 == 0) Histo.DEE_CsI_fronteven[id][icsi]->Fill(sol.energyR, denergy_corr);
+			else Histo.DEE_CsI_frontodd[id][icsi]->Fill(sol.energyR, denergy_corr);
+			Histo.DEE_CsI_BackE[id][icsi]->Fill(sol.energyR, sol.benergy * cos(sol.theta));
 			Histo.FrontvsBack[id]->Fill(sol.benergy, sol.denergy);
 			Histo.xyhitmap->Fill(sol.Xpos, sol.Ypos);
 			Histo.tphitmap->Fill(th * cos(sol.phi), th * sin(sol.phi));
@@ -251,7 +272,6 @@ void Gobbi28::analyze() {
 			Histo.Evstheta_all->Fill(th, sol.energy);
 			Histo.Theta->Fill(th);
 			Histo.CsI_Energy_R[id][icsi]->Fill(sol.energyR);
-			
 			if (Telescope[id]->isCenter(sol.ifront, sol.iback))
 				Histo.CsI_Energy_R_center[id][icsi]->Fill(sol.energyR);
 
@@ -261,18 +281,16 @@ void Gobbi28::analyze() {
 			// have left this in for now since all it does is fill some extra histograms.
 
 			// NOTE: SpecTcl should already map channels to strips, and this code has been modified to skip the unpacking and directly read in a SpecTcl output tree
-			int chandE = sol.ide;
+			int chandE = sol.ifront;
 
 			// Make a correction to the dE silicon energy based on angle
 			double angle_dEcorr = 1.0277e-5*(th*th*th) + 1.6125e-3*(th*th) + 8.3097e-4*th - 1.0227e-3;
 			double dEcorr = sol.denergy + angle_dEcorr;
 			double dEcorr_R = FrontEcal->reverseCal(id, chandE, dEcorr);
-
 			Histo.AngleCorrDeltaE[id][chandE]->Fill(dEcorr);
 			Histo.AngleCorrDeltaE_noCorr[id][chandE]->Fill(sol.denergy);
 			Histo.AngleCorrDeltaE_R[id][chandE]->Fill(dEcorr_R);
 			Histo.AngleCorrDeltaE_cal->Fill(id*hinpchans + chandE, dEcorr);
-
 			double Etot = sol.energy + sol.denergy;
 			Histo.sumEtot_cal->Fill(id*hinpchans + sol.ifront, Etot);
 			Histo.AngleCorrSum_cal->Fill(id*hinpchans + sol.ifront, sol.energy + dEcorr);
@@ -334,11 +352,12 @@ void Gobbi28::analyze() {
 
 		// Calculate sumEnergy, then account for Eloss in target, then set Ekin and momentum of solutions
 		// Eloss files are loaded in telescope
-		Telescope[id]->calcEloss();
+		//Telescope[id]->calcEloss(); // TODO implement CsI calibrations in order for E loss to work correctly
 
-		// Post Eloss calculation plots, I guess?
+		// Post Eloss calculation plots and output
 		for (size_t isol = 0; isol < Telescope[id]->Nsolution; isol++) {
 			solution& sol = Telescope[id]->Solution[isol];
+			Histo.solutions.push_back(Telescope[id]->Solution[isol]);
 			if (sol.iZ == 1 && sol.iA == 1) {
 				Histo.ProtonEnergy->Fill(sol.Ekin, sol.theta * rad_to_deg);
 			}
@@ -460,7 +479,7 @@ void Gobbi28::addCsIHits() {
 			//cout << string(BOLDRED) << "WARNING: QDC channel " << to_string(qdcchan) << " not found in CsI map" << string(RESET) << endl;
 			
 #ifdef ENABLE_DEBUG
-			for (const auto& [key, value] : Histo.CsI_QDC_um) {}
+			for (const auto& [key, value] : Histo.CsI_QDC_um)
 				cout << key << endl;
 #endif
 			
@@ -501,7 +520,7 @@ void Gobbi28::addCsIHits() {
 			//cout << string(BOLDRED) << "WARNING: ADC channel " << to_string(adcchan) << " not found in CsI map" << string(RESET) << endl;
 			
 #ifdef ENABLE_DEBUG
-			for (const auto& [key, value] : Histo.CsI_Energy_R_um) {}
+			for (const auto& [key, value] : Histo.CsI_Energy_R_um)
 				cout << key << endl;
 #endif
 			

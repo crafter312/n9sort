@@ -158,6 +158,7 @@ void Det::analyze() {
 	if (goodMult < 2) return;
 
 	// List all functions to look for correlations here
+	/*
 	corr_4He();
 	corr_5He();
 	corr_6He();
@@ -169,13 +170,17 @@ void Det::analyze() {
 	corr_8Be();
 	corr_9B();
 	corr_8C();
-
+*/
 	if (goodMult == 2) {
 		size_t pos = 0;
 		size_t particlenum[2] = { 0, 0 };
 		for (size_t i = 0; i < Correl.Nparticles; i++) {
+			if (i == 4) continue; // hard coded to skip H3_fake particles created in corr_6Li (TODO this should be done for all fake particles)
 			for (size_t j = 0; j < Correl.particle[i]->mult; j++) {
-				if (pos > 1) cout << "WARNING: more than two solutions for goodMult == 2, using first two" << endl;
+				if (pos > 1) {
+					cout << "WARNING: more than two solutions for goodMult == 2, using first two" << endl;
+					break;
+				}
 				particlenum[pos] = Correl.particle[i]->Sol[j]->ipid;
 				pos++;
 			}
@@ -183,13 +188,31 @@ void Det::analyze() {
 
 		Histo.CorrelationTable->Fill(particlenum[0], particlenum[1]);
 
-		// Count certain particle combinations
-		if (Correl.proton.mult == 1 && Correl.alpha.mult == 1) a_p++;
-
 #ifdef ENABLE_DEBUG
 		cout << "After\t1 = " << particlenum[0] << ", 2 = " << particlenum[1] << endl;
 #endif
 
+	}
+	
+	// Count certain particle combinations
+	if ((Correl.alpha.mult == 1) && (goodMult - Correl.proton.mult - 1 == 0)) {
+		switch (Correl.proton.mult) {
+			case 1:
+				a_p++;
+				break;
+			case 2:
+				a_pp++;
+				break;
+			case 3:
+				a_ppp++;
+				break;
+			case 4:
+				a_pppp++;
+				break;
+			case 5:
+				a_ppppp++;
+				break;
+		}
 	}
 }
 
@@ -447,7 +470,7 @@ void Det::corr_6Li() {
 		/******** BAD 7LI->a+t ********/
 		// Reconstructing a+d as a+t, maybe to see if a triton was missidentified
 		// as a deuteron or something?
-
+/*
 		solution* fakesol = gobbi.getNextEmptySolution(Correl.H2.Sol[0]);                  // this gets a solution we know is not being used
 		if (fakesol == nullptr) {                                                          // this should never trigger, but handle nullptr case to be safe
 			cout << "WARNING: next empty solution not found! Skipping bad 7Li..." << endl;
@@ -488,6 +511,7 @@ void Det::corr_6Li() {
     Histo.Ex_7Li_ta_bad->Fill(Ex_7Li);
 
 		Li7_ta_bad->Fill(Erel_7Li, Ex_7Li, Vcm_7Li, thetaCM_7Li, cos_thetaH_7Li, runnum, 8);
+*/
   }
 }
 

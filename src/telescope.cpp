@@ -58,8 +58,7 @@ telescope::telescope(double thick0, SortConfig& config, bool csi) : alThick(conf
 #endif
 		
 		size_t Fmin, Fmax, Bmin, Bmax;
-		while (inextents.good()) {
-			inextents >> Fmin >> Fmax >> Bmin >> Bmax;
+		while (inextents >> Fmin >> Fmax >> Bmin >> Bmax) {
 			if (Fmin >= Fmax) throw invalid_argument(string(BOLDRED) + string("ERROR: Fmin >= Fmax from " + inextentsfile + string(RESET)));
 			if (Bmin >= Bmax) throw invalid_argument(string(BOLDRED) + string("ERROR: Bmin >= Bmax from " + inextentsfile + string(RESET)));
 			CsIFextents.emplace_back(Fmin, Fmax);
@@ -132,18 +131,20 @@ void telescope::init(int id0, SortConfig& config) {
 		
 		for (size_t i = 0; i < NCsI; i++) {
 			outstring.str("");
-			outstring << "pid_quad" << id + 1 << "_CsI" << i;
+			outstring << "pid_" << id << "_" << i;
 			try {
 				PidCsI[i] = new pid(outstring.str(), config);
 			}
 			catch (...) {
 				PidCsI[i] = nullptr;
+				cout << NCsI << endl;
+				cout << BOLDRED << "zline file " << outstring.str() << ".zline failed to load" << RESET << endl;
 			}
 		}
 		Pid = nullptr;
 	}
 	else {
-		outstring << "pid_quad" << id + 1;
+		outstring << "pid_quad" << id;
 		try {
 			Pid = new pid(outstring.str(), config);
 		}
@@ -595,7 +596,16 @@ void telescope::loopE(int depth) {
 		// arrayB (for matching front-back)
 		if (de < deMin) {
 			deMin = de;
-			for (size_t i = 0; i < NestDim; i++) arrayB[i] = NestArray[i];
+			for (size_t i = 0; i < NestDim; i++) {
+				arrayB[i] = NestArray[i];
+				if (NestArray[i] >= Back.Nstore) {
+					stringstream ss;
+					ss << "[ERROR] telescope multiHitECsI NestArray[i] " << NestArray[i]
+					   << " greater than Back.Nstore-1=" << Back.Nstore-1 << endl;
+					cerr << ss.str();
+					abort();
+				}
+			}
 		}
 		return;
 	}
@@ -644,6 +654,14 @@ int telescope::multiHitECsI() {
 		// Check to see if best possible solution is reasonable
 		bool leave = false;
 		for (size_t i = 0; i < NestDim; i++) {
+			if (arrayB[i] >= Back.Nstore) {
+				stringstream ss;
+				ss << "[ERROR] telescope multiHitECsI arrayB[i] " << arrayB[i]
+				   << " greater than Back.Nstore-1=" << Back.Nstore-1
+				   << " and NestDim=" << NestDim << endl;
+				cerr << ss.str();
+				abort();
+			}
 			if (fabs(Back.Order[arrayB[i]].energy - Front.Order[i].energy) > 10.) {
 				leave = true;
 				break;
@@ -661,6 +679,13 @@ int telescope::multiHitECsI() {
 
 	// Look at all the front/back solutions and see how many are on each CsI
 	for (size_t i = 0; i < NSisolution; i++) {
+		if (arrayB[i] >= Back.Nstore) {
+			stringstream ss;
+			ss << "[ERROR] telescope multiHitECsI arrayB[i] " << arrayB[i]
+			   << " greater than Back.Nstore-1=" << Back.Nstore-1 << endl;
+			cerr << ss.str();
+			abort();
+		}
 		int ifront = Front.Order[i].strip;
 		int iback = Back.Order[arrayB[i]].strip;
 		for (size_t icsi = 0; icsi < NCsI; icsi++) {
@@ -678,6 +703,13 @@ int telescope::multiHitECsI() {
 
 	// Store the CsI raw energy info in an array that corresponds to the position it is in
 	for (size_t i = 0; i < CsI.Nstore; i++) {
+		if (CsI.Order[i].strip >= NCsI) {
+			stringstream ss;
+			ss << "[ERROR] CsI ID " << CsI.Order[i].strip
+			   << " greater than NCsI-1=" << NCsI-1 << endl;
+			cerr << ss.str();
+			abort();
+		}
 		energy[CsI.Order[i].strip] = CsI.Order[i].energy;
 		order[CsI.Order[i].strip] = i;
 	}
@@ -688,26 +720,39 @@ int telescope::multiHitECsI() {
 
 	// Loop over CsI location
 	for (size_t icsi = 0; icsi < NCsI; icsi++) {
-		size_t multcsi = sil[icsi].size();
+		size_t multSi = sil[icsi].size();
 
 		// No solution for this location, ignore
-		if (multcsi == 0) continue;
+		if (multSi == 0 || order[icsi] < 0) continue;
 
 		// FIXME DEE matching won't work until you have good zlines. Turn off at start
 		// If more than 1 si solution for a single CsI, check if it falls in a zline
 		// CsI can only fire once within readout
 		// Needed for events with mixed E and CsI in the same quad
 		// Can only accept one solution, don't allow it to accept both
-		else if (multcsi > 1) {
+		else if (multSi > 1) {
 			if (PidCsI[icsi] == nullptr) continue; // ignore if zline files are absent
 
-			for (size_t i = 0; i < multcsi; i++) {
+			for (size_t i = 0; i < multSi; i++) {
 				int ii = sil[icsi][i];
 
 				// Do zline check
-				int zCheck = PidCsI[id]->getPID(CsI.Order[0].energyR, Front.Order[ii].energy);
+				int zCheck = PidCsI[icsi]->getPID(CsI.Order[order[icsi]].energyR, Front.Order[ii].energy);
 				if (zCheck == 0) continue;
 				else { // need to fill stuff here using the correct "ii" index
+					if (arrayB[ii] >= Back.Nstore) {
+						stringstream ss;
+						ss << "[ERROR] telescope multiHitECsI arrayB[ii] " << arrayB[ii]
+						   << " greater than Back.Nstore-1=" << Back.Nstore-1 << endl;
+						cerr << ss.str();
+						abort();
+					}
+					if (order[icsi] < 0 || order[icsi] >= CsI.Nstore) {
+						stringstream ss;
+						ss << "[ERROR] Invalid CsI index order[icsi]=" << order[icsi] << endl;
+						cerr << ss.str();
+						abort();
+					}
 					Solution[Nsolution].energy = energy[icsi];
 					Solution[Nsolution].energyR = CsI.Order[order[icsi]].energyR;
 					Solution[Nsolution].energylow = energy[icsi];
@@ -745,6 +790,19 @@ int telescope::multiHitECsI() {
 		else if (energy[icsi] <= 0.) continue;
 		else {
 			int ii = sil[icsi][0];
+			if (arrayB[ii] >= Back.Nstore) {
+				stringstream ss;
+				ss << "[ERROR] telescope multiHitECsI arrayB[ii] " << arrayB[ii]
+				   << " greater than Back.Nstore-1=" << Back.Nstore-1 << endl;
+				cerr << ss.str();
+				abort();
+			}
+			if (order[icsi] < 0 || order[icsi] >= CsI.Nstore) {
+				stringstream ss;
+				ss << "[ERROR] Invalid CsI index order[icsi]=" << order[icsi] << endl;
+				cerr << ss.str();
+				abort();
+			}
 			Solution[Nsolution].energy = energy[icsi];
 			Solution[Nsolution].energyR = CsI.Order[order[icsi]].energyR;
 			Solution[Nsolution].energylow = energy[icsi];
@@ -859,7 +917,9 @@ double telescope::light2energy(size_t Z, size_t A, size_t tel, size_t id, double
 	if (!hasCsI) throw invalid_argument(string(BOLDRED) + string("ERROR: cannot invoke per-particle CsI calibrations for telescope with no CsI") + string(RESET));
 
 	pair<size_t, size_t> ZA(Z, A);
-	if (ZA == sz_pair(1, 2))      // deuterons
+	if (ZA == sz_pair(1, 1))
+		return energy;
+	else if (ZA == sz_pair(1, 2)) // deuterons
 		energy = calCsI_d->getEnergy(tel, id, energy);
 	else if (ZA == sz_pair(1, 3)) // tritons
 		energy = calCsI_t->getEnergy(tel, id, energy);

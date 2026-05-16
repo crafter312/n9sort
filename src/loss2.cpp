@@ -1,6 +1,7 @@
 #include "loss2.h"
 #include <algorithm>
 #include <cmath>
+#include <sstream>
 
 using namespace std;
 
@@ -51,25 +52,37 @@ CLoss2::~CLoss2()
    * returns the value of DeDx interpolated from table
    \param energy is energy of particle in MeV
    */
-float CLoss2::getDedx(float energy, float A)
-{
-  // linear interpolation
-  int istart = 0;
+float CLoss2::getDedx(float energy, float A) {
 
-  float epa = energy/A;
-  if (epa < Ein[0]) istart = 0;
-  else if (epa > Ein[N-1]) istart =  N-1;
-  else
-  {
-    istart = 1;
-    for (;;)
-    {
-      if (epa < Ein[istart]) break;
-      istart++;
-    }
-    istart--;
+  // Check validity of energy loss table
+  if (!Ein || !dedx || N <= 0) {
+    stringstream ss;
+    ss << "[ERROR] Closs2 instance memory is corrupted or uninitialized!"
+       << "Pointers: Ein=" << Ein << ", dedx=" << dedx << ", N=" << N << endl;
+    cerr << ss.str();
+    abort();
   }
+  
+  float epa = energy / A;
+  
+  // Throw error if energy is outside bounds of loss table
+  if (epa < Ein[0] || epa > Ein[N - 1]) {
+    stringstream ss;
+    ss << "[ERROR] Closs2 input energy " << epa << " per A outside bounds of energy loss table of min "
+       << Ein[0] << " and max " << Ein[N - 1] << " for A=" << A << endl;
+    cerr << ss.str();
+    abort();
+  }
+  
+  // Find correct energy bin
+  int istart = 1;
+  for (;;) {
+    if (epa < Ein[istart]) break;
+    istart++;
+  }
+  istart--;
 
+  // linear interpolation
   float de = (epa-Ein[istart])/(Ein[istart+1]-Ein[istart])
     *(dedx[istart+1]-dedx[istart]) + dedx[istart];
 

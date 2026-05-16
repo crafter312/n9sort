@@ -106,7 +106,7 @@ void wood::initFrag(size_t i, parType::detType det) {
 			s800IndexMap[i] = s800Frags.size() - 1;
 			break;
 		default:
-			throw invalid_argument(string("wood initialization case for detector ") + parType::ToString(det) + string(" does not exist"));
+			throw invalid_argument(string("wood initialization case for detector "));// + parType::ToString(det) + string(" does not exist"));
 	}
 }
 
@@ -144,7 +144,7 @@ void wood::loadFrag(size_t i, parType::detType det, solution* frag) {
 			s800Out->phi_s800 = frag->phi_s800;
 			return;
 		default:
-			throw invalid_argument(string("wood fragment output for detector ") + parType::ToString(det) + string(" is not defined"));
+			throw invalid_argument(string("wood fragment output for detector "));// + parType::ToString(det) + string(" is not defined"));
 	}
 
 	throw invalid_argument("Something went wrong! Fragment output vector of requested detector type does not contain fragment of requested index.");

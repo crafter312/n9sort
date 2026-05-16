@@ -7,6 +7,7 @@ class CLosses
  private:
    CLoss2 ** loss;
    int Zmax;
+   string material;
  public:
    CLosses(int,string,string);
    ~CLosses();

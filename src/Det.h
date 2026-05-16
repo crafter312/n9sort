@@ -97,6 +97,10 @@ public:
 	
 	// Record particle combinations, start with most important
 	size_t a_p{0};
+	size_t a_pp{0};
+	size_t a_ppp{0};
+	size_t a_pppp{0};
+	size_t a_ppppp{0};
 
 private:
 	const Input::GobbiInput& input;

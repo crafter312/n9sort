@@ -35,6 +35,7 @@ void solution::reset() {
 	ide = -1;
 	itele = -1;
 	timediff = -100000.;
+	CsITime = -1;
 	isSiCsI = false;
 	
 	// Variables filled after getPID() from Silicon.cpp

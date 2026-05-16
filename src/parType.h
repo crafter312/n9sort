@@ -10,7 +10,8 @@ class parType {
 
 public:
 
-	DEFINE_ENUM_WITH_STRING_CONVERSIONS(detType, (Gobbi)(TexNeut)(S800))
+	//DEFINE_ENUM_WITH_STRING_CONVERSIONS(detType, (Gobbi)(TexNeut)(S800))
+	enum detType {Gobbi,TexNeut,S800};
 
 	parType(int Z, int A, detType det = Gobbi);
 

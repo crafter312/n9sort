@@ -11,7 +11,9 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, SortConfig& config) : hinpbo
   file_read->cd();
 
   // Create global tree for storing pre-solution variables
-  //tpar = new TTree("tpar", "tpar");
+  const char* otreename = config.GetOtreeName().c_str();
+  tpar = new TTree(otreename, otreename);
+  tpar->Branch("solutions", &solutions);
 
   //// Create subdirectories to store arrays of spectra
 
@@ -308,7 +310,10 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, SortConfig& config) : hinpbo
     name << "timediff" << quad;   
     timediff[quad] = new TH1I(name.str().c_str(),"",1000,-2000,2000);
   }
-
+  
+  //Create DEE CsI plots
+  //Sorry Henry this will be hard coded for now
+  //Apology not accepted Johnathan (JK, I fixed the problems. CsI histograms are once again vectorized and initialized inside `Gobbi28.cpp`)
 
   dirhitmaps->cd();
   xyhitmap_allE = new TH2I("xyhitmap_allE","", 100,-10,10,100,-10,10);
@@ -575,9 +580,15 @@ histo::~histo() {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
+void histo::reset() {
+	solutions.clear();
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
 // Eventually, this function is where global tree should be filled with pre-solution Gobbi information
 void histo::Fill() {
-	
+	tpar->Fill();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

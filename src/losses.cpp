@@ -17,7 +17,7 @@ using namespace std;
  * \param path is the directory relative to the program build location containing files with energy loss tables
  * \param mat is a string denoting which material the energy loss is required for, and therefore which files get loaded
  */
-CLosses::CLosses(int Zmax0, string path, string mat) {
+CLosses::CLosses(int Zmax0, string path, string mat) : material(mat) {
 	Zmax = Zmax0;
 	string suffix = "_" + mat + ".loss";
 	string filename;
@@ -78,7 +78,6 @@ CLosses::~CLosses() {
 
 double CLosses::getEin(double energy, double thick, size_t Z, double A) {
 	if (Z > Zmax || Z == 0) throw invalid_argument(string(BOLDRED) + string("No loss info for Z = ") + to_string(Z) + string(RESET));
-	
 	return loss[Z - 1]->getEin(energy, thick, A);
 }
 

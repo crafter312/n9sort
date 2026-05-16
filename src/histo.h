@@ -19,6 +19,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "solution.h"
 #include "SortConfig.h"
 
 class histo {
@@ -33,8 +34,10 @@ public:
 	~histo();
 
 	// Global tree for storing pre-solution variables
-	//TTree* tpar;
+	TTree* tpar;
+	std::vector<solution> solutions;
 
+	void reset();
 	void Fill();
 
 	size_t hinpboards; // total number of HINP boards used
@@ -158,8 +161,11 @@ public:
 	std::vector<TH1I*> CsI_Energy_R[4];
 	std::vector<TH1I*> CsI_Energy_R_center[4];
 	std::vector<TH2I*> DEE_CsI[4];
-	
-	
+	std::vector<TH2I*> DEE_CsI_sitgate[4];
+	std::vector<TH2I*> DEE_CsI_csitgate[4];
+	std::vector<TH2I*> DEE_CsI_BackE[4]; // back energies DEE
+	std::vector<TH2I*> DEE_CsI_fronteven[4];
+	std::vector<TH2I*> DEE_CsI_frontodd[4];
 
 	// DeltaE-E plots
 	TH2I* DEE_simple[4];

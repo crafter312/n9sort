@@ -67,7 +67,11 @@ int main() {
 	size_t numentries = 0;
 	
 	// Counters for certain particle combinations, using atomic to be thread-safe
-	atomic<size_t> count_ap = 0;
+	atomic<size_t> count_ap     = 0;
+	atomic<size_t> count_app    = 0;
+	atomic<size_t> count_appp   = 0;
+	atomic<size_t> count_apppp  = 0;
+	atomic<size_t> count_appppp = 0;
 	
 	/******** EVENT PROCESSING LAMBDA FUNCTION ********/
 	
@@ -90,6 +94,9 @@ int main() {
 		// Thread-local event loop
 		size_t localCounter = 0;
 		while (reader.Next()) {
+		
+			// Reset global tree output variables
+			Histo.reset();
 
 			// First, take input file from SpecTcl and refactor into usable hit list format
 			input.ReadAndRefactor();
@@ -115,7 +122,11 @@ int main() {
 
 		// Adding counters here that will tick up for different particle combinations
 		// All counters should be of type atomic<> for thread safety
-		count_ap += det.a_p;
+		count_ap     += det.a_p;
+		count_app    += det.a_pp;
+		count_appp   += det.a_ppp;
+		count_apppp  += det.a_pppp;
+		count_appppp += det.a_ppppp;
 	};
 	
 	/******** RUN NUMBER LOOP ********/
@@ -202,7 +213,11 @@ int main() {
 
 	cout << "************************************************************************" << endl;
 	cout << "EVENT COUNTERS                                                          " << endl;
-	cout << "1p + 1a: " << count_ap << endl;
+	cout << "1a + 1p: " << count_ap << endl;
+	cout << "1a + 2p: " << count_app << endl;
+	cout << "1a + 3p: " << count_appp << endl;
+	cout << "1a + 4p: " << count_apppp << endl;
+	cout << "1a + 5p: " << count_appppp << endl;
 
 	return 0;
 }
