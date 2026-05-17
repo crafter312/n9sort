@@ -106,6 +106,8 @@ Gobbi28::Gobbi28(Input& in, histo& hist, SortConfig& config) : Targetdist(config
 	for (size_t i = 0; i < 4; i++) {
 		Histo.CsI_Energy_R[i].resize(nTelCsIs);
 		Histo.CsI_Energy_R_center[i].resize(nTelCsIs);
+		Histo.CsI_Energy_pcal[i].resize(nTelCsIs);
+		Histo.CsI_Energy_pcal_center[i].resize(nTelCsIs);
 		Histo.DEE_CsI[i].resize(nTelCsIs);
 		Histo.DEE_CsI_sitgate[i].resize(nTelCsIs);
 		Histo.DEE_CsI_csitgate[i].resize(nTelCsIs);
@@ -123,6 +125,10 @@ Gobbi28::Gobbi28(Input& in, histo& hist, SortConfig& config) : Targetdist(config
 			Histo.CsI_Energy_R[i][j] = new TH1I(name.c_str(), "", 4096, 0, 4096);
 			name = "CsI_Energy_R_center_" + to_string(i) + "_" + to_string(j);
 			Histo.CsI_Energy_R_center[i][j] = new TH1I(name.c_str(), "", 4096, 0, 4096);
+			name = "CsI_Energy_pcal_" + to_string(i) + "_" + to_string(j); // i is telescope, j is CsI ID
+			Histo.CsI_Energy_pcal[i][j] = new TH1I(name.c_str(), "", 4096, 0, 4096);
+			name = "CsI_Energy_pcal_center_" + to_string(i) + "_" + to_string(j);
+			Histo.CsI_Energy_pcal_center[i][j] = new TH1I(name.c_str(), "", 4096, 0, 4096);
 			Histo.dirDEEplots->cd();
 			name = "DEE_CsI_" + to_string(i) + "_" + to_string(j);
 			Histo.DEE_CsI[i][j] = new TH2I(name.c_str(), "", 512, 0, 4096, 500, 0, 50); // E is x, DE is y
@@ -277,9 +283,16 @@ void Gobbi28::analyze() {
 			Histo.Evstheta[id]->Fill(th, sol.energy);
 			Histo.Evstheta_all->Fill(th, sol.energy);
 			Histo.Theta->Fill(th);
+			
+			// At this point in time, the CsI crystals should be calibrated to proton equivalent energy
+			// The call to `telescope::getPID` applies PID-dependent stage 2 calibrations to all relevant non-proton particles
+			// This transforms proton equivalent energy to normal energy
 			Histo.CsI_Energy_R[id][icsi]->Fill(sol.energyR);
-			if (Telescope[id]->isCenter(sol.ifront, sol.iback))
+			Histo.CsI_Energy_pcal[id][icsi]->Fill(sol.energy);
+			if (Telescope[id]->isCenter(sol.ifront, sol.iback)) {
 				Histo.CsI_Energy_R_center[id][icsi]->Fill(sol.energyR);
+				Histo.CsI_Energy_pcal_center[id][icsi]->Fill(sol.energy);
+			}
 
 			/******** ANGLE DEPENDENT CALIBRATION CORRECTION FOR HIGHER ENERGY POINTS ********/
 			// This was added my Nicholas Dronchi, and can generally be ignored or bypassed

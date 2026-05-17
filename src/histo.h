@@ -160,6 +160,8 @@ public:
 	std::unordered_map<size_t, TH2I*> CsIonly_PSD;
 	std::vector<TH1I*> CsI_Energy_R[4];
 	std::vector<TH1I*> CsI_Energy_R_center[4];
+	std::vector<TH1I*> CsI_Energy_pcal[4];
+	std::vector<TH1I*> CsI_Energy_pcal_center[4];
 	std::vector<TH2I*> DEE_CsI[4];
 	std::vector<TH2I*> DEE_CsI_sitgate[4];
 	std::vector<TH2I*> DEE_CsI_csitgate[4];
