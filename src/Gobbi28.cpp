@@ -120,9 +120,9 @@ Gobbi28::Gobbi28(Input& in, histo& hist, SortConfig& config) : Targetdist(config
 		for (size_t j = 0; j < nTelCsIs; j++) {
 			Histo.dir1dCsI_Energy->cd();
 			name = "CsI_Energy_" + to_string(i) + "_" + to_string(j); // i is telescope, j is CsI ID
-			Histo.CsI_Energy_R[i][j] = new TH1I(name.c_str(), "", 1024, 0, 4096);
+			Histo.CsI_Energy_R[i][j] = new TH1I(name.c_str(), "", 4096, 0, 4096);
 			name = "CsI_Energy_R_center_" + to_string(i) + "_" + to_string(j);
-			Histo.CsI_Energy_R_center[i][j] = new TH1I(name.c_str(), "", 1024, 0, 4096);
+			Histo.CsI_Energy_R_center[i][j] = new TH1I(name.c_str(), "", 4096, 0, 4096);
 			Histo.dirDEEplots->cd();
 			name = "DEE_CsI_" + to_string(i) + "_" + to_string(j);
 			Histo.DEE_CsI[i][j] = new TH2I(name.c_str(), "", 512, 0, 4096, 500, 0, 50); // E is x, DE is y
