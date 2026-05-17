@@ -124,6 +124,12 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, SortConfig& config) : hinpbo
 
   sumFrontTimeMult1_cal = new TH2I("sumFrontTimeMult1_cal","",4*hinpchans,0,4*hinpchans,512,0,16383);
   sumFrontTimeMult1_cal->SetOption("colz");
+  
+	//CsI multiplicity plots. A few variants
+	CsI_mult_R = new TH1I("CsI_mult_R","CsI_mult_R",10,-0.5,9.5); //Raw CsI multiplicity "crystals in data stream"
+	CsI_mult_AQT = new TH1I("CsI_mult_AQT","CsI_mult_AQT",10,-0.5,9.5);; //Same as raw but matched to QDC and TDC
+	CsI_mult_M = new TH1I("CsI_mult_M","CsI_mult_M",10,-0.5,9.5);; //Now requiring FB matching
+	CsI_mult_PID = new TH1I("CsI_mult_PID","CsI_mult_PID",10,-0.5,9.5);; //Requires PID
 
   ostringstream name;
   for (int i=0;i<4;i++) {
@@ -292,6 +298,8 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, SortConfig& config) : hinpbo
 	TDC_sum_TN = new TH2I("TDC_sum_TN","",12,-0.5,11.5,1000,-500,500);
 	TDC_sum_TN_shift = new TH2I("TDC_sum_TN_shift","",12,-0.5,11.5,1000,-500,500);
   // Create all spectra based on quadrants
+  
+  
   dirDEEplots->cd();
   for (int quad = 0; quad < 4; quad++) {
     name.str("");

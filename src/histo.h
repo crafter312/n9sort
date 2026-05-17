@@ -167,6 +167,12 @@ public:
 	std::vector<TH2I*> DEE_CsI_fronteven[4];
 	std::vector<TH2I*> DEE_CsI_frontodd[4];
 
+	//CsI multiplicity plots. A few variants
+	TH1I * CsI_mult_R; //Raw CsI multiplicity "crystals in data stream". //Just number of ADC hits
+	TH1I * CsI_mult_AQT; //Same as raw but matched to QDC and TDC
+	TH1I * CsI_mult_M; //Now requiring FB matching
+	TH1I * CsI_mult_PID; //Requires PID
+
 	// DeltaE-E plots
 	TH2I* DEE_simple[4];
 	TH2I* frontdeltastripnum[4];

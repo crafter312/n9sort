@@ -72,6 +72,8 @@ int main() {
 	atomic<size_t> count_appp   = 0;
 	atomic<size_t> count_apppp  = 0;
 	atomic<size_t> count_appppp = 0;
+	atomic<size_t> count_aapppp = 0;
+	atomic<size_t> count_aa3He  = 0;
 	
 	/******** EVENT PROCESSING LAMBDA FUNCTION ********/
 	
@@ -127,6 +129,8 @@ int main() {
 		count_appp   += det.a_ppp;
 		count_apppp  += det.a_pppp;
 		count_appppp += det.a_ppppp;
+		count_aapppp += det.aa_pppp;
+		count_aa3He  += det.aa_3He;
 	};
 	
 	/******** RUN NUMBER LOOP ********/
@@ -213,11 +217,13 @@ int main() {
 
 	cout << "************************************************************************" << endl;
 	cout << "EVENT COUNTERS                                                          " << endl;
-	cout << "1a + 1p: " << count_ap << endl;
-	cout << "1a + 2p: " << count_app << endl;
-	cout << "1a + 3p: " << count_appp << endl;
-	cout << "1a + 4p: " << count_apppp << endl;
-	cout << "1a + 5p: " << count_appppp << endl;
+	cout << "1a + 1p: "  << count_ap     << endl;
+	cout << "1a + 2p: "  << count_app    << endl;
+	cout << "1a + 3p: "  << count_appp   << endl;
+	cout << "1a + 4p: "  << count_apppp  << endl;
+	cout << "1a + 5p: "  << count_appppp << endl;
+	cout << "2a + 4p: "  << count_aapppp << endl;
+	cout << "2a + 3He: " << count_aa3He  << endl;
 
 	return 0;
 }

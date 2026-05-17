@@ -214,6 +214,12 @@ void Det::analyze() {
 				break;
 		}
 	}
+	else if (Correl.alpha.mult == 2) {
+		if ((goodMult == 6) && (Correl.proton.mult == 4))
+			aa_pppp++;
+		else if ((goodMult == 3) && (Correl.He3.mult == 1))
+			aa_3He++;
+	}
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

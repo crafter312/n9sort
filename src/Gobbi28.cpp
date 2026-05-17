@@ -199,6 +199,8 @@ void Gobbi28::analyze() {
 	// Loop through telescopes and perform additional analysis
 	size_t sumchan = 0;
 	size_t Pidmulti = 0;
+	int NCsI_all = 0; //number of CsI hits across all telescopes
+	int NCsI_matched = 0; //number of CsI hits with good F and B
 	for (size_t id = 0; id < 4; id++) {
 
 #ifdef ENABLE_DEBUG
@@ -212,6 +214,8 @@ void Gobbi28::analyze() {
 		int FrontN = Telescope[id]->Front.Nstore;
 		int BackN  = Telescope[id]->Back.Nstore;
 		int CsIN   = Telescope[id]->CsI.Nstore;
+		
+		NCsI_all += CsIN;
 
 		// Then fill summary histograms after addback
 		for (size_t n = 0; n < FrontN; n++) {
@@ -241,6 +245,8 @@ void Gobbi28::analyze() {
 		// Handle simple case of one hit each in front, back, and CsI
 		if (FrontN == 1 && BackN == 1 && CsIN == 1) NsimpleECsI = Telescope[id]->simpleECsI();
 		else NmultiECsI = Telescope[id]->multiHitECsI();
+		
+		NCsI_matched += Telescope[id]->Nsolution;
 
 		// Next, fill E vs. dE and other plots
 		for (size_t isol = 0; isol < Telescope[id]->Nsolution; isol++) {
@@ -363,6 +369,14 @@ void Gobbi28::analyze() {
 			}
 		}
 	}
+	
+	//Multiplicity of CsI crystals with good ADC,QDC,TDC
+	Histo.CsI_mult_AQT->Fill(NCsI_all);
+	// " with good F and B strips
+	Histo.CsI_mult_M->Fill(NCsI_matched);
+	// " with good PID
+	Histo.CsI_mult_PID->Fill(Pidmulti);
+	
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -508,6 +522,10 @@ void Gobbi28::addCsIHits() {
 	// Fill unmatched ADC histograms
 	// Also perform matching and fill matched histograms
 	size_t nEhits = input_adc.GetNhits();
+	
+	//ADC multiplicity
+	Histo.CsI_mult_R->Fill(nEhits);
+	
 	for (size_t ie = 0; ie < nEhits; ie++) {
 		size_t adcchan = input_adc.GetChan(ie);
 		size_t ER = input_adc.GetAQ(ie);

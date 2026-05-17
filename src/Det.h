@@ -101,6 +101,8 @@ public:
 	size_t a_ppp{0};
 	size_t a_pppp{0};
 	size_t a_ppppp{0};
+	size_t aa_pppp{0};
+	size_t aa_3He{0};
 
 private:
 	const Input::GobbiInput& input;

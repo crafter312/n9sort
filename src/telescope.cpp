@@ -588,8 +588,9 @@ void telescope::loopE(int depth) {
 
 			// Difference in Front and back energy is how to match FrontE and BackE - need two types for Gobbi
 			// NOTE: this needs high and low calibrations to work
-			if (Front.Order[i].energy < 30.) de += abs(Back.Order[NestArray[i]].energy - Front.Order[i].energy);
-			else de += abs(Back.Order[NestArray[i]].energylow - Front.Order[i].energylow);
+			//TODO THIS WILL NOT WORK WITHOUT LOW GAIN CALIBRATIONS
+			de += abs(Back.Order[NestArray[i]].energy - Front.Order[i].energy);
+			//else de += abs(Back.Order[NestArray[i]].energylow - Front.Order[i].energylow);
 		}
 
 		// Here if it is the lowest total difference in strip# or energy, it is saved in
@@ -637,7 +638,7 @@ int telescope::multiHitECsI() {
 	int Ntries = min(Front.Nstore, Back.Nstore);
 	//Ntries = min(Ntries, CsI.Nstore);
 
-	if (Ntries > 4) Ntries = 4;
+	if (Ntries > 8) Ntries = 8;
 	Nsolution = 0;
 	if (Ntries <= 0) return 0;
 
@@ -669,6 +670,7 @@ int telescope::multiHitECsI() {
 		}
 		if (leave) continue;
 		NSisolution = NestDim;
+		break;
 	}
 	
 	// Save some time and just exit if there are no Si Front/Back solutions
@@ -713,6 +715,23 @@ int telescope::multiHitECsI() {
 		energy[CsI.Order[i].strip] = CsI.Order[i].energy;
 		order[CsI.Order[i].strip] = i;
 	}
+	
+	//Only interested in mult CsI events rn
+	/*if (CsI.Nstore > 2) {
+		cout << endl;
+		cout << "NCsI " << CsI.Nstore << " NFront " << Front.Nstore << " NBack " << Back.Nstore << " NSisolution " << NSisolution << endl;
+		cout << "Unmatched data" << endl;
+		for (int i=0;i<CsI.Nstore;i++) cout << "CsI id " << CsI.Order[i].strip << endl;
+		for (int i=0;i<Front.Nstore;i++) cout << "F id " << Front.Order[i].strip << " E " << Front.Order[i].energy << endl;
+		for (int i=0;i<Back.Nstore;i++) cout << "B id " << Back.Order[i].strip << " E " << Back.Order[i].energy << endl;
+		
+		for (int i=0;i<NSisolution;i++) {
+			cout << "F B strips pairs " << Front.Order[i].strip << " " << Back.Order[arrayB[i]].strip << endl;
+			cout << "F B E pairs " << Front.Order[i].energy << " " << Back.Order[arrayB[i]].energy << endl;
+		}
+		
+		cout << endl;
+	}*/
 
 	// Define the remove constants as some index that won't happen
 	int removeFirst = -1;
@@ -731,6 +750,7 @@ int telescope::multiHitECsI() {
 		// Needed for events with mixed E and CsI in the same quad
 		// Can only accept one solution, don't allow it to accept both
 		else if (multSi > 1) {
+
 			if (PidCsI[icsi] == nullptr) continue; // ignore if zline files are absent
 
 			for (size_t i = 0; i < multSi; i++) {
@@ -779,6 +799,10 @@ int telescope::multiHitECsI() {
 
 					Front.Order[ii].CsIFlag = true;
 					Back.Order[arrayB[ii]].CsIFlag = true;
+					
+					/*if (CsI.Nstore > 2) {
+						cout << "Matched CsI, F, and B id 's : " << icsi << " " << Front.Order[ii].strip << " " << Back.Order[arrayB[ii]].strip << endl;
+					}*/
 
 					break; //break out of loop, accept only one solution per quad. Allows for small chance of losing dE solution
 					//I could find a more elegant solution using strip matching for dE and base it on a best score
@@ -829,9 +853,13 @@ int telescope::multiHitECsI() {
 
 			Front.Order[ii].CsIFlag = true;
 			Back.Order[arrayB[ii]].CsIFlag = true;
+			
+			/*if (CsI.Nstore > 2) {
+				cout << "Matched CsI, F, and B id 's : " << icsi << " " << Front.Order[ii].strip << " " << Back.Order[arrayB[ii]].strip << endl;
+			}*/
 		}
 	}
-
+	//if (CsI.Nstore > 2 && Nsolution > 0) cout << "Nsolution " << Nsolution << endl;
 	return Nsolution;
 }
 
