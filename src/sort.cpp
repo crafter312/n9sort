@@ -75,6 +75,9 @@ int main() {
 	atomic<size_t> count_aapppp = 0;
 	atomic<size_t> count_aa3He  = 0;
 	
+	// Other counters
+	atomic<size_t> pidSkipped   = 0;
+	
 	/******** EVENT PROCESSING LAMBDA FUNCTION ********/
 	
 	// Define the function that will process a subrange of the tree.
@@ -131,6 +134,9 @@ int main() {
 		count_appppp += det.a_ppppp;
 		count_aapppp += det.aa_pppp;
 		count_aa3He  += det.aa_3He;
+		
+		// Other counters
+		pidSkipped   += det.pidSkipped;
 	};
 	
 	/******** RUN NUMBER LOOP ********/
@@ -216,7 +222,7 @@ int main() {
 	     << setfill('0') << setw(2) << seconds << endl;
 
 	cout << "************************************************************************" << endl;
-	cout << "EVENT COUNTERS                                                          " << endl;
+	cout << "PARTICLE COUNTERS                                                       " << endl;
 	cout << "1a + 1p: "  << count_ap     << endl;
 	cout << "1a + 2p: "  << count_app    << endl;
 	cout << "1a + 3p: "  << count_appp   << endl;
@@ -224,6 +230,8 @@ int main() {
 	cout << "1a + 5p: "  << count_appppp << endl;
 	cout << "2a + 4p: "  << count_aapppp << endl;
 	cout << "2a + 3He: " << count_aa3He  << endl;
+	cout << "OTHER COUNTERS                                                          " << endl;
+	cout << "# solutions invalidated due to Eloss errors: " << pidSkipped << endl;
 
 	return 0;
 }

@@ -26,9 +26,10 @@ public:
 	solution* getNextEmptySolution(solution* sol);
 	float getEin(float, float, int, float);
 	
-	// Counters
-	size_t NsimpleECsI{0}; // # simple events with one each of front, back, and CsI in a telescope
-	size_t NmultiECsI{0};  // # more complex events with more than one of one of front, back, and CsI in a telescope
+	// Counter getters
+	size_t GetNsimpleECsI() const { return NsimpleECsI; }
+	size_t GetNmultiECsI() const { return NmultiECsI; }
+	size_t GetPidSkipped() const { return pidSkipped; }
 
 private:
 	double Targetdist;
@@ -38,6 +39,7 @@ private:
 	size_t NCsI;          // number of CsI crystals per telescope, determined by telescope class when reading in CsI extents file
 	size_t maxadcchan{0}; // the largest adc channel that the CsI crystals go up to
 	size_t tdcstart{16};  // defines which tdc channel the CsI crystals start at
+	size_t nTelCsIs;      // number of CsI crystals per telescope, determined by Gobbb28 class when reading in CsI mapping file
 
 	histo& Histo;
 
@@ -53,10 +55,16 @@ private:
 	calibrate* CsIEcal;
 	calibrate* FrontTimecal;
 	calibrate* BackTimecal;
+	calibrate* CsITimecal;
 	
 	// Map of CsI ADC/QDC/TDC channel to telescope and id (per-telescope CsI channel)
 	std::unordered_map<size_t, size_t> telCsImap;
 	std::unordered_map<size_t, size_t> idCsImap;
+	
+	// Counters
+	size_t NsimpleECsI{0}; // # simple events with one each of front, back, and CsI in a telescope
+	size_t NmultiECsI{0};  // # more complex events with more than one of one of front, back, and CsI in a telescope
+	size_t pidSkipped{0};  // # solutions invalidated during Eloss calculations due to errors thrown by Eloss calculations
 
 	// Inputs are telescope number, channel number, and hit index for below functions
 	void addFrontHit(size_t tel, size_t ch, size_t i);

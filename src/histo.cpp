@@ -347,7 +347,9 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, SortConfig& config) : hinpbo
   Evstheta_all = new TH2I("Evstheta_all","",50,0,25,Nbin,0,Ecal_Emax);
   Theta = new TH1I("Theta","",50,0,25);
 
-  ProtonEnergy = new TH2I("ProtonEnergy","",50,0,25,50,0,25);
+  ProtonEnergy = new TH2I("ProtonEnergy","",80,0,80,50,0,25);
+  He3Energy = new TH2I("He3Energy","",200,0,200,50,0,25);
+  AlphaEnergy = new TH2I("AlphaEnergy","",250,0,250,50,0,25);
 
   dTime_proton = new TH1I("dTime_proton","",1500,-4000,2000);
   dTime_deuteron = new TH1I("dTime_deuteron","",1500,-4000,2000);

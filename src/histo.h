@@ -150,6 +150,7 @@ public:
 	TH2I* sumCsIE_R_um;
 	TH2I* sumCsIE_cal_um;
 	TH2I* sumCsITime_um;
+	TH2I* sumCsITime_matched;
 	
 	// Per-crystal plots 
 	std::unordered_map<size_t, TH1I*> CsI_Energy_R_um;
@@ -168,6 +169,7 @@ public:
 	std::vector<TH2I*> DEE_CsI_BackE[4]; // back energies DEE
 	std::vector<TH2I*> DEE_CsI_fronteven[4];
 	std::vector<TH2I*> DEE_CsI_frontodd[4];
+	std::vector<TH1I*> CsI_Time_matched[4];
 
 	//CsI multiplicity plots. A few variants
 	TH1I * CsI_mult_R; //Raw CsI multiplicity "crystals in data stream". //Just number of ADC hits
@@ -201,6 +203,8 @@ public:
 	TH1I* Theta;
 
 	TH2I* ProtonEnergy;
+	TH2I* He3Energy;
+	TH2I* AlphaEnergy;
 
 	TH1I* dTime_proton;
 	TH1I* dTime_deuteron;

@@ -103,6 +103,9 @@ public:
 	size_t a_ppppp{0};
 	size_t aa_pppp{0};
 	size_t aa_3He{0};
+	
+	// Other counters
+	size_t pidSkipped{0};
 
 private:
 	const Input::GobbiInput& input;

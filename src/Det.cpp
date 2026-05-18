@@ -158,19 +158,19 @@ void Det::analyze() {
 	if (goodMult < 2) return;
 
 	// List all functions to look for correlations here
-	/*
-	corr_4He();
-	corr_5He();
-	corr_6He();
+	//corr_4He();
+	//corr_5He();
+	//corr_6He();
 	corr_5Li();
-	corr_6Li();
-	corr_7Li();
+	//corr_6Li();
+	//corr_7Li();
 	corr_6Be();
-	corr_7Be();
+	//corr_7Be();
 	corr_8Be();
-	corr_9B();
+	//corr_9B();
 	corr_8C();
-*/
+	corr_9N();
+
 	if (goodMult == 2) {
 		size_t pos = 0;
 		size_t particlenum[2] = { 0, 0 };
@@ -220,6 +220,9 @@ void Det::analyze() {
 		else if ((goodMult == 3) && (Correl.He3.mult == 1))
 			aa_3He++;
 	}
+	
+	// Other counters
+	pidSkipped += gobbi.GetPidSkipped();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

@@ -38,6 +38,7 @@ Gobbi28::Gobbi28(Input& in, histo& hist, SortConfig& config) : Targetdist(config
 	CsIEcal = new calibrate(4, NCsI, calDir + config.GetCsIEcalFile(), 1, false);
 	FrontTimecal = new calibrate(4, hinpchans, calDir + config.GetFrontTimecalFile(), 1, false);
 	BackTimecal = new calibrate(4, hinpchans, calDir + config.GetBackTimecalFile(), 1, false);
+	CsITimecal = new calibrate(4, NCsI, calDir + config.GetCsITimecalFile(), 1, false);
 
 #ifdef ENABLE_DEBUG
 	cout << "Gobbi28::Gobbi28 2" << endl;
@@ -102,7 +103,7 @@ Gobbi28::Gobbi28(Input& in, histo& hist, SortConfig& config) : Targetdist(config
 #endif
 	
 	// Make CsI histograms indexed by telescope and per-telescope ID, instead of ADC channel
-	size_t nTelCsIs = maxid + 1;
+	nTelCsIs = maxid + 1;
 	for (size_t i = 0; i < 4; i++) {
 		Histo.CsI_Energy_R[i].resize(nTelCsIs);
 		Histo.CsI_Energy_R_center[i].resize(nTelCsIs);
@@ -114,6 +115,7 @@ Gobbi28::Gobbi28(Input& in, histo& hist, SortConfig& config) : Targetdist(config
 		Histo.DEE_CsI_BackE[i].resize(nTelCsIs);
 		Histo.DEE_CsI_fronteven[i].resize(nTelCsIs);
 		Histo.DEE_CsI_frontodd[i].resize(nTelCsIs);
+		Histo.CsI_Time_matched[i].resize(nTelCsIs);
 		
 #ifdef ENABLE_DEBUG
 		cout << "Gobbi28::Gobbi28 4a" << endl;
@@ -142,6 +144,9 @@ Gobbi28::Gobbi28(Input& in, histo& hist, SortConfig& config) : Targetdist(config
 			Histo.DEE_CsI_fronteven[i][j] = new TH2I(name.c_str(), "", 1024, 0, 4096, 500, 0, 80);
 			name = "DEE_CsI_frontodd_" + to_string(i) + "_" + to_string(j);
 			Histo.DEE_CsI_frontodd[i][j] = new TH2I(name.c_str(), "", 1024, 0, 4096, 500, 0, 80);
+			Histo.dir1dCsI_Time->cd();
+			name = "CsI_Time_matched_" + to_string(i) + "_" + to_string(j);
+			Histo.CsI_Time_matched[i][j] = new TH1I(name.c_str(), "", 1000, -500, 500);
 		}
 	}
 
@@ -151,9 +156,10 @@ Gobbi28::Gobbi28(Input& in, histo& hist, SortConfig& config) : Targetdist(config
 
 	// Make CsI summary plots
 	Histo.dirSummary->cd();
-	Histo.sumCsIE_R_um   = new TH2I("sumCsIE_R_um", "", maxadcchan, 0, maxadcchan, 1024, 0, 4096);
-	Histo.sumCsIE_cal_um = new TH2I("sumCsIE_cal_um", "", maxadcchan, 0, maxadcchan, 512, 0, 200);
-	Histo.sumCsITime_um  = new TH2I("sumCsITime_um", "", maxadcchan, 0, maxadcchan, 1000, -500, 500);
+	Histo.sumCsIE_R_um       = new TH2I("sumCsIE_R_um", "", maxadcchan, 0, maxadcchan, 1024, 0, 4096);
+	Histo.sumCsIE_cal_um     = new TH2I("sumCsIE_cal_um", "", maxadcchan, 0, maxadcchan, 512, 0, 200);
+	Histo.sumCsITime_um      = new TH2I("sumCsITime_um", "", maxadcchan, 0, maxadcchan, 1000, -500, 500);
+	Histo.sumCsITime_matched = new TH2I("sumCsITime_matched", "", nTelCsIs * 4, 0, nTelCsIs * 4, 1000, -500, 500);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -283,6 +289,8 @@ void Gobbi28::analyze() {
 			Histo.Evstheta[id]->Fill(th, sol.energy);
 			Histo.Evstheta_all->Fill(th, sol.energy);
 			Histo.Theta->Fill(th);
+			Histo.CsI_Time_matched[id][icsi]->Fill(sol.CsITime);
+			Histo.sumCsITime_matched->Fill(icsi + (nTelCsIs * id), sol.CsITime);
 			
 			// At this point in time, the CsI crystals should be calibrated to proton equivalent energy
 			// The call to `telescope::getPID` applies PID-dependent stage 2 calibrations to all relevant non-proton particles
@@ -371,15 +379,18 @@ void Gobbi28::analyze() {
 
 		// Calculate sumEnergy, then account for Eloss in target, then set Ekin and momentum of solutions
 		// Eloss files are loaded in telescope
-		//Telescope[id]->calcEloss(); // TODO implement CsI calibrations in order for E loss to work correctly
+		pidSkipped += Telescope[id]->calcEloss();
 
 		// Post Eloss calculation plots and output
 		for (size_t isol = 0; isol < Telescope[id]->Nsolution; isol++) {
 			solution& sol = Telescope[id]->Solution[isol];
 			Histo.solutions.push_back(Telescope[id]->Solution[isol]);
-			if (sol.iZ == 1 && sol.iA == 1) {
+			if (sol.iZ == 1 && sol.iA == 1)
 				Histo.ProtonEnergy->Fill(sol.Ekin, sol.theta * rad_to_deg);
-			}
+			else if (sol.iZ == 2 && sol.iA == 3)
+				Histo.He3Energy->Fill(sol.Ekin, sol.theta * rad_to_deg);
+			else if (sol.iZ == 2 && sol.iA == 4)
+				Histo.AlphaEnergy->Fill(sol.Ekin, sol.theta * rad_to_deg);
 		}
 	}
 	
@@ -589,7 +600,7 @@ void Gobbi28::addCsIHits() {
 				
 				if ((qdcchan != adcchan) || (tdcchan != adcchan)) continue;
 				
-				Telescope[tel]->CsI.Add(id, Ecal, 0., 0, ER, T.value(), Q, true);
+				Telescope[tel]->CsI.Add(id, Ecal, 0., 0, ER, CsITimecal->getTime(tel, id, T.value()), Q, true);
 				Telescope[tel]->multCsI++;
 				Histo.CsIonly_PSD[adcchan]->Fill(ER, Q);
 			}

@@ -126,6 +126,9 @@ public:
 	
 	double alThick; // thickness of aluminum absorbers, in mg/cm^2
 	bool hasCsI;
+	
+	// Debug counters
+	size_t pidSkipped{0};
 
 };
 #endif

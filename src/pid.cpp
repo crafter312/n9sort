@@ -11,6 +11,8 @@
 #include <iostream>
 #include <stdexcept>
 
+#include "constants.h"
+
 using namespace std;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -61,10 +63,10 @@ bool pid::getPID(float x, float y) {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-double pid::getMass(int iZ,int iA) {
+double pid::getMass(size_t iZ, size_t iA) {
 	auto mapEntry = Mass_lookup.find({iZ, iA});
 	if (mapEntry == Mass_lookup.end()) {
-		cout << "No mass info for Z = "<< iZ << " A =" << iA << endl;
+		cout << "No mass info for Z = "<< iZ << " A = " << iA << endl;
 		abort();
 		return 0;
 	}

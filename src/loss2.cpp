@@ -1,7 +1,13 @@
 #include "loss2.h"
+
 #include <algorithm>
 #include <cmath>
+#include <fstream>
+#include <iostream>
 #include <sstream>
+#include <stdexcept>
+
+#include "constants.h"
 
 using namespace std;
 
@@ -9,9 +15,7 @@ using namespace std;
  * constructor
 \param filename is name of file containing energy loss tables of a particulat particle
 */
-
-CLoss2::CLoss2(string filename)
-{
+CLoss2::CLoss2(string filename) {
   //cout << "opening loss file: " << filename.c_str() << endl;
   ifstream File(filename.c_str());
   if (File.is_open() != 1)
@@ -25,68 +29,60 @@ CLoss2::CLoss2(string filename)
   //cout << line << endl;
 
   File >> N;
-  Ein = new float [N];
-  dedx = new float [N];
+  if (N <= 1) throw invalid_argument(string(BOLDRED) + string("[ERROR]: N from ") + filename + string(" cannot be one or zero") + string(RESET));
+  Ein.resize(N);
+  dedx.resize(N);
+  slope.resize(N - 1);
 
-  for (int i=0;i<N;i++) 
-  {
+  File >> Ein[0] >> dedx[0];
+  for (size_t i = 1; i < N; i++) {
     File >> Ein[i] >> dedx[i];
-    //cout << Ein[i] << " " << dedx[i] << endl;
+    slope[i - 1] = (dedx[i] - dedx[i - 1]) / (Ein[i] - Ein[i - 1]);
+    //cout << "index " << i - 1 << " slope " << slope[i - 1] << endl;
   }
+  
+  if (!is_sorted(Ein.begin(), Ein.end()))
+    throw invalid_argument(string(BOLDRED) + string("[ERROR]: loss file ") + filename + string(" is not energy ordered") + string(RESET));
 
   Emax = Ein[N-1];
-
 }
 
 //****************************************************************
   /**
    * destructor
    */
-CLoss2::~CLoss2()
-{
-  delete [] Ein;
-  delete [] dedx;
-}
+CLoss2::~CLoss2() {}
+
 //*****************************************************************
   /*
-   * returns the value of DeDx interpolated from table
+   * returns a pair of first the absolute value of the slope of the
+   * DeDx table between the i and i + 1 bins and second the value
+   * of DeDx interpolated from table between the i and i + 1 bins,
+   * where i is the largest table element <= the provided energy
    \param energy is energy of particle in MeV
+   \param A is the atomic mass of the nucleus in question
    */
-float CLoss2::getDedx(float energy, float A) {
-
-  // Check validity of energy loss table
-  if (!Ein || !dedx || N <= 0) {
-    stringstream ss;
-    ss << "[ERROR] Closs2 instance memory is corrupted or uninitialized!"
-       << "Pointers: Ein=" << Ein << ", dedx=" << dedx << ", N=" << N << endl;
-    cerr << ss.str();
-    abort();
-  }
-  
+pair<float, float> CLoss2::getAbsSlopeDedx(float energy, float A) {
   float epa = energy / A;
   
   // Throw error if energy is outside bounds of loss table
-  if (epa < Ein[0] || epa > Ein[N - 1]) {
+  if (epa < Ein.front() || epa > Ein.back()) {
     stringstream ss;
-    ss << "[ERROR] Closs2 input energy " << epa << " per A outside bounds of energy loss table of min "
-       << Ein[0] << " and max " << Ein[N - 1] << " for A=" << A << endl;
-    cerr << ss.str();
-    abort();
+    ss << BOLDRED << "[ERROR] Closs2 input energy " << epa << " per A outside bounds of energy loss table of min "
+       << Ein[0] << " and max " << Ein[N - 1] << " for A=" << A << RESET << endl;
+    throw runtime_error(ss.str());
   }
   
-  // Find correct energy bin
-  int istart = 1;
-  for (;;) {
-    if (epa < Ein[istart]) break;
-    istart++;
-  }
-  istart--;
+  // Binary search to find correct energy bin
+  auto it = lower_bound(Ein.begin(), Ein.end(), energy);
+  size_t index = distance(Ein.begin(), it);
+  if (*it != energy) index--;
 
   // linear interpolation
-  float de = (epa-Ein[istart])/(Ein[istart+1]-Ein[istart])
-    *(dedx[istart+1]-dedx[istart]) + dedx[istart];
-
-  return de;
+  float s = slope[index];
+  float de = (s * (epa - Ein[index])) + dedx[index];
+  //cout << "index " << index << endl;
+  return make_pair(s * A, de);
 }
 //********************************************************************
   /**
@@ -94,27 +90,21 @@ float CLoss2::getDedx(float energy, float A) {
 \param energy is initial energy of particle in MeV
 \param thick is the thickness of the absorber in mg/cm2
   */
-float CLoss2::getEout(float energy, float thick,float A)
-{
-  if (energy > Emax)
-  {
-    cout << "Energy of particle higher than Eloss tables" << endl;
-    cout << "check loss2.cpp and update LossFiles" << endl;
-    abort();
-  }
-  
-  float dthick = 0.1;
-  float de;
-  float Eout= energy;
-  for(;;)
-  {
-    float thickness = min(thick,dthick);
-    de = getDedx(Eout,A);
-    Eout -= de*thickness;
+float CLoss2::getEout(float energy, float thick, float A) {
+  pair<float, float> p;
+  float testStep, dthick, thickness, de;
+  float Eout = energy;
+  for(;;) {
+    p = getAbsSlopeDedx(Eout, A);
+    testStep = sqrt(2. * tol / abs(p.first * p.second)); // TODO: check that this is the right formula for adaptive step size
+    dthick = max(testStep, 0.1f);
+    thickness = min(thick, dthick);
+    de = p.second;
+    Eout -= de * thickness;
     if (thickness == thick) break;
     thick -= dthick;
   }
-   return Eout;
+  return Eout;
 }
 //********************************************************************
   /**
@@ -123,16 +113,19 @@ float CLoss2::getEout(float energy, float thick,float A)
 \param energy is the residual energy of the particle
 \param thick is the thickness of absorber through which the particle passed.
   */
-float CLoss2::getEin(float energy, float thick,float A)
-{
-  float dthick = 0.1;
-  float de;
-  float Einput= energy;
-  for(;;)
-  {
-    float thickness = min(thick,dthick);
-    de = getDedx(Einput,A);
-    Einput += de*thickness;
+float CLoss2::getEin(float energy, float thick, float A) {
+  pair<float, float> p;
+  float testStep, dthick, thickness, de;
+  float Einput = energy;
+  //stringstream ss;
+  for(;;) {
+    //ss << "thick " << thick << " dthick " << dthick << " Einput " << Einput << endl;
+    p = getAbsSlopeDedx(Einput, A);
+    testStep = sqrt(2. * tol / abs(p.first * p.second)); // TODO: check that this is the right formula for adaptive step size
+    dthick = max(testStep, 0.1f);
+    thickness = min(thick, dthick);
+    de = p.second;
+    Einput += de * thickness;
     if (thickness == thick) break;
     thick -= dthick;
   }

@@ -25,6 +25,7 @@
 
 #include "telescope.h"
 
+#include <chrono>
 #include <cmath>
 #include <fstream>
 #include <iostream>
@@ -40,12 +41,16 @@ using namespace std;
 
 telescope::telescope(double thick0, SortConfig& config, bool csi) : alThick(config.GetAlThick()), hasCsI(csi) {
 	TargetThickness = thick0;
-	SiWidth = 6.45;
-	SiFrame = 7.237;
+	SiWidth = 6.45;  // cm
+	SiFrame = 7.237; // cm
 	holeSize = config.GetGobbiHoleSize() * .1; // convert from mm to cm
 	losses = new CLosses(6, config.GetLossDir(), config.GetTargetSuffix());
 	Allosses = new CLosses(6, config.GetLossDir(), "Al");
-	Ran = new TRandom();
+	
+	// Seed TRandom with current system clock
+	auto now = chrono::system_clock::now();
+	UInt_t tstamp = chrono::duration_cast<chrono::seconds>(now.time_since_epoch()).count();
+	Ran = new TRandom(tstamp);
 	
 	// Read in front/back CsI strip extents from file
 	if (hasCsI) {
@@ -313,6 +318,12 @@ int telescope::simpleECsI() {
 		Nsolution = 0;
 		return 0;
 	}
+	
+	// CsI time gate (calibration shifts peaks to zero)
+	if (CsI.Order[0].time < -100 || CsI.Order[0].time > 100) {
+		Nsolution = 0;
+		return 0;
+	}
 
 	double timediff = CsI.Order[0].time - Front.Order[0].time;
 	Solution[0].energy = CsI.Order[0].energy;
@@ -395,7 +406,7 @@ size_t telescope::getPID() {
 		
 		// At this point, also apply CsI specific calibrations as function of PID
 		if (hasCsI && isSiCsI)
-			Solution[isol].energy = light2energy(ZA.first, ZA.second, Solution[isol].itele, Solution[isol].iCsI, energy);
+			Solution[isol].energy = light2energy(ZA.first, ZA.second, Solution[isol].itele, Solution[isol].iCsI, Solution[isol].energy);
 	}
 
 	return pidmulti;
@@ -404,22 +415,49 @@ size_t telescope::getPID() {
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 int telescope::calcEloss() {
+	pidSkipped = 0;
 	for (size_t isol = 0; isol < Nsolution; isol++) {
 
 		// Need PID to calculate energy loss
 		if (Solution[isol].ipid < 1) {
 			Solution[isol].Ekin = 0;
-			return 0;
+			continue;
 		}
 
 		// Kinetics calc, add Delta and energy for total energy
-		double sumEnergy = Solution[isol].denergy + Solution[isol].energy;
-		double pc_before = sqrt(pow(sumEnergy + Solution[isol].mass, 2) - (Solution[isol].mass*Solution[isol].mass));
-		double velocity_before = pc_before / (sumEnergy + Solution[isol].mass);
-		double alThickTh = alThick / cos(Solution[isol].theta);
-		double alEin = Allosses->getEin(sumEnergy, alThickTh, Solution[isol].iZ, Solution[isol].mass / m0);
-		double thick = (.5 * TargetThickness) / cos(Solution[isol].theta);
-		double ein = losses->getEin(alEin, thick, Solution[isol].iZ, Solution[isol].mass / m0);
+		double sumEnergy, alThickTh, alEin, thick, ein;
+		stringstream ss;
+		try {
+			sumEnergy = Solution[isol].denergy + Solution[isol].energy;
+			alThickTh = alThick / cos(Solution[isol].theta);
+			alEin = Allosses->getEin(sumEnergy, alThickTh, Solution[isol].iZ, Solution[isol].mass / m0);
+			thick = (.5 * TargetThickness) / cos(Solution[isol].theta);
+			ein = losses->getEin(alEin, thick, Solution[isol].iZ, Solution[isol].mass / m0);
+			if (Ran->Rndm() < 0.009) {
+				cout << "\n===================================================="
+				     << "\nZ " << Solution[isol].iZ << ", A " << Solution[isol].iA
+				     << "\nCsI + Si front energy " << sumEnergy << " MeV"
+				     << "\nAl absorber thickness " << alThickTh << " mg/cm^2"
+				     << "\nPre Al absorber " << alEin << " MeV"
+				     << "\nBe target thickness " << thick << " mg/cm^2"
+				     << "\nFinal energy " << ein << " MeV"
+				     << "\n====================================================" << endl;
+				abort();
+			}
+		}
+		
+		// If Eloss fails, for now invalidate solution and increment counter
+		catch (const exception& e) {
+			
+#ifdef ENABLE_DEBUG
+			cout << e.what() << endl;
+#endif
+			
+			Solution[isol].ipid = 0;
+			Solution[isol].Ekin = 0;
+			pidSkipped++;
+			continue;
+		}
 
 #ifdef ENABLE_DEBUG
 		cout << "loss correction " << ein - sumEnergy << endl;
@@ -437,35 +475,41 @@ int telescope::calcEloss() {
 		// Protons can punch through at high energies
 		if (Solution[isol].iA == 1 && Solution[isol].iZ == 1) {
 			if (sumEnergy > 15.5) {
+				Solution[isol].ipid = 0;
 				Solution[isol].iA = 0;
 				Solution[isol].iZ = 0;
 				Solution[isol].Ekin = 0;
-				return 0;
+				pidSkipped++;
+				continue;
 			}
 		}
 
 		// Deuterons can punch through
 		if (Solution[isol].iA == 2 && Solution[isol].iZ == 1) {
 			if (sumEnergy > 20.5) {
+				Solution[isol].ipid = 0;
 				Solution[isol].iA = 0;
 				Solution[isol].iZ = 0;
 				Solution[isol].Ekin = 0;
-				return 0;
+				pidSkipped++;
+				continue;
 			}
 		}
 		
 		// Tritons can punch through
 		if (Solution[isol].iA == 3 && Solution[isol].iZ == 1) {
 			if (sumEnergy > 24) {
+				Solution[isol].ipid = 0;
 				Solution[isol].iA = 0;
 				Solution[isol].iZ = 0;
 				Solution[isol].Ekin = 0;
-				return 0;
+				pidSkipped++;
+				continue;
 			}
 		}
 	}
 
-	return 1;
+	return pidSkipped;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -712,26 +756,10 @@ int telescope::multiHitECsI() {
 			cerr << ss.str();
 			abort();
 		}
+		else if (CsI.Order[i].time < -100 || CsI.Order[i].time > 100) continue;
 		energy[CsI.Order[i].strip] = CsI.Order[i].energy;
 		order[CsI.Order[i].strip] = i;
 	}
-	
-	//Only interested in mult CsI events rn
-	/*if (CsI.Nstore > 2) {
-		cout << endl;
-		cout << "NCsI " << CsI.Nstore << " NFront " << Front.Nstore << " NBack " << Back.Nstore << " NSisolution " << NSisolution << endl;
-		cout << "Unmatched data" << endl;
-		for (int i=0;i<CsI.Nstore;i++) cout << "CsI id " << CsI.Order[i].strip << endl;
-		for (int i=0;i<Front.Nstore;i++) cout << "F id " << Front.Order[i].strip << " E " << Front.Order[i].energy << endl;
-		for (int i=0;i<Back.Nstore;i++) cout << "B id " << Back.Order[i].strip << " E " << Back.Order[i].energy << endl;
-		
-		for (int i=0;i<NSisolution;i++) {
-			cout << "F B strips pairs " << Front.Order[i].strip << " " << Back.Order[arrayB[i]].strip << endl;
-			cout << "F B E pairs " << Front.Order[i].energy << " " << Back.Order[arrayB[i]].energy << endl;
-		}
-		
-		cout << endl;
-	}*/
 
 	// Define the remove constants as some index that won't happen
 	int removeFirst = -1;
