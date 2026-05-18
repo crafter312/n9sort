@@ -9,11 +9,11 @@
  * !\brief energy loss of particles in an absorber
  */
 
-class CLoss2 {
+class CLoss3 {
 
 public:
-	CLoss2(std::string);
-	~CLoss2();
+	CLoss3(std::string);
+	~CLoss3();
 	
 	float getEout(float, float, float);
 	float getEin(float, float, float);
@@ -27,7 +27,7 @@ private:
 	std::vector<float> slope; // size N - 1
 	
 	float Emax;
-	float tol{0.00001}; // energy tolerance in MeV for adaptive step calculation
+	const float tol{0.000001}; // energy tolerance in MeV for adaptive step calculation
 	
 };
 #endif

@@ -1,4 +1,4 @@
-#include "loss2.h"
+#include "loss3.h"
 
 #include <algorithm>
 #include <cmath>
@@ -15,7 +15,7 @@ using namespace std;
  * constructor
 \param filename is name of file containing energy loss tables of a particulat particle
 */
-CLoss2::CLoss2(string filename) {
+CLoss3::CLoss3(string filename) {
   //cout << "opening loss file: " << filename.c_str() << endl;
   ifstream File(filename.c_str());
   if (File.is_open() != 1)
@@ -51,7 +51,7 @@ CLoss2::CLoss2(string filename) {
   /**
    * destructor
    */
-CLoss2::~CLoss2() {}
+CLoss3::~CLoss3() {}
 
 //*****************************************************************
   /*
@@ -62,7 +62,7 @@ CLoss2::~CLoss2() {}
    \param energy is energy of particle in MeV
    \param A is the atomic mass of the nucleus in question
    */
-pair<float, float> CLoss2::getAbsSlopeDedx(float energy, float A) {
+pair<float, float> CLoss3::getAbsSlopeDedx(float energy, float A) {
   float epa = energy / A;
   
   // Throw error if energy is outside bounds of loss table
@@ -90,7 +90,7 @@ pair<float, float> CLoss2::getAbsSlopeDedx(float energy, float A) {
 \param energy is initial energy of particle in MeV
 \param thick is the thickness of the absorber in mg/cm2
   */
-float CLoss2::getEout(float energy, float thick, float A) {
+float CLoss3::getEout(float energy, float thick, float A) {
   pair<float, float> p;
   float testStep, dthick, thickness, de;
   float Eout = energy;
@@ -113,7 +113,7 @@ float CLoss2::getEout(float energy, float thick, float A) {
 \param energy is the residual energy of the particle
 \param thick is the thickness of absorber through which the particle passed.
   */
-float CLoss2::getEin(float energy, float thick, float A) {
+float CLoss3::getEin(float energy, float thick, float A) {
   pair<float, float> p;
   float testStep, dthick, thickness, de;
   float Einput = energy;

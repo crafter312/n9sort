@@ -1,13 +1,13 @@
 #ifndef losses_
 #define losses_
-#include "loss2.h"
+#include "loss3.h"
 
 #include <string>
 
 class CLosses
 {
  private:
-   CLoss2 ** loss;
+   CLoss3 ** loss;
    int Zmax;
    std::string material;
  public:
