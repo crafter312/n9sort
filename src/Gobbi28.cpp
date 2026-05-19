@@ -6,6 +6,7 @@
 #include "Gobbi28.h"
 
 #include <algorithm>
+#include <chrono>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -21,6 +22,12 @@ using namespace std;
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 Gobbi28::Gobbi28(Input& in, histo& hist, SortConfig& config) : Targetdist(config.GetTargDist()), TargetThickness(config.GetTargThick()), hinpboards(config.GetHinpboards()), hinpchans(config.GetHinpchans()), Histo(hist), input(in.GetGobbi()), input_qdc(in.GetQDC()), input_adc(in.GetADC()), input_tdc(in.GetTDC()) {
+
+	// Seed TRandom with current system clock
+	auto now = chrono::system_clock::now();
+	UInt_t tstamp = chrono::duration_cast<chrono::seconds>(now.time_since_epoch()).count();
+	Ran = new TRandom(tstamp);
+
 	for (size_t id = 0; id < 4; id++) {
 		Telescope[id] = new telescope(TargetThickness, config, true);
 		Telescope[id]->init(id, config); // tells Telescope what position it is in
@@ -116,6 +123,7 @@ Gobbi28::Gobbi28(Input& in, histo& hist, SortConfig& config) : Targetdist(config
 		Histo.DEE_CsI_fronteven[i].resize(nTelCsIs);
 		Histo.DEE_CsI_frontodd[i].resize(nTelCsIs);
 		Histo.CsI_Time_matched[i].resize(nTelCsIs);
+		Histo.CsI_xyhitmap[i].resize(nTelCsIs);
 		
 #ifdef ENABLE_DEBUG
 		cout << "Gobbi28::Gobbi28 4a" << endl;
@@ -147,6 +155,9 @@ Gobbi28::Gobbi28(Input& in, histo& hist, SortConfig& config) : Targetdist(config
 			Histo.dir1dCsI_Time->cd();
 			name = "CsI_Time_matched_" + to_string(i) + "_" + to_string(j);
 			Histo.CsI_Time_matched[i][j] = new TH1I(name.c_str(), "", 1000, -500, 500);
+			Histo.dirhitmaps->cd();
+			name = "CsI_xyhitmap_" + to_string(i) + "_" + to_string(j);
+			Histo.CsI_xyhitmap[i][j] = new TH2I(name.c_str(), "", 200, -10, 10, 200, -10, 10);
 		}
 	}
 
@@ -295,6 +306,7 @@ void Gobbi28::analyze() {
 			Histo.Evstheta_all->Fill(th, sol.energy);
 			Histo.Theta->Fill(th);
 			Histo.CsI_Time_matched[id][icsi]->Fill(sol.CsITime);
+			Histo.CsI_xyhitmap[id][icsi]->Fill(sol.Xpos, sol.Ypos);
 			Histo.sumCsITime_matched->Fill(icsi + (nTelCsIs * id), sol.CsITime);
 			
 			// At this point in time, the CsI crystals should be calibrated to proton equivalent energy
@@ -406,8 +418,47 @@ void Gobbi28::analyze() {
 	Histo.CsI_mult_M_v_R->Fill(NCsI_all, NCsI_matched);
 	// " with good PID
 	Histo.CsI_mult_PID->Fill(Pidmulti);
-	Histo.CsI_mult_PID_v_R->Fill(NCsI_all, NCsI_matched);
-	
+	Histo.CsI_mult_PID_v_R->Fill(NCsI_all, Pidmulti);
+/*
+	// Debug output for tracking events:
+	if (Ran->Rndm() > 0.1) return;
+	if (NCsI_all == 2 && (Pidmulti == 0 || Pidmulti == 1)) {
+		stringstream ss;
+		ss << GREEN << "=======================================================" << endl;
+		bool foundNeqFB = false;
+		for (size_t i = 0; i < 4; i++) {
+			if (Telescope[i]->Front.Nstore != Telescope[i]->Back.Nstore) foundNeqFB = true;
+			ss << "telescope: " << i << endl;
+			ss << "Front Si hits: " << endl;
+			for (size_t j = 0; j < Telescope[i]->Front.Nstore; j++) {
+				order* o = &Telescope[i]->Front.Order[j];
+				ss << "strip: " << o->strip << ", energy: " << o->energy << ", time: " << o->time << endl;
+			}
+			ss << "Back Si hits: " << endl;
+			for (size_t j = 0; j < Telescope[i]->Back.Nstore; j++) {
+				order* o = &Telescope[i]->Back.Order[j];
+				ss << "strip: " << o->strip << ", energy: " << o->energy << ", time: " << o->time << endl;
+			}
+			ss << "CsI hits: " << endl;
+			for (size_t j = 0; j < Telescope[i]->CsI.Nstore; j++) {
+				order* o = &Telescope[i]->CsI.Order[j];
+				ss << "CsI ID: " << o->strip << ", energy: " << o->energy << ", TDC: " << o->time << ", QDC: " << o->qdc << endl;
+			}
+		}
+		if (!foundNeqFB) return;
+		ss << "=======================================================" << endl;
+		for (size_t i = 0; i < 4; i++) {
+			ss << "telescope: " << i << endl;
+			for (size_t j = 0; j < Telescope[i]->Nsolution; j++) {
+				solution& sol = Telescope[i]->Solution[j];
+				ss << "ifront: " << sol.ifront << ", iback: " << sol.iback << ", iCsI: " << ", denergy: " << sol.denergy << ", benergy: " << sol.benergy << ", energy: " << sol.energy << ", energyR: " << sol.energyR << ", Z: " << sol.iZ << ", A: " << sol.iA << endl;
+			}
+		}
+		ss << "=======================================================" << RESET << endl;
+		cout << ss.str();
+		abort();
+	}
+*/
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

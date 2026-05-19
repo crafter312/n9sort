@@ -8,6 +8,8 @@
 
 #include <unordered_map>
 
+#include <TRandom.h>
+
 #include "calibrate.h"
 #include "correl2.h"
 #include "histo.h"
@@ -65,6 +67,8 @@ private:
 	size_t NsimpleECsI{0}; // # simple events with one each of front, back, and CsI in a telescope
 	size_t NmultiECsI{0};  // # more complex events with more than one of one of front, back, and CsI in a telescope
 	size_t pidSkipped{0};  // # solutions invalidated during Eloss calculations due to errors thrown by Eloss calculations
+	
+	TRandom* Ran;
 
 	// Inputs are telescope number, channel number, and hit index for below functions
 	void addFrontHit(size_t tel, size_t ch, size_t i);

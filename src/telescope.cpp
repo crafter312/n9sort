@@ -25,11 +25,11 @@
 
 #include "telescope.h"
 
+#include <algorithm>
 #include <chrono>
 #include <cmath>
 #include <fstream>
 #include <iostream>
-#include <sstream>
 #include <stdexcept>
 #include <string>
 
@@ -638,7 +638,8 @@ void telescope::loopE(int depth) {
 			// Difference in Front and back energy is how to match FrontE and BackE - need two types for Gobbi
 			// NOTE: this needs high and low calibrations to work
 			//TODO THIS WILL NOT WORK WITHOUT LOW GAIN CALIBRATIONS
-			de += abs(Back.Order[NestArray[i]].energy - Front.Order[i].energy);
+			//cout << "Checking strips ifront=" << Front.Order[indToOrdIndF[i]].strip << " and iback=" << Back.Order[indToOrdIndB[NestArray[i]]].strip << endl;
+			de += abs(Back.Order[indToOrdIndB[NestArray[i]]].energy - Front.Order[indToOrdIndF[i]].energy);
 			//else de += abs(Back.Order[NestArray[i]].energylow - Front.Order[i].energylow);
 		}
 
@@ -647,14 +648,8 @@ void telescope::loopE(int depth) {
 		if (de < deMin) {
 			deMin = de;
 			for (size_t i = 0; i < NestDim; i++) {
-				arrayB[i] = NestArray[i];
-				if (NestArray[i] >= Back.Nstore) {
-					stringstream ss;
-					ss << "[ERROR] telescope multiHitECsI NestArray[i] " << NestArray[i]
-					   << " greater than Back.Nstore-1=" << Back.Nstore-1 << endl;
-					cerr << ss.str();
-					abort();
-				}
+				arrayF[i] = indToOrdIndF[i];
+				arrayB[i] = indToOrdIndB[NestArray[i]];
 			}
 		}
 		return;
@@ -681,27 +676,85 @@ void telescope::loopE(int depth) {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
+vector<vector<bool>> telescope::getCombinationMasks(size_t totalElements, size_t nestDim) {
+	vector<vector<bool>> masks;
+	if (nestDim > totalElements) return masks;
+	
+	// Create initial mask with totalElements # of elements, nestDim of which are true
+	vector<bool> mask(totalElements, false);
+	for (size_t i = 0; i < nestDim; i++)
+		mask[i] = true;
+		
+	// Loop through all combinations and add to list of masks.
+	// Despite the name `permutation` in the function below, this still works because
+	// of the presence of booleans in the mask instead of other types.
+	do {
+		masks.push_back(mask);
+	} while (prev_permutation(mask.begin(), mask.end()));
+	
+	return masks;
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
 // Modification of multiHitdEE() to match E-CsI events, stolen from Johnathan Phillips'
 // (j.s.phillips@wustl.edu) 22Si sort code.
 int telescope::multiHitECsI() {
+	if (Front.Nstore > 7 || Back.Nstore > 7) return 0; // with the combinatorics, large strip counts causes this function to absolutely blow up
 	int Ntries = min(Front.Nstore, Back.Nstore);
-	if (Ntries > 7) Ntries = 7;
+	//if (Ntries > 7) Ntries = 7; // If max front back multiplicity limits, no reason to have this
 	Nsolution = 0;
 	if (Ntries <= 0) return 0;
-	
+	//cout << "Front.Nstore: " << Front.Nstore << ", Back.Nstore: " << Back.Nstore << endl;
 	NSisolution = 0;
 	for (NestDim = Ntries; NestDim > 0; NestDim--) {
 		dstripMin = 1000;
 		deMin = 10000.;
-
-		// Look for best front/back matching
-		// Solutions are stored in arrayB
-		loopE(0);
+		
+		// Perform combinatorics, loop over all combinations of NestDim strips for both fronts and backs
+		vector<vector<bool>> masksF = getCombinationMasks(Front.Nstore, NestDim);
+		vector<vector<bool>> masksB = getCombinationMasks(Back.Nstore, NestDim);
+		
+		// Loop over all possible Front.Nstore pick NestDim combinations of front strips
+		for (const vector<bool>& maskF : masksF) {
+			
+			// Transfer Order indices to intermediate array based on mask
+			size_t fTally = 0;
+			for (size_t i = 0; i < Front.Nstore; i++) { // length of mask is Front.Nstore
+				if (maskF[i]) {
+					indToOrdIndF[fTally] = i;
+					fTally++;
+				}
+			}
+			
+			// Loop over all possible Back.Nstore pick NestDim combinations of back strips
+			for (const vector<bool>& maskB : masksB) {
+				size_t bTally = 0;
+				for (size_t i = 0; i < Back.Nstore; i++) { // length of mask is Back.Nstore
+					if (maskB[i]) {
+						indToOrdIndB[bTally] = i;
+						bTally++;
+					}
+				}
+				
+				// Look for best front/back matching
+				// Solutions are stored in arrayF and arrayB
+				loopE(0);
+			}
+		}
 
 		// Check to see if best possible solution is reasonable
 		bool leave = false;
 		for (size_t i = 0; i < NestDim; i++) {
-			if (arrayB[i] >= Back.Nstore) {
+			if (arrayF[i] >= Front.Nstore) {
+				stringstream ss;
+				ss << "[ERROR] telescope multiHitECsI arrayF[i] " << arrayF[i]
+				   << " greater than Front.Nstore-1=" << Front.Nstore-1
+				   << " and NestDim=" << NestDim << endl;
+				cerr << ss.str();
+				abort();
+			}
+			else if (arrayB[i] >= Back.Nstore) {
 				stringstream ss;
 				ss << "[ERROR] telescope multiHitECsI arrayB[i] " << arrayB[i]
 				   << " greater than Back.Nstore-1=" << Back.Nstore-1
@@ -709,7 +762,7 @@ int telescope::multiHitECsI() {
 				cerr << ss.str();
 				abort();
 			}
-			if (fabs(Back.Order[arrayB[i]].energy - Front.Order[i].energy) > 10.) {
+			if (fabs(Back.Order[arrayB[i]].energy - Front.Order[arrayF[i]].energy) > 10.) {
 				leave = true;
 				break;
 			}
@@ -723,23 +776,17 @@ int telescope::multiHitECsI() {
 	if (NSisolution == 0) return 0;
 
 	// Now assign each of these solutions a CsI detector location
-	vector<vector<size_t>> sil(NCsI, vector<size_t>()); // contains a lits of silicon solutions for each Csi
+	vector<vector<pair<size_t, size_t>>> sil(NCsI, vector<pair<size_t, size_t>>()); // contains a lits of (front, back) silicon solutions for each Csi
 
 	// Look at all the front/back solutions and see how many are on each CsI
 	for (size_t i = 0; i < NSisolution; i++) {
-		if (arrayB[i] >= Back.Nstore) {
-			stringstream ss;
-			ss << "[ERROR] telescope multiHitECsI arrayB[i] " << arrayB[i]
-			   << " greater than Back.Nstore-1=" << Back.Nstore-1 << endl;
-			cerr << ss.str();
-			abort();
-		}
-		int ifront = Front.Order[i].strip;
+		int ifront = Front.Order[arrayF[i]].strip;
 		int iback = Back.Order[arrayB[i]].strip;
 		for (size_t icsi = 0; icsi < NCsI; icsi++) {
 			if ((ifront < CsIFextents[icsi].first) || (ifront > CsIFextents[icsi].second) || (iback < CsIBextents[icsi].first) || (iback > CsIBextents[icsi].second)) continue;
 
-			sil[icsi].push_back(i);
+			pair<size_t, size_t> p(arrayF[i], arrayB[i]);
+			sil[icsi].push_back(p);
 			break;
 		}
 	}
@@ -758,7 +805,7 @@ int telescope::multiHitECsI() {
 			cerr << ss.str();
 			abort();
 		}
-		else if (CsI.Order[i].time < -100 || CsI.Order[i].time > 100) continue;
+		//else if (CsI.Order[i].time < -100 || CsI.Order[i].time > 100) continue;
 		energy[CsI.Order[i].strip] = CsI.Order[i].energy;
 		order[CsI.Order[i].strip] = i;
 	}
@@ -784,19 +831,13 @@ int telescope::multiHitECsI() {
 			if (PidCsI[icsi] == nullptr) continue; // ignore if zline files are absent
 
 			for (size_t i = 0; i < multSi; i++) {
-				int ii = sil[icsi][i];
+				int iif = sil[icsi][i].first;
+				int iib = sil[icsi][i].second;
 
 				// Do zline check
-				int zCheck = PidCsI[icsi]->getPID(CsI.Order[order[icsi]].energyR, Front.Order[ii].energy);
+				int zCheck = PidCsI[icsi]->getPID(CsI.Order[order[icsi]].energyR, Front.Order[iif].energy);
 				if (zCheck == 0) continue;
-				else { // need to fill stuff here using the correct "ii" index
-					if (arrayB[ii] >= Back.Nstore) {
-						stringstream ss;
-						ss << "[ERROR] telescope multiHitECsI arrayB[ii] " << arrayB[ii]
-						   << " greater than Back.Nstore-1=" << Back.Nstore-1 << endl;
-						cerr << ss.str();
-						abort();
-					}
+				else { // need to fill stuff here using the correct iif and iib Order indices
 					if (order[icsi] < 0 || order[icsi] >= CsI.Nstore) {
 						stringstream ss;
 						ss << "[ERROR] Invalid CsI index order[icsi]=" << order[icsi] << endl;
@@ -807,28 +848,28 @@ int telescope::multiHitECsI() {
 					Solution[Nsolution].energyR = CsI.Order[order[icsi]].energyR;
 					Solution[Nsolution].energylow = energy[icsi];
 					Solution[Nsolution].energylowR = CsI.Order[order[icsi]].energyR;
-					Solution[Nsolution].denergy = Front.Order[ii].energy;
-					Solution[Nsolution].denergylow = Front.Order[ii].energylow;
-					Solution[Nsolution].denergyR = Front.Order[ii].energyR;
-					Solution[Nsolution].benergy = Back.Order[arrayB[ii]].energy;
-					Solution[Nsolution].benergylow = Back.Order[arrayB[ii]].energylow;
-					Solution[Nsolution].benergyR = Back.Order[arrayB[ii]].energyR;
+					Solution[Nsolution].denergy = Front.Order[iif].energy;
+					Solution[Nsolution].denergylow = Front.Order[iif].energylow;
+					Solution[Nsolution].denergyR = Front.Order[iif].energyR;
+					Solution[Nsolution].benergy = Back.Order[iib].energy;
+					Solution[Nsolution].benergylow = Back.Order[iib].energylow;
+					Solution[Nsolution].benergyR = Back.Order[iib].energyR;
 					Solution[Nsolution].qdc = CsI.Order[order[icsi]].qdc;
 
-					Solution[Nsolution].ifront = Front.Order[ii].strip;
-					Solution[Nsolution].iback = Back.Order[arrayB[ii]].strip;
+					Solution[Nsolution].ifront = Front.Order[iif].strip;
+					Solution[Nsolution].iback = Back.Order[iib].strip;
 					Solution[Nsolution].ide = -1;
 					Solution[Nsolution].iCsI = icsi;
 					Solution[Nsolution].itele = id;
 					Solution[Nsolution].isSiCsI = true;
 					Solution[Nsolution].CsITime = CsI.Order[order[icsi]].time;
-					float timediff = CsI.Order[order[icsi]].time - Front.Order[ii].time;
+					float timediff = CsI.Order[order[icsi]].time - Front.Order[iif].time;
 					Solution[Nsolution].timediff = timediff;
-					Solution[Nsolution].time = Front.Order[ii].time;
+					Solution[Nsolution].time = Front.Order[iif].time;
 					Nsolution++;
 
-					Front.Order[ii].CsIFlag = true;
-					Back.Order[arrayB[ii]].CsIFlag = true;
+					Front.Order[iif].CsIFlag = true;
+					Back.Order[iib].CsIFlag = true;
 					
 					/*if (CsI.Nstore > 2) {
 						cout << "Matched CsI, F, and B id 's : " << icsi << " " << Front.Order[ii].strip << " " << Back.Order[arrayB[ii]].strip << endl;
@@ -843,14 +884,8 @@ int telescope::multiHitECsI() {
 		// CsI energy < 0 should not happen, but ignore just in case
 		else if (energy[icsi] <= 0.) continue;
 		else {
-			int ii = sil[icsi][0];
-			if (arrayB[ii] >= Back.Nstore) {
-				stringstream ss;
-				ss << "[ERROR] telescope multiHitECsI arrayB[ii] " << arrayB[ii]
-				   << " greater than Back.Nstore-1=" << Back.Nstore-1 << endl;
-				cerr << ss.str();
-				abort();
-			}
+			int iif = sil[icsi][0].first;
+			int iib = sil[icsi][0].second;
 			if (order[icsi] < 0 || order[icsi] >= CsI.Nstore) {
 				stringstream ss;
 				ss << "[ERROR] Invalid CsI index order[icsi]=" << order[icsi] << endl;
@@ -861,28 +896,28 @@ int telescope::multiHitECsI() {
 			Solution[Nsolution].energyR = CsI.Order[order[icsi]].energyR;
 			Solution[Nsolution].energylow = energy[icsi];
 			Solution[Nsolution].energylowR = CsI.Order[order[icsi]].energyR;
-			Solution[Nsolution].denergy = Front.Order[ii].energy;
-			Solution[Nsolution].denergylow = Front.Order[ii].energylow;
-			Solution[Nsolution].denergyR = Front.Order[ii].energyR;
-			Solution[Nsolution].benergy = Back.Order[arrayB[ii]].energy;
-			Solution[Nsolution].benergylow = Back.Order[arrayB[ii]].energylow;
-			Solution[Nsolution].benergyR = Back.Order[arrayB[ii]].energyR;
+			Solution[Nsolution].denergy = Front.Order[iif].energy;
+			Solution[Nsolution].denergylow = Front.Order[iif].energylow;
+			Solution[Nsolution].denergyR = Front.Order[iif].energyR;
+			Solution[Nsolution].benergy = Back.Order[iib].energy;
+			Solution[Nsolution].benergylow = Back.Order[iib].energylow;
+			Solution[Nsolution].benergyR = Back.Order[iib].energyR;
 			Solution[Nsolution].qdc = CsI.Order[order[icsi]].qdc;
 
-			Solution[Nsolution].ifront = Front.Order[ii].strip;
-			Solution[Nsolution].iback = Back.Order[arrayB[ii]].strip;
+			Solution[Nsolution].ifront = Front.Order[iif].strip;
+			Solution[Nsolution].iback = Back.Order[iib].strip;
 			Solution[Nsolution].ide = -1;
 			Solution[Nsolution].iCsI = icsi;
 			Solution[Nsolution].itele = id;
 			Solution[Nsolution].isSiCsI = true;
 			Solution[Nsolution].CsITime = CsI.Order[order[icsi]].time;
-			float timediff = CsI.Order[order[icsi]].time - Front.Order[ii].time;
+			float timediff = CsI.Order[order[icsi]].time - Front.Order[iif].time;
 			Solution[Nsolution].timediff = timediff;
-			Solution[Nsolution].time = Front.Order[ii].time;
+			Solution[Nsolution].time = Front.Order[iif].time;
 			Nsolution++;
 
-			Front.Order[ii].CsIFlag = true;
-			Back.Order[arrayB[ii]].CsIFlag = true;
+			Front.Order[iif].CsIFlag = true;
+			Back.Order[iib].CsIFlag = true;
 			
 			/*if (CsI.Nstore > 2) {
 				cout << "Matched CsI, F, and B id 's : " << icsi << " " << Front.Order[ii].strip << " " << Back.Order[arrayB[ii]].strip << endl;

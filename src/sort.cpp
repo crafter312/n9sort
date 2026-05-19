@@ -99,7 +99,7 @@ int main() {
 		// Thread-local event loop
 		size_t localCounter = 0;
 		while (reader.Next()) {
-		
+			
 			// Reset global tree output variables
 			Histo.reset();
 

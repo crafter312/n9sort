@@ -26,6 +26,7 @@
 //     |____| 2  |
 //          |____|
 
+#include <sstream>
 #include <utility>
 #include <vector>
 
@@ -117,9 +118,15 @@ public:
 	size_t NestDim;
 	void loopDEE(int);
 	void loopE(int);
+	std::vector<std::vector<bool>> getCombinationMasks(size_t totalElements, size_t nestDim);
+	
 	int NestArray[50];
-	int arrayD[50];
+	int indToOrdIndF[50];
+	int indToOrdIndB[50];
+	int arrayF[50];
 	int arrayB[50];
+	int arrayD[50];
+	
 	double deMin;
 	int dstripMin;
 	size_t NSisolution;

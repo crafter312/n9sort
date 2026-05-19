@@ -170,6 +170,7 @@ public:
 	std::vector<TH2I*> DEE_CsI_fronteven[4];
 	std::vector<TH2I*> DEE_CsI_frontodd[4];
 	std::vector<TH1I*> CsI_Time_matched[4];
+	std::vector<TH2I*> CsI_xyhitmap[4];
 
 	//CsI multiplicity plots. A few variants
 	TH1I* CsI_mult_R; //Raw CsI multiplicity "crystals in data stream". //Just number of ADC hits
