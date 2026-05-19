@@ -172,10 +172,12 @@ public:
 	std::vector<TH1I*> CsI_Time_matched[4];
 
 	//CsI multiplicity plots. A few variants
-	TH1I * CsI_mult_R; //Raw CsI multiplicity "crystals in data stream". //Just number of ADC hits
-	TH1I * CsI_mult_AQT; //Same as raw but matched to QDC and TDC
-	TH1I * CsI_mult_M; //Now requiring FB matching
-	TH1I * CsI_mult_PID; //Requires PID
+	TH1I* CsI_mult_R; //Raw CsI multiplicity "crystals in data stream". //Just number of ADC hits
+	TH1I* CsI_mult_AQT; //Same as raw but matched to QDC and TDC
+	TH1I* CsI_mult_M; //Now requiring FB matching
+	TH2I* CsI_mult_M_v_R;
+	TH1I* CsI_mult_PID; //Requires PID
+	TH2I* CsI_mult_PID_v_R;
 
 	// DeltaE-E plots
 	TH2I* DEE_simple[4];
@@ -188,6 +190,7 @@ public:
 	TH2I* tphitmap;
 	TH2I* xyhitmap_sionly;
 	TH2I* xyhitmap_tgate_orA;
+	TH2I* xyhitmap_multiCsI;
 	TH2I* protonhitmap;
 	TH2I* deuteronhitmap;
 	TH2I* tritonhitmap;

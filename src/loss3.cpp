@@ -65,23 +65,19 @@ CLoss3::~CLoss3() {}
 pair<float, float> CLoss3::getAbsSlopeDedx(float energy, float A) {
   float epa = energy / A;
   
-  // Throw error if energy is outside bounds of loss table
-  if (epa < Ein.front() || epa > Ein.back()) {
-    stringstream ss;
-    ss << BOLDRED << "[ERROR] Closs2 input energy " << epa << " per A outside bounds of energy loss table of min "
-       << Ein[0] << " and max " << Ein[N - 1] << " for A=" << A << RESET << endl;
-    throw runtime_error(ss.str());
-  }
-  
   // Binary search to find correct energy bin
-  auto it = lower_bound(Ein.begin(), Ein.end(), energy);
-  size_t index = distance(Ein.begin(), it);
-  if (*it != energy) index--;
+  size_t istart = 0;
+  if (epa < Ein[0]) istart = 0;
+  else if (epa > Ein[N - 1]) istart = N - 1;
+  else {
+    auto it = lower_bound(Ein.begin(), Ein.end(), epa);
+    istart = distance(Ein.begin(), it);
+    if (*it != epa) istart--;
+  }
 
-  // linear interpolation
-  float s = slope[index];
-  float de = (s * (epa - Ein[index])) + dedx[index];
-  //cout << "index " << index << endl;
+  // Linear interpolation
+  float s = slope[istart];
+  float de = (s * (epa - Ein[istart])) + dedx[istart];
   return make_pair(s * A, de);
 }
 //********************************************************************
@@ -91,10 +87,21 @@ pair<float, float> CLoss3::getAbsSlopeDedx(float energy, float A) {
 \param thick is the thickness of the absorber in mg/cm2
   */
 float CLoss3::getEout(float energy, float thick, float A) {
+
+  // Throw error if energy is too large
+  float epa = energy / A;
+  if (epa  > Ein.back()) {
+    stringstream ss;
+    ss << BOLDRED << "[ERROR] Closs3 input energy " << epa << " MeV/u above max bound of energy loss table "
+       << Ein[N - 1] << " MeV/u for A = " << A << RESET << endl;
+    throw runtime_error(ss.str());
+  }
+
   pair<float, float> p;
   float testStep, dthick, thickness, de;
   float Eout = energy;
   for(;;) {
+    //ss << "thick " << thick << " dthick " << dthick << " Eout " << Eout << endl;
     p = getAbsSlopeDedx(Eout, A);
     testStep = sqrt(2. * tol / abs(p.first * p.second)); // TODO: check that this is the right formula for adaptive step size
     dthick = max(testStep, 0.1f);
@@ -104,6 +111,8 @@ float CLoss3::getEout(float energy, float thick, float A) {
     if (thickness == thick) break;
     thick -= dthick;
   }
+  //cout << ss.str() << endl;
+  //abort();
   return Eout;
 }
 //********************************************************************
@@ -114,10 +123,20 @@ float CLoss3::getEout(float energy, float thick, float A) {
 \param thick is the thickness of absorber through which the particle passed.
   */
 float CLoss3::getEin(float energy, float thick, float A) {
+
+  // Throw error if energy is too large
+  float epa = energy / A;
+  if (epa  > Ein.back()) {
+    stringstream ss;
+    ss << BOLDRED << "[ERROR] Closs3 input energy " << epa << " MeV/u above max bound of energy loss table "
+       << Ein[N - 1] << " MeV/u for A = " << A << RESET << endl;
+    throw runtime_error(ss.str());
+  }
+
   pair<float, float> p;
   float testStep, dthick, thickness, de;
   float Einput = energy;
-  //stringstream ss;
+  stringstream ss;
   for(;;) {
     //ss << "thick " << thick << " dthick " << dthick << " Einput " << Einput << endl;
     p = getAbsSlopeDedx(Einput, A);
@@ -129,6 +148,8 @@ float CLoss3::getEin(float energy, float thick, float A) {
     if (thickness == thick) break;
     thick -= dthick;
   }
+  //cout << ss.str() << endl;
+  //abort();
   return Einput;
 }
 

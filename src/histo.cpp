@@ -129,7 +129,9 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, SortConfig& config) : hinpbo
 	CsI_mult_R = new TH1I("CsI_mult_R","CsI_mult_R",10,-0.5,9.5); //Raw CsI multiplicity "crystals in data stream"
 	CsI_mult_AQT = new TH1I("CsI_mult_AQT","CsI_mult_AQT",10,-0.5,9.5);; //Same as raw but matched to QDC and TDC
 	CsI_mult_M = new TH1I("CsI_mult_M","CsI_mult_M",10,-0.5,9.5);; //Now requiring FB matching
+	CsI_mult_M_v_R = new TH2I("CsI_mult_M_v_R","CsI_mult_M_v_R",10,-0.5,9.5,10,-0.5,9.5);
 	CsI_mult_PID = new TH1I("CsI_mult_PID","CsI_mult_PID",10,-0.5,9.5);; //Requires PID
+	CsI_mult_PID_v_R = new TH2I("CsI_mult_PID_v_R","CsI_mult_PID_v_R",10,-0.5,9.5,10,-0.5,9.5);
 
   ostringstream name;
   for (int i=0;i<4;i++) {
@@ -329,6 +331,7 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, SortConfig& config) : hinpbo
   tphitmap = new TH2I("tphitmap","",1000,-40,40,1000,-40,40);
   xyhitmap_sionly = new TH2I("xyhitmap_sionly","", 100,-10,10,100,-10,10);
   xyhitmap_tgate_orA = new TH2I("xyhitmap_tgate_orA","", 100,-10,10,100,-10,10);
+  xyhitmap_multiCsI = new TH2I("xyhitmap_multiCsI","", 100,-10,10,100,-10,10);
   protonhitmap = new TH2I("protonhitmap","", 100,-10,10,100,-10,10);
   deuteronhitmap = new TH2I("deuteronhitmap","", 100,-10,10,100,-10,10);
   tritonhitmap = new TH2I("tritonhitmap","", 100,-10,10,100,-10,10);
@@ -524,7 +527,7 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, SortConfig& config) : hinpbo
 
   // Be8
   dir8Be->cd();
-  Erel_8Be_aa = new TH1I("Erel_8Be_aa","",800,0,17);
+  Erel_8Be_aa = new TH1I("Erel_8Be_aa","",1000,0,20);
   Ex_8Be_aa = new TH1I("Ex_8Be_aa","",1600,-1,7);
   ThetaCM_8Be_aa = new TH1I("ThetaCM_8Be_aa","",200,0,25);
   VCM_8Be_aa = new TH1I("VCM_8Be_aa","",100,0,14);

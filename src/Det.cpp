@@ -167,7 +167,7 @@ void Det::analyze() {
 	corr_6Be();
 	//corr_7Be();
 	corr_8Be();
-	//corr_9B();
+	corr_9B();
 	corr_8C();
 	corr_9N();
 

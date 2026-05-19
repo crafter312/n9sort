@@ -255,8 +255,12 @@ void Gobbi28::analyze() {
 		if (CsIN < 1) continue;
 		
 		// Handle simple case of one hit each in front, back, and CsI
+		size_t numMultCsI = 0;
 		if (FrontN == 1 && BackN == 1 && CsIN == 1) NsimpleECsI = Telescope[id]->simpleECsI();
-		else NmultiECsI = Telescope[id]->multiHitECsI();
+		else {
+			numMultCsI = Telescope[id]->multiHitECsI();
+			NmultiECsI += numMultCsI;	
+		}
 		
 		NCsI_matched += Telescope[id]->Nsolution;
 
@@ -278,6 +282,7 @@ void Gobbi28::analyze() {
 			size_t icsi = sol.iCsI;
 			double denergy_corr = sol.denergy * cos(sol.theta);
 			Histo.DEE_CsI[id][icsi]->Fill(sol.energyR, denergy_corr);
+			if (numMultCsI > 1) Histo.xyhitmap_multiCsI->Fill(sol.Xpos, sol.Ypos);
 			if (sol.time >= 6000. && sol.time <= 11000.) Histo.DEE_CsI_sitgate[id][icsi]->Fill(sol.energyR, denergy_corr);
 			if (sol.CsITime >= -100. && sol.CsITime <= -80.) Histo.DEE_CsI_csitgate[id][icsi]->Fill(sol.energyR, denergy_corr);
 			if (sol.ifront % 2 == 0) Histo.DEE_CsI_fronteven[id][icsi]->Fill(sol.energyR, denergy_corr);
@@ -398,8 +403,10 @@ void Gobbi28::analyze() {
 	Histo.CsI_mult_AQT->Fill(NCsI_all);
 	// " with good F and B strips
 	Histo.CsI_mult_M->Fill(NCsI_matched);
+	Histo.CsI_mult_M_v_R->Fill(NCsI_all, NCsI_matched);
 	// " with good PID
 	Histo.CsI_mult_PID->Fill(Pidmulti);
+	Histo.CsI_mult_PID_v_R->Fill(NCsI_all, NCsI_matched);
 	
 }
 
@@ -574,37 +581,52 @@ void Gobbi28::addCsIHits() {
 		Histo.sumCsIE_R_um->Fill(adcchan, ER);
 		Histo.sumCsIE_cal_um->Fill(adcchan, Ecal);
 		
-		for (size_t iq = 0; iq < nQhits; iq++) {
-			size_t qdcchan = input_qdc.GetChan(iq);
-			size_t Q = input_qdc.GetAQ(iq);
-			if (qdcchan == qdcchan) Histo.CsI_QDC_matched[adcchan]->Fill(Q);
+		bool hasTDC = false;
+		bool hasQDC = false;
+		optional<double> T;
+		size_t tdcchan, qdcchan, Q;
+		for (size_t it = tdcstart; it <= tdcstart + maxadcchan; it++) {
 			
+			// Skip if no output histogram exists for this tdc channel
+			if (Histo.CsI_Time_um.find(it) == Histo.CsI_Time_um.end()) continue;
+			
+			// Test to see if this tdc channel contains at least one hit
+			T = input_tdc.GetT(it, 0);
+			if (T == nullopt) continue;
+
+			tdcchan = it - 16;
+				
+#ifdef ENABLE_DEBUG
+			cout << "adcchan " << adcchan << " it - 16 " << tdcchan << endl;
+#endif
+			
+			if (tdcchan != adcchan) continue;
+			
+			hasTDC = true;
+			break;
+		}
+		
+		for (size_t iq = 0; iq < nQhits; iq++) {
+			qdcchan = input_qdc.GetChan(iq);
+			Q = input_qdc.GetAQ(iq);
+			if (qdcchan == qdcchan) Histo.CsI_QDC_matched[adcchan]->Fill(Q);
+		
 #ifdef ENABLE_DEBUG
 			cout << "Gobbi28::addCsIHits adcchan " << adcchan << " qdcchan " << qdcchan << endl;
 #endif
-
-			for (size_t it = tdcstart; it <= tdcstart + maxadcchan; it++) {
-				
-				// Skip if no output histogram exists for this tdc channel
-				if (Histo.CsI_Time_um.find(it) == Histo.CsI_Time_um.end()) continue;
-				
-				// Test to see if this tdc channel contains at least one hit
-				optional<double> T = input_tdc.GetT(it, 0);
-				if (T == nullopt) continue;
-
-				size_t tdcchan = it - 16;
-				
-#ifdef ENABLE_DEBUG
-				cout << "adcchan " << adcchan << " it - 16 " << tdcchan << endl;
-#endif
-				
-				if ((qdcchan != adcchan) || (tdcchan != adcchan)) continue;
-				
-				Telescope[tel]->CsI.Add(id, Ecal, 0., 0, ER, CsITimecal->getTime(tel, id, T.value()), Q, true);
-				Telescope[tel]->multCsI++;
-				Histo.CsIonly_PSD[adcchan]->Fill(ER, Q);
-			}
+			
+			if (qdcchan != adcchan) continue;
+			
+			hasQDC = true;
+			Histo.CsIonly_PSD[adcchan]->Fill(ER, Q);
+			break;
 		}
+		
+		double t = NAN;
+		if (hasTDC) t = CsITimecal->getTime(tel, id, T.value());
+		if (!hasQDC) Q = -1;
+		Telescope[tel]->CsI.Add(id, Ecal, 0., 0, ER, t, Q, true);
+		Telescope[tel]->multCsI++;
 	}
 }
 

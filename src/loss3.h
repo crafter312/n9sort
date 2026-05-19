@@ -27,7 +27,15 @@ private:
 	std::vector<float> slope; // size N - 1
 	
 	float Emax;
-	const float tol{0.000001}; // energy tolerance in MeV for adaptive step calculation
+	
+	// Energy tolerance in MeV for adaptive step calculation.
+	// To set this, in `loss3.h`, uncomment cout statements
+	// to print out the dthick values for each loop iteration
+	// and then abort at the end. This will allow you to
+	// inspect the dthick evolution for one energy loss or
+	// gain function call and determine how it is affected
+	// by the tolerance value below.
+	const float tol{0.001};
 	
 };
 #endif

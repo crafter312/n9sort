@@ -48,9 +48,12 @@ telescope::telescope(double thick0, SortConfig& config, bool csi) : alThick(conf
 	Allosses = new CLosses(6, config.GetLossDir(), "Al");
 	
 	// Seed TRandom with current system clock
-	auto now = chrono::system_clock::now();
-	UInt_t tstamp = chrono::duration_cast<chrono::seconds>(now.time_since_epoch()).count();
-	Ran = new TRandom(tstamp);
+	//auto now = chrono::system_clock::now();
+	//UInt_t tstamp = chrono::duration_cast<chrono::seconds>(now.time_since_epoch()).count();
+	//Ran = new TRandom(tstamp);
+	
+	// Use default seed to be reproducible
+	Ran = new TRandom();
 	
 	// Read in front/back CsI strip extents from file
 	if (hasCsI) {
@@ -320,10 +323,10 @@ int telescope::simpleECsI() {
 	}
 	
 	// CsI time gate (calibration shifts peaks to zero)
-	if (CsI.Order[0].time < -100 || CsI.Order[0].time > 100) {
-		Nsolution = 0;
-		return 0;
-	}
+	//if (CsI.Order[0].time < -100 || CsI.Order[0].time > 100) {
+	//	Nsolution = 0;
+	//	return 0;
+	//}
 
 	double timediff = CsI.Order[0].time - Front.Order[0].time;
 	Solution[0].energy = CsI.Order[0].energy;
@@ -433,6 +436,7 @@ int telescope::calcEloss() {
 			alEin = Allosses->getEin(sumEnergy, alThickTh, Solution[isol].iZ, Solution[isol].mass / m0);
 			thick = (.5 * TargetThickness) / cos(Solution[isol].theta);
 			ein = losses->getEin(alEin, thick, Solution[isol].iZ, Solution[isol].mass / m0);
+/*
 			if (Ran->Rndm() < 0.009) {
 				cout << "\n===================================================="
 				     << "\nZ " << Solution[isol].iZ << ", A " << Solution[isol].iA
@@ -444,6 +448,7 @@ int telescope::calcEloss() {
 				     << "\n====================================================" << endl;
 				abort();
 			}
+*/
 		}
 		
 		// If Eloss fails, for now invalidate solution and increment counter
@@ -680,12 +685,9 @@ void telescope::loopE(int depth) {
 // (j.s.phillips@wustl.edu) 22Si sort code.
 int telescope::multiHitECsI() {
 	int Ntries = min(Front.Nstore, Back.Nstore);
-	//Ntries = min(Ntries, CsI.Nstore);
-
-	if (Ntries > 8) Ntries = 8;
+	if (Ntries > 7) Ntries = 7;
 	Nsolution = 0;
 	if (Ntries <= 0) return 0;
-
 	
 	NSisolution = 0;
 	for (NestDim = Ntries; NestDim > 0; NestDim--) {
