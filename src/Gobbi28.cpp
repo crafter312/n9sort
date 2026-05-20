@@ -267,7 +267,11 @@ void Gobbi28::analyze() {
 		
 		// Handle simple case of one hit each in front, back, and CsI
 		size_t numMultCsI = 0;
-		if (FrontN == 1 && BackN == 1 && CsIN == 1) NsimpleECsI = Telescope[id]->simpleECsI();
+		if (FrontN == 1 && BackN == 1 && CsIN == 1) {
+			pair<double, double> p = Telescope[id]->simplePosition();
+			Histo.CsI_xyhitmap[id][Telescope[id]->CsI.Order[0].strip]->Fill(p.first, p.second);
+			NsimpleECsI = Telescope[id]->simpleECsI();
+		}
 		else {
 			numMultCsI = Telescope[id]->multiHitECsI();
 			NmultiECsI += numMultCsI;	
@@ -306,7 +310,6 @@ void Gobbi28::analyze() {
 			Histo.Evstheta_all->Fill(th, sol.energy);
 			Histo.Theta->Fill(th);
 			Histo.CsI_Time_matched[id][icsi]->Fill(sol.CsITime);
-			Histo.CsI_xyhitmap[id][icsi]->Fill(sol.Xpos, sol.Ypos);
 			Histo.sumCsITime_matched->Fill(icsi + (nTelCsIs * id), sol.CsITime);
 			
 			// At this point in time, the CsI crystals should be calibrated to proton equivalent energy
@@ -458,7 +461,7 @@ void Gobbi28::analyze() {
 		cout << ss.str();
 		abort();
 	}
-*/
+	*/
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

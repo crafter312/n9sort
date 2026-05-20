@@ -33,6 +33,7 @@
 #include <stdexcept>
 #include <string>
 
+#include "algorithms.h"
 #include "constants.h"
 
 using namespace std;
@@ -621,7 +622,9 @@ int telescope::multiHit() {
 
 // Recursive subroutine used for multihit subroutine for just fronts and backs (used for CsI matching).
 // This version is from Johnathan Phillips' (j.s.phillips@wustl.edu) 22Si code and has deltas removed,
-// along with a whole bunch of extra comments which I have left in.
+// along with a whole bunch of extra comments which I have left in. Originally used in below in the 
+// multiHitECsI function in combination with the below getCombinationMasks function to match Si and
+// CsI hits, but now replaced with Hungarian algorithm. Kept just because.
 void telescope::loopE(int depth) {
 
 	// Only work in this section if we are at the max level of recursion
@@ -676,6 +679,9 @@ void telescope::loopE(int depth) {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
+// Originally used in below in the multiHitECsI function in combination with the
+// above loopE function to match Si and CsI hits, but now replaced with Hungarian
+// algorithm. Kept just because.
 vector<vector<bool>> telescope::getCombinationMasks(size_t totalElements, size_t nestDim) {
 	vector<vector<bool>> masks;
 	if (nestDim > totalElements) return masks;
@@ -698,94 +704,64 @@ vector<vector<bool>> telescope::getCombinationMasks(size_t totalElements, size_t
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 // Modification of multiHitdEE() to match E-CsI events, stolen from Johnathan Phillips'
-// (j.s.phillips@wustl.edu) 22Si sort code.
+// (j.s.phillips@wustl.edu) 22Si sort code. Now modified to use the Hungarian algorithm
+// to solve what is apparently just a biased assignment problem. This is mostly the
+// same as the recursive function above + combinatorics, but offers a massive speed
+// boost for events with large Si strip multiplicities.
 int telescope::multiHitECsI() {
-	if (Front.Nstore > 7 || Back.Nstore > 7) return 0; // with the combinatorics, large strip counts causes this function to absolutely blow up
-	int Ntries = min(Front.Nstore, Back.Nstore);
-	//if (Ntries > 7) Ntries = 7; // If max front back multiplicity limits, no reason to have this
-	Nsolution = 0;
-	if (Ntries <= 0) return 0;
-	//cout << "Front.Nstore: " << Front.Nstore << ", Back.Nstore: " << Back.Nstore << endl;
-	NSisolution = 0;
-	for (NestDim = Ntries; NestDim > 0; NestDim--) {
-		dstripMin = 1000;
-		deMin = 10000.;
-		
-		// Perform combinatorics, loop over all combinations of NestDim strips for both fronts and backs
-		vector<vector<bool>> masksF = getCombinationMasks(Front.Nstore, NestDim);
-		vector<vector<bool>> masksB = getCombinationMasks(Back.Nstore, NestDim);
-		
-		// Loop over all possible Front.Nstore pick NestDim combinations of front strips
-		for (const vector<bool>& maskF : masksF) {
-			
-			// Transfer Order indices to intermediate array based on mask
-			size_t fTally = 0;
-			for (size_t i = 0; i < Front.Nstore; i++) { // length of mask is Front.Nstore
-				if (maskF[i]) {
-					indToOrdIndF[fTally] = i;
-					fTally++;
-				}
-			}
-			
-			// Loop over all possible Back.Nstore pick NestDim combinations of back strips
-			for (const vector<bool>& maskB : masksB) {
-				size_t bTally = 0;
-				for (size_t i = 0; i < Back.Nstore; i++) { // length of mask is Back.Nstore
-					if (maskB[i]) {
-						indToOrdIndB[bTally] = i;
-						bTally++;
-					}
-				}
-				
-				// Look for best front/back matching
-				// Solutions are stored in arrayF and arrayB
-				loopE(0);
-			}
-		}
 
-		// Check to see if best possible solution is reasonable
-		bool leave = false;
-		for (size_t i = 0; i < NestDim; i++) {
-			if (arrayF[i] >= Front.Nstore) {
-				stringstream ss;
-				ss << "[ERROR] telescope multiHitECsI arrayF[i] " << arrayF[i]
-				   << " greater than Front.Nstore-1=" << Front.Nstore-1
-				   << " and NestDim=" << NestDim << endl;
-				cerr << ss.str();
-				abort();
-			}
-			else if (arrayB[i] >= Back.Nstore) {
-				stringstream ss;
-				ss << "[ERROR] telescope multiHitECsI arrayB[i] " << arrayB[i]
-				   << " greater than Back.Nstore-1=" << Back.Nstore-1
-				   << " and NestDim=" << NestDim << endl;
-				cerr << ss.str();
-				abort();
-			}
-			if (fabs(Back.Order[arrayB[i]].energy - Front.Order[arrayF[i]].energy) > 10.) {
-				leave = true;
+	// Step 1: Calculate poison value
+	double S = Front.Nstore + Back.Nstore;     // padded cost array size
+	double MaxEDiff = 10;                      // maximum front-back Si strip energy difference
+	double POISON = (S * S * MaxEDiff) + 1000; // make sure poison value is sufficiently large
+
+	// Step 2: Prepare cost array
+	// This is done by creating an array of size S and padding the edge region around the main
+	// Front.Nstore x Back.Nstore region with the cutoff value for the abs(back - front) scoring
+	// calculation. Strip pairs in the main region that are either above the cutoff or not in
+	// front of an activated CsI crystal have their costs "poisoned" with some large number.
+	vector<vector<double>> C(S, vector<double>(S, MaxEDiff));
+	bool inCsI;
+	int ifront, iback;
+	double dc;
+	for (size_t w = 0; w < Front.Nstore; w++) {
+		for (size_t j = 0; j < Back.Nstore; j++) {
+			inCsI = false;
+			ifront = Front.Order[w].strip;
+			iback = Back.Order[j].strip;
+			for (size_t icsi = 0; icsi < NCsI; icsi++) {
+				if ((ifront < CsIFextents[icsi].first) || (ifront > CsIFextents[icsi].second) || (iback < CsIBextents[icsi].first) || (iback > CsIBextents[icsi].second)) continue;
+				inCsI = true;
 				break;
 			}
+			dc = abs(Back.Order[j].energy - Front.Order[w].energy);
+			if (dc >= MaxEDiff || !inCsI) C[j][w] = POISON;
+			else C[j][w] = dc;
 		}
-		if (leave) continue;
-		NSisolution = NestDim;
-		break;
 	}
-	
-	// Save some time and just exit if there are no Si Front/Back solutions
-	if (NSisolution == 0) return 0;
 
+	// Step 4: Run Hungarian algorithm on above cost matrix
+	// In the language of the Hungarian algorithm found in `algorithms.h`, the front strips
+	// are the "workers" and the back strips are the "jobs". This function returns a vector
+	// mapping worker indices to jobs. In other words, if you plug an index for Front.Order
+	// into jobs[], you get out an index for Back.Order. If jobs[w] = -1, then the worker
+	// of interest was never assigned a job. However, since I am feeding in a square matrix,
+	// this should never be the case. The two possibilities are that either jobs[w] points
+	// to a real back strip, or it points to a padded region with the cutoff value MaxEDiff.
+	vector<int> f2b = hungarian(C);
+	
 	// Now assign each of these solutions a CsI detector location
 	vector<vector<pair<size_t, size_t>>> sil(NCsI, vector<pair<size_t, size_t>>()); // contains a lits of (front, back) silicon solutions for each Csi
 
 	// Look at all the front/back solutions and see how many are on each CsI
-	for (size_t i = 0; i < NSisolution; i++) {
-		int ifront = Front.Order[arrayF[i]].strip;
-		int iback = Back.Order[arrayB[i]].strip;
+	for (size_t w = 0; w < Front.Nstore; w++) {
+		if (f2b[w] >= Back.Nstore || f2b[w] == -1) continue; // not a valid pair
+		int ifront = Front.Order[w].strip;
+		int iback = Back.Order[f2b[w]].strip;
 		for (size_t icsi = 0; icsi < NCsI; icsi++) {
 			if ((ifront < CsIFextents[icsi].first) || (ifront > CsIFextents[icsi].second) || (iback < CsIBextents[icsi].first) || (iback > CsIBextents[icsi].second)) continue;
 
-			pair<size_t, size_t> p(arrayF[i], arrayB[i]);
+			pair<size_t, size_t> p(w, f2b[w]);
 			sil[icsi].push_back(p);
 			break;
 		}
@@ -960,6 +936,39 @@ void telescope::position(int isol) {
 	Solution[isol].Xpos = Xpos;
 	Solution[isol].Ypos = Ypos;
 	double theta = Solution[isol].angle();
+}
+
+// Calculates the x-y position and angles in the array in cm
+pair<double, double> telescope::simplePosition() {
+	double Xpos,Ypos;
+
+	int ifront = Front.Order[0].strip;
+	int iback = Back.Order[0].strip;
+	if (id == 0) 
+	{
+		Xpos = Xcenter + (((double)iback+Ran->Rndm())/32.-0.5)*SiWidth;
+		Ypos = Ycenter + (((double)ifront+Ran->Rndm())/32.-0.5)*SiWidth;
+	}
+	else if (id == 1)
+	{
+		Xpos = Xcenter + (((double)ifront+Ran->Rndm())/32.-0.5)*SiWidth;
+		Ypos = Ycenter + (0.5-((double)iback+Ran->Rndm())/32.)*SiWidth;
+	}
+	else if (id == 2)
+	{
+		Xpos = Xcenter + (0.5-((double)iback+Ran->Rndm())/32.)*SiWidth;
+		Ypos = Ycenter + (0.5-((double)ifront+Ran->Rndm())/32.)*SiWidth;
+	}
+	else if (id == 3)
+	{
+		Xpos = Xcenter + (0.5-((double)ifront+Ran->Rndm())/32.)*SiWidth;
+		Ypos = Ycenter + (((double)iback+Ran->Rndm())/32.-0.5)*SiWidth;
+	}
+
+	//	Xpos += .3;
+
+	pair<double, double> p(Xpos, Ypos);
+	return p;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

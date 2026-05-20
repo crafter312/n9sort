@@ -3,9 +3,8 @@
  * algorithm.
  */
 
-import <cassert>;
-
-import std;
+#include <cassert>
+#include <iostream>
 
 template <typename T, typename U>
 using Pair = std::pair<T, U>;
@@ -44,7 +43,7 @@ constexpr bool ckmin(T& a, const T& b) {
  * to assign the first (j+1) jobs to distinct workers
  */
 template <typename T> 
-Vector<T> hungarian(const Vector<Vector<T>>& C) {
+Vector<int> hungarian(const Vector<Vector<T>>& C) {
     const int J = static_cast<int>(C.size());
     const int W = static_cast<int>(C[0].size());
     assert(J <= W);
@@ -94,7 +93,7 @@ Vector<T> hungarian(const Vector<Vector<T>>& C) {
             job[wCur] = job[w = prev[wCur]];
         answers.push_back(-yt[W]);
     }
-    return answers;
+    return job;
 }
 
 /**
@@ -114,5 +113,5 @@ Vector<T> hungarian(const Vector<Vector<T>>& C) {
 void sanityCheckHungarian() {
     Vector<Vector<int>> costs{{8, 5, 9}, {4, 2, 4}, {7, 3, 8}};
     assert((hungarian(costs) == Vector<int>{5, 9, 15}));
-    std::println(stderr, "Sanity check passed.");
+    std::cout << "Sanity check passed." << std::endl;
 }

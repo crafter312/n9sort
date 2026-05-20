@@ -82,6 +82,7 @@ public:
 
 	int simpleFrontBack();
 	void position(int);
+	std::pair<double, double> simplePosition(); // for calculating position without a solution
 	void positionC(int);
 	
 	// Getters
