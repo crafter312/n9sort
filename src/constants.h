@@ -176,7 +176,7 @@ const std::unordered_map<std::pair<size_t, size_t>, double, pair_hash> Mass_look
 // Source - https://stackoverflow.com/a/5094430
 // Posted by James McNellis
 // Retrieved 2026-04-29, License - CC BY-SA 2.5
-/*
+
 #include <boost/preprocessor.hpp>
 
 #define X_DEFINE_ENUM_WITH_STRING_CONVERSIONS_TOSTRING_CASE(r, data, elem)    \
@@ -199,7 +199,7 @@ const std::unordered_map<std::pair<size_t, size_t>, double, pair_hash> Mass_look
             default: return "[Unknown " BOOST_PP_STRINGIZE(name) "]";         \
         }                                                                     \
     }
-*/
+
 // Helper to force values into size_t pairs
 template<typename T1, typename T2>
 constexpr std::pair<size_t, size_t> sz_pair(T1 z, T2 a) {

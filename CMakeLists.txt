@@ -32,13 +32,13 @@ list(TRANSFORM SOURCES PREPEND ${SRC}/)
 
 # Define the Boost source
 # We use the official Boost GitHub mirror to grab just the preprocessor module
-#FetchContent_Declare(
-#    boost_preprocessor
-#    GIT_REPOSITORY https://github.com/boostorg/preprocessor.git
-#    GIT_TAG        master # Or a specific tag like boost-1.84.0
-#)
-#FetchContent_MakeAvailable(boost_preprocessor)
-#set(BOOST_PP_INCLUDE "${boost_preprocessor_SOURCE_DIR}/include")
+FetchContent_Declare(
+    boost_preprocessor
+    GIT_REPOSITORY https://github.com/boostorg/preprocessor.git
+    GIT_TAG        master # Or a specific tag like boost-1.84.0
+)
+FetchContent_MakeAvailable(boost_preprocessor)
+set(BOOST_PP_INCLUDE "${boost_preprocessor_SOURCE_DIR}/include")
 
 # Locate the ROOT package and define a number of useful targets and variables
 find_package(ROOT REQUIRED COMPONENTS RIO Tree Hist TreePlayer Core Imt Thread MultiProc)
