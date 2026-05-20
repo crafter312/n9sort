@@ -224,6 +224,7 @@ void Gobbi28::analyze() {
 	size_t Pidmulti = 0;
 	int NCsI_all = 0; //number of CsI hits across all telescopes
 	int NCsI_matched = 0; //number of CsI hits with good F and B
+	stringstream ss1;
 	for (size_t id = 0; id < 4; id++) {
 
 #ifdef ENABLE_DEBUG
@@ -267,13 +268,15 @@ void Gobbi28::analyze() {
 		
 		// Handle simple case of one hit each in front, back, and CsI
 		size_t numMultCsI = 0;
+		//ss1 << "=======================================================" << endl;
+		//ss1 << "Telescope: " << id << endl;
 		if (FrontN == 1 && BackN == 1 && CsIN == 1) {
 			pair<double, double> p = Telescope[id]->simplePosition();
 			Histo.CsI_xyhitmap[id][Telescope[id]->CsI.Order[0].strip]->Fill(p.first, p.second);
 			NsimpleECsI = Telescope[id]->simpleECsI();
 		}
 		else {
-			numMultCsI = Telescope[id]->multiHitECsI();
+			numMultCsI = Telescope[id]->multiHitECsI(ss1);
 			NmultiECsI += numMultCsI;	
 		}
 		
@@ -425,7 +428,8 @@ void Gobbi28::analyze() {
 /*
 	// Debug output for tracking events:
 	if (Ran->Rndm() > 0.1) return;
-	if (NCsI_all == 2 && (Pidmulti == 0 || Pidmulti == 1)) {
+	ss1 << "=======================================================" << endl;
+	if (NCsI_all == 3 && (Pidmulti == 1 || Pidmulti == 2)) {
 		stringstream ss;
 		ss << GREEN << "=======================================================" << endl;
 		bool foundNeqFB = false;
@@ -458,10 +462,10 @@ void Gobbi28::analyze() {
 			}
 		}
 		ss << "=======================================================" << RESET << endl;
-		cout << ss.str();
+		cout << "\n" << ss1.str() << ss.str();
 		abort();
 	}
-	*/
+*/
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

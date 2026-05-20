@@ -708,7 +708,7 @@ vector<vector<bool>> telescope::getCombinationMasks(size_t totalElements, size_t
 // to solve what is apparently just a biased assignment problem. This is mostly the
 // same as the recursive function above + combinatorics, but offers a massive speed
 // boost for events with large Si strip multiplicities.
-int telescope::multiHitECsI() {
+int telescope::multiHitECsI(stringstream& ss) {
 
 	// Step 1: Calculate poison value
 	double S = Front.Nstore + Back.Nstore;     // padded cost array size
@@ -722,14 +722,15 @@ int telescope::multiHitECsI() {
 	// front of an activated CsI crystal have their costs "poisoned" with some large number.
 	vector<vector<double>> C(S, vector<double>(S, MaxEDiff));
 	bool inCsI;
-	int ifront, iback;
+	int ifront, iback, icsi;
 	double dc;
 	for (size_t w = 0; w < Front.Nstore; w++) {
 		for (size_t j = 0; j < Back.Nstore; j++) {
 			inCsI = false;
 			ifront = Front.Order[w].strip;
 			iback = Back.Order[j].strip;
-			for (size_t icsi = 0; icsi < NCsI; icsi++) {
+			for (size_t i = 0; i < CsI.Nstore; i++) {
+				icsi = CsI.Order[i].strip;
 				if ((ifront < CsIFextents[icsi].first) || (ifront > CsIFextents[icsi].second) || (iback < CsIBextents[icsi].first) || (iback > CsIBextents[icsi].second)) continue;
 				inCsI = true;
 				break;
@@ -749,7 +750,19 @@ int telescope::multiHitECsI() {
 	// this should never be the case. The two possibilities are that either jobs[w] points
 	// to a real back strip, or it points to a padded region with the cutoff value MaxEDiff.
 	vector<int> f2b = hungarian(C);
-	
+/*
+	// Debug step: Print out cost array and final front-back pairings
+	ss << "Cost array (x = front, y = back):" << endl;
+	for (const auto& v : C) {
+		for (const auto& cost : v)
+			ss << cost << "\t";
+		ss << endl;
+	}
+	ss << "Hungarian algorithm results (front-back pairs + dummy elements):" << endl;
+	for (size_t i = 0; i < S; i++)
+		ss << f2b[i] << " ";
+	ss << endl;
+*/		
 	// Now assign each of these solutions a CsI detector location
 	vector<vector<pair<size_t, size_t>>> sil(NCsI, vector<pair<size_t, size_t>>()); // contains a lits of (front, back) silicon solutions for each Csi
 

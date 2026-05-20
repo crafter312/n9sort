@@ -51,7 +51,7 @@ public:
 	int multiHit();
 	int testingHitE();
 	int simpleECsI();
-	int multiHitECsI();
+	int multiHitECsI(stringstream&);
 	void SetTargetDistance(double);
 	size_t getPID();
 	int calcEloss();
