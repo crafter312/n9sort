@@ -86,7 +86,9 @@ public:
 	TDirectory* dir8Be;
 	TDirectory* dir9B;
 	TDirectory* dir8C;
+	TDirectory* dir10C;
 	TDirectory* dir9N;
+	TDirectory* dir12O;
 
 	// Summary plots
 	TH2I* sumFrontE_R;
@@ -402,12 +404,23 @@ public:
 	TH1I* Ex_8C_4pa;
 	TH1I* ThetaCM_8C_4pa;
 	TH1I* VCM_8C_4pa;
+	
+	// C10
+	TH1I* Erel_10C_2p2a;
+	TH1I* Ex_10C_2p2a;
+	TH1I* ThetaCM_10C_2p2a;
+	TH1I* VCM_10C_2p2a;
 
-	// C8
+	// N9
 	TH1I* Erel_9N_5pa;
 	TH1I* ThetaCM_9N_5pa;
 	TH1I* VCM_9N_5pa;
 
+	// O12
+	TH1I* Erel_12O_4p2a;
+	TH1I* Ex_12O_4p2a;
+	TH1I* ThetaCM_12O_4p2a;
+	TH1I* VCM_12O_4p2a;
 };
 
 #endif

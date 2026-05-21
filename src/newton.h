@@ -2,7 +2,6 @@
 #define newton_
 #include "kinematics.h"
 #include <cmath>
-#include <iostream>
 
 /**
  * This class perfoms Newtonian kinematics

@@ -58,7 +58,9 @@ public:
 	void corr_8Be();
 	void corr_9B();
 	void corr_8C();
+	void corr_10C();
 	void corr_9N();
+	void corr_12O();
 
 	// Each decay channel should have its own wood object instance in
 	// the form of a unique pointer so that initialization can be done
@@ -82,7 +84,9 @@ public:
 	std::unique_ptr<wood> Li7_ta_fake; // missing the p
 	std::unique_ptr<wood> B9_paa;
 	std::unique_ptr<wood> C8_4pa;
+	std::unique_ptr<wood> C10_2p2a;
 	std::unique_ptr<wood> N9_5pa;
+	std::unique_ptr<wood> O12_4p2a;
 
 	histo& Histo;
 	//OldGobbi gobbi;

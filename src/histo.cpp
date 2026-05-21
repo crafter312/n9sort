@@ -67,7 +67,9 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, SortConfig& config) : hinpbo
   dir8Be = dirInvMass->mkdir("8Be","8Be");
   dir9B  = dirInvMass->mkdir("9B","9B");
   dir8C  = dirInvMass->mkdir("8C","8C");
+  dir10C = dirInvMass->mkdir("10C","10C");
   dir9N  = dirInvMass->mkdir("9N","9N");
+  dir12O = dirInvMass->mkdir("12O","12O");
 
   dirSummary->cd();
 
@@ -577,12 +579,26 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, SortConfig& config) : hinpbo
 	Ex_8C_4pa = new TH1I("Ex_8C_4pa","",800,-2,15);
 	ThetaCM_8C_4pa = new TH1I("ThetaCM_8C_4pa","",200,0,10);
 	VCM_8C_4pa = new TH1I("VCM_8C_4pa","",100,0,14);
+	
+	// C10
+	dir10C->cd();
+	Erel_10C_2p2a = new TH1I("Erel_10C_2p2a","",800,0,17);
+	Ex_10C_2p2a = new TH1I("Ex_10C_2p2a","",800,-2,15);
+	ThetaCM_10C_2p2a = new TH1I("ThetaCM_10C_2p2a","",200,0,10);
+	VCM_10C_2p2a = new TH1I("VCM_10C_2p2a","",100,0,14);
 
 	// N9
 	dir9N->cd();
 	Erel_9N_5pa = new TH1I("Erel_9N_5pa","",800,0,17);
 	ThetaCM_9N_5pa = new TH1I("ThetaCM_9N_5pa","",200,0,10);
 	VCM_9N_5pa = new TH1I("VCM_9N_5pa","",100,0,14);
+	
+	// O12
+	dir12O->cd();
+	Erel_12O_4p2a = new TH1I("Erel_12O_4p2a","",800,0,17);
+	Ex_12O_4p2a = new TH1I("Ex_12O_4p2a","",800,-2,15);
+	ThetaCM_12O_4p2a = new TH1I("ThetaCM_12O_4p2a","",200,0,10);
+	VCM_12O_4p2a = new TH1I("VCM_12O_4p2a","",100,0,14);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

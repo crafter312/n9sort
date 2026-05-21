@@ -13,7 +13,7 @@ class correl2 {
 public:
 	correl2();
 
-#ifdef rel
+#if defined(rel) && rel == 1
 	CEinstein Kinematics;
 #else
 	CNewton Kinematics;

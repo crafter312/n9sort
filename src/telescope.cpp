@@ -339,6 +339,7 @@ int telescope::simpleECsI() {
 	Solution[0].denergy = Front.Order[0].energy;
 	Solution[0].denergylow = Front.Order[0].energylow;
 	Solution[0].denergyR = Front.Order[0].energyR;
+	Solution[0].denergylowR = Front.Order[0].energyRlow;
 	Solution[0].qdc = CsI.Order[0].qdc;
 
 	Solution[0].ifront = Front.Order[0].strip;
