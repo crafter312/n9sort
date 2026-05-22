@@ -59,7 +59,7 @@ int main() {
 	cout << GREEN << "Output file: " << ofname << RESET << endl;
 
 	// Enable implicit multi-threading
-	int nthreads = 6;
+	int nthreads = 8;
 	ROOT::EnableImplicitMT(nthreads);
 	
 	// Initialize some variables up here so that they are accessible inside the lambda function
@@ -67,8 +67,16 @@ int main() {
 	size_t numentries = 0;
 	
 	// Counters for certain particle combinations, using atomic to be thread-safe
-	// Start with 6Li -> npa
-	atomic<size_t> count_ap;
+	atomic<size_t> count_ap     = 0;
+	atomic<size_t> count_app    = 0;
+	atomic<size_t> count_appp   = 0;
+	atomic<size_t> count_apppp  = 0;
+	atomic<size_t> count_appppp = 0;
+	atomic<size_t> count_aapppp = 0;
+	atomic<size_t> count_aa3He  = 0;
+	
+	// Other counters
+	atomic<size_t> pidSkipped   = 0;
 	
 	/******** EVENT PROCESSING LAMBDA FUNCTION ********/
 	
@@ -91,6 +99,9 @@ int main() {
 		// Thread-local event loop
 		size_t localCounter = 0;
 		while (reader.Next()) {
+			
+			// Reset global tree output variables
+			Histo.reset();
 
 			// First, take input file from SpecTcl and refactor into usable hit list format
 			input.ReadAndRefactor();
@@ -116,7 +127,16 @@ int main() {
 
 		// Adding counters here that will tick up for different particle combinations
 		// All counters should be of type atomic<> for thread safety
-		count_ap += det.a_p;
+		count_ap     += det.a_p;
+		count_app    += det.a_pp;
+		count_appp   += det.a_ppp;
+		count_apppp  += det.a_pppp;
+		count_appppp += det.a_ppppp;
+		count_aapppp += det.aa_pppp;
+		count_aa3He  += det.aa_3He;
+		
+		// Other counters
+		pidSkipped   += det.pidSkipped;
 	};
 	
 	/******** RUN NUMBER LOOP ********/
@@ -202,8 +222,16 @@ int main() {
 	     << setfill('0') << setw(2) << seconds << endl;
 
 	cout << "************************************************************************" << endl;
-	cout << "EVENT COUNTERS                                                          " << endl;
-	cout << "1p + 1a: " << count_ap << endl;
+	cout << "PARTICLE COUNTERS                                                       " << endl;
+	cout << "1a + 1p: "  << count_ap     << endl;
+	cout << "1a + 2p: "  << count_app    << endl;
+	cout << "1a + 3p: "  << count_appp   << endl;
+	cout << "1a + 4p: "  << count_apppp  << endl;
+	cout << "1a + 5p: "  << count_appppp << endl;
+	cout << "2a + 4p: "  << count_aapppp << endl;
+	cout << "2a + 3He: " << count_aa3He  << endl;
+	cout << "OTHER COUNTERS                                                          " << endl;
+	cout << "# solutions invalidated due to Eloss errors: " << pidSkipped << endl;
 
 	return 0;
 }

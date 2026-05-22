@@ -21,6 +21,7 @@
  * `wood::loadFrag`.
  */
 
+#include <cmath>
 #include <deque>
 #include <map>
 #include <memory>
@@ -105,7 +106,7 @@ public:
 	/********************************/
 
 	wood(correl2& correl, std::string name, TDirectory* dir, bool gamma0);
-  ~wood();
+	~wood();
 
 	void initFrag(size_t i, parType::detType det);
 	void loadFrag(size_t i, parType::detType det, solution* frag);
@@ -121,7 +122,7 @@ private:
 
 	void loadFragCommon(size_t i, solution* frag);
 
-  TTree* t;
+	TTree* t;
 
 	std::vector<GenericOut*> frags;
 
@@ -139,25 +140,25 @@ private:
 	std::map<size_t, size_t> s800IndexMap;
 
 	// Other member variables
-  bool gamma;
-  
-  float Erel;
-  float Ex;
-  float Vcm;
-  float thetaCM;
-  float cos_thetaH;
+	bool gamma;
 
-  int Ngamma;
-  int Ngamma_Select;
-  float Egamma[15];
-  float Egamma_Select[15];
-  float Tgamma[15];
-  float Tgamma_Select[15];
-  int Chgamma[15];
-  int Chgamma_Select[15];
+	double Erel{NAN};
+	double Ex{NAN};
+	double Vcm{NAN};
+	double thetaCM{NAN};
+	double cos_thetaH{NAN};
 
-  int runnum;
-  int beamZ;
+	int Ngamma;
+	int Ngamma_Select;
+	float Egamma[15];
+	float Egamma_Select[15];
+	float Tgamma[15];
+	float Tgamma_Select[15];
+	int Chgamma[15];
+	int Chgamma_Select[15];
+
+	int runnum;
+	int beamZ;
 
 };
 

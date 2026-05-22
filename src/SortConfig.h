@@ -31,6 +31,9 @@ private:
 	std::string backEcalFile;
 	std::string deltaEcalFile;
 	std::string CsIEcalFile;
+	std::string CsIEdcalFile;
+	std::string CsIEtcalFile;
+	std::string CsIEalphacalFile;
 	std::string diamondEcalFile;
 	std::string frontTimecalFile;
 	std::string backTimecalFile;
@@ -69,6 +72,9 @@ public:
 	std::string GetBackEcalFile() const { return backEcalFile; }
 	std::string GetDeltaEcalFile() const { return deltaEcalFile; }
 	std::string GetCsIEcalFile() const { return CsIEcalFile; }
+	std::string GetCsIEdcalFile() const { return CsIEdcalFile; }
+	std::string GetCsIEtcalFile() const { return CsIEtcalFile; }
+	std::string GetCsIEalphacalFile() const { return CsIEalphacalFile; }
 	std::string GetDiamondEcalFile() const { return diamondEcalFile; }
 	std::string GetFrontTimecalFile() const { return frontTimecalFile; }
 	std::string GetBackTimecalFile() const { return backTimecalFile; }

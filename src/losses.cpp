@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <cmath>
 #include <stdexcept>
-#include <string>
 
 #include "constants.h"
 
@@ -17,11 +16,11 @@ using namespace std;
  * \param path is the directory relative to the program build location containing files with energy loss tables
  * \param mat is a string denoting which material the energy loss is required for, and therefore which files get loaded
  */
-CLosses::CLosses(int Zmax0, string path, string mat) {
+CLosses::CLosses(int Zmax0, string path, string mat) : material(mat) {
 	Zmax = Zmax0;
 	string suffix = "_" + mat + ".loss";
 	string filename;
-	loss = new CLoss2*[Zmax];
+	loss = new CLoss3*[Zmax];
 	for (size_t iZ = 1; iZ <= Zmax; iZ++) {
 		switch (iZ) {
 			case 1:
@@ -63,7 +62,7 @@ CLosses::CLosses(int Zmax0, string path, string mat) {
 		cout << filename << endl;
 #endif
 
-		loss[iZ - 1] = new CLoss2(filename);
+		loss[iZ - 1] = new CLoss3(filename);
 	}
 }
 
@@ -78,7 +77,6 @@ CLosses::~CLosses() {
 
 double CLosses::getEin(double energy, double thick, size_t Z, double A) {
 	if (Z > Zmax || Z == 0) throw invalid_argument(string(BOLDRED) + string("No loss info for Z = ") + to_string(Z) + string(RESET));
-	
 	return loss[Z - 1]->getEin(energy, thick, A);
 }
 

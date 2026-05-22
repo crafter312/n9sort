@@ -1,7 +1,7 @@
 #ifndef _solution
 #define _solution
 
-#ifdef rel
+#if defined(rel) && rel == 1
 #include "einstein.h"
 #else
 #include "newton.h"
@@ -10,7 +10,7 @@
 class solution {
 
 public:
-#ifdef rel
+#if defined(rel) && rel == 1
 	CEinstein Kinematics;
 #else
 	CNewton Kinematics;

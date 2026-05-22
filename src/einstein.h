@@ -2,7 +2,6 @@
 #define einstein_
 #include "kinematics.h"
 #include <cmath>
-#include <iostream>
 
 /**
  * This class performs relativistics kinematics

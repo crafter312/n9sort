@@ -19,6 +19,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "solution.h"
 #include "SortConfig.h"
 
 class histo {
@@ -33,8 +34,10 @@ public:
 	~histo();
 
 	// Global tree for storing pre-solution variables
-	//TTree* tpar;
+	TTree* tpar;
+	std::vector<solution> solutions;
 
+	void reset();
 	void Fill();
 
 	size_t hinpboards; // total number of HINP boards used
@@ -83,7 +86,9 @@ public:
 	TDirectory* dir8Be;
 	TDirectory* dir9B;
 	TDirectory* dir8C;
+	TDirectory* dir10C;
 	TDirectory* dir9N;
+	TDirectory* dir12O;
 
 	// Summary plots
 	TH2I* sumFrontE_R;
@@ -147,6 +152,7 @@ public:
 	TH2I* sumCsIE_R_um;
 	TH2I* sumCsIE_cal_um;
 	TH2I* sumCsITime_um;
+	TH2I* sumCsITime_matched;
 	
 	// Per-crystal plots 
 	std::unordered_map<size_t, TH1I*> CsI_Energy_R_um;
@@ -157,9 +163,24 @@ public:
 	std::unordered_map<size_t, TH2I*> CsIonly_PSD;
 	std::vector<TH1I*> CsI_Energy_R[4];
 	std::vector<TH1I*> CsI_Energy_R_center[4];
+	std::vector<TH1I*> CsI_Energy_pcal[4];
+	std::vector<TH1I*> CsI_Energy_pcal_center[4];
 	std::vector<TH2I*> DEE_CsI[4];
-	
-	
+	std::vector<TH2I*> DEE_CsI_sitgate[4];
+	std::vector<TH2I*> DEE_CsI_csitgate[4];
+	std::vector<TH2I*> DEE_CsI_BackE[4]; // back energies DEE
+	std::vector<TH2I*> DEE_CsI_fronteven[4];
+	std::vector<TH2I*> DEE_CsI_frontodd[4];
+	std::vector<TH1I*> CsI_Time_matched[4];
+	std::vector<TH2I*> CsI_xyhitmap[4];
+
+	//CsI multiplicity plots. A few variants
+	TH1I* CsI_mult_R; //Raw CsI multiplicity "crystals in data stream". //Just number of ADC hits
+	TH1I* CsI_mult_AQT; //Same as raw but matched to QDC and TDC
+	TH1I* CsI_mult_M; //Now requiring FB matching
+	TH2I* CsI_mult_M_v_R;
+	TH1I* CsI_mult_PID; //Requires PID
+	TH2I* CsI_mult_PID_v_R;
 
 	// DeltaE-E plots
 	TH2I* DEE_simple[4];
@@ -172,6 +193,7 @@ public:
 	TH2I* tphitmap;
 	TH2I* xyhitmap_sionly;
 	TH2I* xyhitmap_tgate_orA;
+	TH2I* xyhitmap_multiCsI;
 	TH2I* protonhitmap;
 	TH2I* deuteronhitmap;
 	TH2I* tritonhitmap;
@@ -187,6 +209,8 @@ public:
 	TH1I* Theta;
 
 	TH2I* ProtonEnergy;
+	TH2I* He3Energy;
+	TH2I* AlphaEnergy;
 
 	TH1I* dTime_proton;
 	TH1I* dTime_deuteron;
@@ -380,12 +404,23 @@ public:
 	TH1I* Ex_8C_4pa;
 	TH1I* ThetaCM_8C_4pa;
 	TH1I* VCM_8C_4pa;
+	
+	// C10
+	TH1I* Erel_10C_2p2a;
+	TH1I* Ex_10C_2p2a;
+	TH1I* ThetaCM_10C_2p2a;
+	TH1I* VCM_10C_2p2a;
 
-	// C8
+	// N9
 	TH1I* Erel_9N_5pa;
 	TH1I* ThetaCM_9N_5pa;
 	TH1I* VCM_9N_5pa;
 
+	// O12
+	TH1I* Erel_12O_4p2a;
+	TH1I* Ex_12O_4p2a;
+	TH1I* ThetaCM_12O_4p2a;
+	TH1I* VCM_12O_4p2a;
 };
 
 #endif

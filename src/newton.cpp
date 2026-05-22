@@ -1,5 +1,7 @@
 #include "newton.h"
 
+#include <iostream>
+
 using namespace std;
 
 CNewton::CNewton():c(.9784),nMass(1.),scale(0.),CKinematics(){} 

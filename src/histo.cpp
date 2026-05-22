@@ -11,7 +11,9 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, SortConfig& config) : hinpbo
   file_read->cd();
 
   // Create global tree for storing pre-solution variables
-  //tpar = new TTree("tpar", "tpar");
+  const char* otreename = config.GetOtreeName().c_str();
+  tpar = new TTree(otreename, otreename);
+  tpar->Branch("solutions", &solutions);
 
   //// Create subdirectories to store arrays of spectra
 
@@ -65,7 +67,9 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, SortConfig& config) : hinpbo
   dir8Be = dirInvMass->mkdir("8Be","8Be");
   dir9B  = dirInvMass->mkdir("9B","9B");
   dir8C  = dirInvMass->mkdir("8C","8C");
+  dir10C = dirInvMass->mkdir("10C","10C");
   dir9N  = dirInvMass->mkdir("9N","9N");
+  dir12O = dirInvMass->mkdir("12O","12O");
 
   dirSummary->cd();
 
@@ -122,6 +126,14 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, SortConfig& config) : hinpbo
 
   sumFrontTimeMult1_cal = new TH2I("sumFrontTimeMult1_cal","",4*hinpchans,0,4*hinpchans,512,0,16383);
   sumFrontTimeMult1_cal->SetOption("colz");
+  
+	//CsI multiplicity plots. A few variants
+	CsI_mult_R = new TH1I("CsI_mult_R","CsI_mult_R",10,-0.5,9.5); //Raw CsI multiplicity "crystals in data stream"
+	CsI_mult_AQT = new TH1I("CsI_mult_AQT","CsI_mult_AQT",10,-0.5,9.5);; //Same as raw but matched to QDC and TDC
+	CsI_mult_M = new TH1I("CsI_mult_M","CsI_mult_M",10,-0.5,9.5);; //Now requiring FB matching
+	CsI_mult_M_v_R = new TH2I("CsI_mult_M_v_R","CsI_mult_M_v_R",10,-0.5,9.5,10,-0.5,9.5);
+	CsI_mult_PID = new TH1I("CsI_mult_PID","CsI_mult_PID",10,-0.5,9.5);; //Requires PID
+	CsI_mult_PID_v_R = new TH2I("CsI_mult_PID_v_R","CsI_mult_PID_v_R",10,-0.5,9.5,10,-0.5,9.5);
 
   ostringstream name;
   for (int i=0;i<4;i++) {
@@ -290,6 +302,8 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, SortConfig& config) : hinpbo
 	TDC_sum_TN = new TH2I("TDC_sum_TN","",12,-0.5,11.5,1000,-500,500);
 	TDC_sum_TN_shift = new TH2I("TDC_sum_TN_shift","",12,-0.5,11.5,1000,-500,500);
   // Create all spectra based on quadrants
+  
+  
   dirDEEplots->cd();
   for (int quad = 0; quad < 4; quad++) {
     name.str("");
@@ -308,7 +322,10 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, SortConfig& config) : hinpbo
     name << "timediff" << quad;   
     timediff[quad] = new TH1I(name.str().c_str(),"",1000,-2000,2000);
   }
-
+  
+  //Create DEE CsI plots
+  //Sorry Henry this will be hard coded for now
+  //Apology not accepted Johnathan (JK, I fixed the problems. CsI histograms are once again vectorized and initialized inside `Gobbi28.cpp`)
 
   dirhitmaps->cd();
   xyhitmap_allE = new TH2I("xyhitmap_allE","", 100,-10,10,100,-10,10);
@@ -316,6 +333,7 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, SortConfig& config) : hinpbo
   tphitmap = new TH2I("tphitmap","",1000,-40,40,1000,-40,40);
   xyhitmap_sionly = new TH2I("xyhitmap_sionly","", 100,-10,10,100,-10,10);
   xyhitmap_tgate_orA = new TH2I("xyhitmap_tgate_orA","", 100,-10,10,100,-10,10);
+  xyhitmap_multiCsI = new TH2I("xyhitmap_multiCsI","", 100,-10,10,100,-10,10);
   protonhitmap = new TH2I("protonhitmap","", 100,-10,10,100,-10,10);
   deuteronhitmap = new TH2I("deuteronhitmap","", 100,-10,10,100,-10,10);
   tritonhitmap = new TH2I("tritonhitmap","", 100,-10,10,100,-10,10);
@@ -334,7 +352,9 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, SortConfig& config) : hinpbo
   Evstheta_all = new TH2I("Evstheta_all","",50,0,25,Nbin,0,Ecal_Emax);
   Theta = new TH1I("Theta","",50,0,25);
 
-  ProtonEnergy = new TH2I("ProtonEnergy","",50,0,25,50,0,25);
+  ProtonEnergy = new TH2I("ProtonEnergy","",80,0,80,50,0,25);
+  He3Energy = new TH2I("He3Energy","",200,0,200,50,0,25);
+  AlphaEnergy = new TH2I("AlphaEnergy","",250,0,250,50,0,25);
 
   dTime_proton = new TH1I("dTime_proton","",1500,-4000,2000);
   dTime_deuteron = new TH1I("dTime_deuteron","",1500,-4000,2000);
@@ -509,7 +529,7 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, SortConfig& config) : hinpbo
 
   // Be8
   dir8Be->cd();
-  Erel_8Be_aa = new TH1I("Erel_8Be_aa","",800,0,17);
+  Erel_8Be_aa = new TH1I("Erel_8Be_aa","",1000,0,20);
   Ex_8Be_aa = new TH1I("Ex_8Be_aa","",1600,-1,7);
   ThetaCM_8Be_aa = new TH1I("ThetaCM_8Be_aa","",200,0,25);
   VCM_8Be_aa = new TH1I("VCM_8Be_aa","",100,0,14);
@@ -559,12 +579,26 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, SortConfig& config) : hinpbo
 	Ex_8C_4pa = new TH1I("Ex_8C_4pa","",800,-2,15);
 	ThetaCM_8C_4pa = new TH1I("ThetaCM_8C_4pa","",200,0,10);
 	VCM_8C_4pa = new TH1I("VCM_8C_4pa","",100,0,14);
+	
+	// C10
+	dir10C->cd();
+	Erel_10C_2p2a = new TH1I("Erel_10C_2p2a","",800,0,17);
+	Ex_10C_2p2a = new TH1I("Ex_10C_2p2a","",800,-2,15);
+	ThetaCM_10C_2p2a = new TH1I("ThetaCM_10C_2p2a","",200,0,10);
+	VCM_10C_2p2a = new TH1I("VCM_10C_2p2a","",100,0,14);
 
 	// N9
 	dir9N->cd();
 	Erel_9N_5pa = new TH1I("Erel_9N_5pa","",800,0,17);
 	ThetaCM_9N_5pa = new TH1I("ThetaCM_9N_5pa","",200,0,10);
 	VCM_9N_5pa = new TH1I("VCM_9N_5pa","",100,0,14);
+	
+	// O12
+	dir12O->cd();
+	Erel_12O_4p2a = new TH1I("Erel_12O_4p2a","",800,0,17);
+	Ex_12O_4p2a = new TH1I("Ex_12O_4p2a","",800,-2,15);
+	ThetaCM_12O_4p2a = new TH1I("ThetaCM_12O_4p2a","",200,0,10);
+	VCM_12O_4p2a = new TH1I("VCM_12O_4p2a","",100,0,14);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -575,9 +609,15 @@ histo::~histo() {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
+void histo::reset() {
+	solutions.clear();
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
 // Eventually, this function is where global tree should be filled with pre-solution Gobbi information
 void histo::Fill() {
-	
+	tpar->Fill();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

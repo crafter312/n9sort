@@ -1,5 +1,7 @@
 #include "einstein.h"
 
+#include <iostream>
+
 using namespace std;
 
 CEinstein::CEinstein():c(30.),nMass(931.478),scale(1.),CKinematics() {} 

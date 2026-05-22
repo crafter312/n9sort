@@ -26,15 +26,17 @@
 //     |____| 2  |
 //          |____|
 
+#include <sstream>
 #include <utility>
 #include <vector>
 
 #include <TRandom.h>
 
+#include "calibrate.h"
 #include "elist.h"
-#include "solution.h"
-#include "pid.h"
 #include "losses.h"
+#include "pid.h"
+#include "solution.h"
 #include "SortConfig.h"
 
 class telescope {
@@ -49,7 +51,7 @@ public:
 	int multiHit();
 	int testingHitE();
 	int simpleECsI();
-	int multiHitECsI();
+	int multiHitECsI(stringstream&);
 	void SetTargetDistance(double);
 	size_t getPID();
 	int calcEloss();
@@ -80,12 +82,19 @@ public:
 
 	int simpleFrontBack();
 	void position(int);
+	std::pair<double, double> simplePosition(); // for calculating position without a solution
 	void positionC(int);
 	
 	// Getters
 	size_t GetNCsI() const { return NCsI; }
 
  private:
+ 	double light2energy(size_t Z, size_t A, size_t tel, size_t id, double energy);
+ 	
+ 	calibrate* calCsI_Alpha;
+	calibrate* calCsI_d;
+	calibrate* calCsI_t;
+ 
 	int FrontLow[4];
 	int FrontHigh[4];
 	int BackLow[4];
@@ -110,15 +119,24 @@ public:
 	size_t NestDim;
 	void loopDEE(int);
 	void loopE(int);
+	std::vector<std::vector<bool>> getCombinationMasks(size_t totalElements, size_t nestDim);
+	
 	int NestArray[50];
-	int arrayD[50];
+	int indToOrdIndF[50];
+	int indToOrdIndB[50];
+	int arrayF[50];
 	int arrayB[50];
+	int arrayD[50];
+	
 	double deMin;
 	int dstripMin;
 	size_t NSisolution;
 	
 	double alThick; // thickness of aluminum absorbers, in mg/cm^2
 	bool hasCsI;
+	
+	// Debug counters
+	size_t pidSkipped{0};
 
 };
 #endif

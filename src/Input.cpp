@@ -159,7 +159,7 @@ void Input::ReadAndRefactor() {
 		tdc_t = *(tdc.tRVs[i]);
 		
 #ifdef ENABLE_DEBUG
-		cout << i / (size_t)TDC_HIT_COUNT << " " << tdc_t << endl;
+		cout << "here " << i / (size_t)TDC_HIT_COUNT << " " << tdc_t << endl;
 #endif
 
 		if (i == 0 && tdc_t != 0) {

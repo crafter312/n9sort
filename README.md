@@ -18,7 +18,8 @@ To build:
 
 1. In root project directory, run `mkdir build`
 2. Then `cd build`
-3. Then `cmake ..`
+3. Then `cmake cmake -DROOT_DIR=$ROOTSYS/cmake -DCMAKE_C_COMPILER=/bin/gcc -DCMAKE_CXX_COMPILER=/bin/g++ ..`
+	- Make sure to replace the paths to gcc and g++ with the desired compiler, or ommit entirely if your system does not have multiple potentially conflicting compilers
 4. Finally, `make -j`
 5. Run the code with `./sort` inside the build directory
 

@@ -64,6 +64,12 @@ SortConfig::SortConfig(string configFilePath) {
 			deltaEcalFile = line.substr(line.find('=') + 2);
 		else if (line.find("CsIEcalFile") != string::npos)
 			CsIEcalFile = line.substr(line.find('=') + 2);
+		else if (line.find("CsIEdcalFile") != string::npos)
+			CsIEdcalFile = line.substr(line.find('=') + 2);
+		else if (line.find("CsIEtcalFile") != string::npos)
+			CsIEtcalFile = line.substr(line.find('=') + 2);
+		else if (line.find("CsIEalphacalFile") != string::npos)
+			CsIEalphacalFile = line.substr(line.find('=') + 2);
 		else if (line.find("diamondEcalFile") != string::npos)
 			diamondEcalFile = line.substr(line.find('=') + 2);
 		else if (line.find("frontTimecalFile") != string::npos)

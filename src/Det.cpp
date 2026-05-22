@@ -126,6 +126,12 @@ Det::Det(Input& in, histo& hist, SortConfig& config, size_t run) : input(in.GetG
 	Correl.alpha.mask[0]=1;
 	C8_4pa = make_unique<wood>(Correl, "t_C8_4pa", Histo.dir8C, false);
 	Correl.zeroMask();
+	Correl.proton.mask[0] = 1;
+	Correl.proton.mask[1] = 1;
+	Correl.alpha.mask[0]  = 1;
+	Correl.alpha.mask[1]  = 1;
+	C10_2p2a = make_unique<wood>(Correl, "t_C10_2p2a", Histo.dir10C, false);
+	Correl.zeroMask();
 	Correl.proton.mask[0]=1;
 	Correl.proton.mask[1]=1;
 	Correl.proton.mask[2]=1;
@@ -133,6 +139,14 @@ Det::Det(Input& in, histo& hist, SortConfig& config, size_t run) : input(in.GetG
 	Correl.proton.mask[4]=1;
 	Correl.alpha.mask[0]=1;
 	N9_5pa = make_unique<wood>(Correl, "t_N9_5pa", Histo.dir9N, false);
+	Correl.zeroMask();
+	Correl.proton.mask[0] = 1;
+	Correl.proton.mask[1] = 1;
+	Correl.proton.mask[2] = 1;
+	Correl.proton.mask[3] = 1;
+	Correl.alpha.mask[0]  = 1;
+	Correl.alpha.mask[1]  = 1;
+	O12_4p2a = make_unique<wood>(Correl, "t_O12_4p2a", Histo.dir12O, false);
 	
 #ifdef ENABLE_DEBUG
 	cout << "Det::Det 4" << endl;
@@ -158,24 +172,31 @@ void Det::analyze() {
 	if (goodMult < 2) return;
 
 	// List all functions to look for correlations here
-	corr_4He();
-	corr_5He();
-	corr_6He();
+	//corr_4He();
+	//corr_5He();
+	//corr_6He();
 	corr_5Li();
-	corr_6Li();
-	corr_7Li();
+	//corr_6Li();
+	//corr_7Li();
 	corr_6Be();
-	corr_7Be();
+	//corr_7Be();
 	corr_8Be();
 	corr_9B();
 	corr_8C();
+	corr_10C();
+	corr_9N();
+	corr_12O();
 
 	if (goodMult == 2) {
 		size_t pos = 0;
 		size_t particlenum[2] = { 0, 0 };
 		for (size_t i = 0; i < Correl.Nparticles; i++) {
+			if (i == 4) continue; // hard coded to skip H3_fake particles created in corr_6Li (TODO this should be done for all fake particles)
 			for (size_t j = 0; j < Correl.particle[i]->mult; j++) {
-				if (pos > 1) cout << "WARNING: more than two solutions for goodMult == 2, using first two" << endl;
+				if (pos > 1) {
+					cout << "WARNING: more than two solutions for goodMult == 2, using first two" << endl;
+					break;
+				}
 				particlenum[pos] = Correl.particle[i]->Sol[j]->ipid;
 				pos++;
 			}
@@ -183,14 +204,41 @@ void Det::analyze() {
 
 		Histo.CorrelationTable->Fill(particlenum[0], particlenum[1]);
 
-		// Count certain particle combinations
-		if (Correl.proton.mult == 1 && Correl.alpha.mult == 1) a_p++;
-
 #ifdef ENABLE_DEBUG
 		cout << "After\t1 = " << particlenum[0] << ", 2 = " << particlenum[1] << endl;
 #endif
 
 	}
+	
+	// Count certain particle combinations
+	if ((Correl.alpha.mult == 1) && (goodMult - Correl.proton.mult - 1 == 0)) {
+		switch (Correl.proton.mult) {
+			case 1:
+				a_p++;
+				break;
+			case 2:
+				a_pp++;
+				break;
+			case 3:
+				a_ppp++;
+				break;
+			case 4:
+				a_pppp++;
+				break;
+			case 5:
+				a_ppppp++;
+				break;
+		}
+	}
+	else if (Correl.alpha.mult == 2) {
+		if ((goodMult == 6) && (Correl.proton.mult == 4))
+			aa_pppp++;
+		else if ((goodMult == 3) && (Correl.He3.mult == 1))
+			aa_3He++;
+	}
+	
+	// Other counters
+	pidSkipped += gobbi.GetPidSkipped();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -447,7 +495,7 @@ void Det::corr_6Li() {
 		/******** BAD 7LI->a+t ********/
 		// Reconstructing a+d as a+t, maybe to see if a triton was missidentified
 		// as a deuteron or something?
-
+/*
 		solution* fakesol = gobbi.getNextEmptySolution(Correl.H2.Sol[0]);                  // this gets a solution we know is not being used
 		if (fakesol == nullptr) {                                                          // this should never trigger, but handle nullptr case to be safe
 			cout << "WARNING: next empty solution not found! Skipping bad 7Li..." << endl;
@@ -488,6 +536,7 @@ void Det::corr_6Li() {
     Histo.Ex_7Li_ta_bad->Fill(Ex_7Li);
 
 		Li7_ta_bad->Fill(Erel_7Li, Ex_7Li, Vcm_7Li, thetaCM_7Li, cos_thetaH_7Li, runnum, 8);
+*/
   }
 }
 
@@ -662,7 +711,7 @@ void Det::corr_8Be() {
     float thetaCM = Correl.thetaCM*rad_to_deg;
     float cos_thetaH = Correl.cos_thetaH;
 
-		Be7_pLi6->Fill(Erel_8Be, Ex, Vcm, thetaCM, cos_thetaH, runnum, 8);
+		Be8_aa->Fill(Erel_8Be, Ex, Vcm, thetaCM, cos_thetaH, runnum, 8);
 
     Histo.Erel_8Be_aa->Fill(Erel_8Be);
     Histo.Ex_8Be_aa->Fill(Ex);
@@ -811,6 +860,33 @@ void Det::corr_8C() {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
+void Det::corr_10C() {
+	// p+p+a+a
+	if (Correl.proton.mult == 2 && Correl.alpha.mult == 2) {
+		float const Q10C = mass_10C - (2*mass_p) - (2*mass_alpha);
+		Correl.proton.mask[0] = 1;
+		Correl.proton.mask[1] = 1;
+		Correl.alpha.mask[0]  = 1;
+		Correl.alpha.mask[1]  = 1;
+		Correl.makeArray(1, *C10_2p2a);
+		
+		float Erel_10C = Correl.findErel();
+		float Ex = Erel_10C - Q10C;
+		float Vcm = Correl.velocityCM;
+		float thetaCM = Correl.thetaCM*rad_to_deg;
+		float cos_thetaH = Correl.cos_thetaH;
+		
+		C10_2p2a->Fill(Erel_10C, Ex, Vcm, thetaCM, cos_thetaH, runnum, 8);
+		
+		Histo.Erel_10C_2p2a->Fill(Erel_10C);
+		Histo.Ex_10C_2p2a->Fill(Ex);
+		Histo.ThetaCM_10C_2p2a->Fill(thetaCM);
+		Histo.VCM_10C_2p2a->Fill(Vcm);
+	}
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
 void Det::corr_9N() {
 	// p+p+p+p+p+a
 	if (Correl.proton.mult == 5 && Correl.alpha.mult == 1) {
@@ -829,11 +905,41 @@ void Det::corr_9N() {
     float cos_thetaH = Correl.cos_thetaH;
 
 		// No mass excess for 9N, so no Q value and no excitation energy
-		C8_4pa->Fill(Erel_9N, -1, Vcm, thetaCM, cos_thetaH, runnum, 8);
+		N9_5pa->Fill(Erel_9N, -1, Vcm, thetaCM, cos_thetaH, runnum, 8);
 
     Histo.Erel_9N_5pa->Fill(Erel_9N);
     Histo.ThetaCM_9N_5pa->Fill(thetaCM);
     Histo.VCM_9N_5pa->Fill(Vcm);
+	}
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void Det::corr_12O() {
+	// p+p+p+p+a+a
+	if (Correl.proton.mult == 4 && Correl.alpha.mult == 2) {
+		float const Q12O = mass_12O - (4*mass_p) - (2*mass_alpha);
+		Correl.zeroMask();
+		Correl.proton.mask[0] = 1;
+		Correl.proton.mask[1] = 1;
+		Correl.proton.mask[2] = 1;
+		Correl.proton.mask[3] = 1;
+		Correl.alpha.mask[0]  = 1;
+		Correl.alpha.mask[1]  = 1;
+		Correl.makeArray(1, *O12_4p2a);
+		
+		float Erel_12O = Correl.findErel();
+		float Ex = Erel_12O - Q12O;
+		float Vcm = Correl.velocityCM;
+		float thetaCM = Correl.thetaCM*rad_to_deg;
+		float cos_thetaH = Correl.cos_thetaH;
+		
+		O12_4p2a->Fill(Erel_12O, Ex, Vcm, thetaCM, cos_thetaH, runnum, 8);
+		
+		Histo.Erel_12O_4p2a->Fill(Erel_12O);
+		Histo.Ex_12O_4p2a->Fill(Ex);
+		Histo.ThetaCM_12O_4p2a->Fill(thetaCM);
+		Histo.VCM_12O_4p2a->Fill(Vcm);
 	}
 }
 
