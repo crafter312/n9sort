@@ -88,5 +88,9 @@ set_target_properties(sort PROPERTIES
 	INSTALL_RPATH "${CMAKE_BINARY_DIR}"
 )
 
+# Custom target to create symlink for .so library (so ROOT can find it automatically;
+# not needed for sort executable to work, but needed for macros and other codes)
+ADD_CUSTOM_TARGET(link_target ALL COMMAND ${CMAKE_COMMAND} -E create_symlink $<TARGET_FILE_NAME:n9sort> ${CMAKE_CURRENT_BINARY_DIR}/libProjectConfig.so)
+
 
 

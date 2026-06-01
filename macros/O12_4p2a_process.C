@@ -13,7 +13,7 @@ using namespace std;
 void O12_4p2a_process() {
 
 	// Read in file
-	TFile *file = TFile::Open("/mnt/analysis/e25001/rootout/sort_run16-54.root");
+	TFile *file = TFile::Open("/data4/N9/mnt/analysis/e25001/rootout/sort_run16-54.root");
 	if (!file || file->IsZombie()) return;
 
 	// Get TTree from file
@@ -34,7 +34,7 @@ void O12_4p2a_process() {
 	vector<size_t> multiMults(4, 0);  // per-telescope total count of events with multiple particles in this telescope
 	
 	// ROOT output
-	TFile* ofile = new TFile("/mnt/analysis/e25001/rootout/O12_4p2a_processed.root", "RECREATE");
+	TFile* ofile = new TFile("/data4/N9/mnt/analysis/e25001/rootout/O12_4p2a_processed.root", "RECREATE");
 	ofile->cd();
 	TH2I* p2_csicombos = new TH2I("p2_csicombos", "p2_csicombos", 7, 0, 7, 7, 0, 7);
 	TH2I* a2_csicombos = new TH2I("a2_csicombos", "a2_csicombos", 7, 0, 7, 7, 0, 7);
