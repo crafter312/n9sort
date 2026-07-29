@@ -23,6 +23,7 @@ public:
 	void reset();
 	void initWood(wood* w);
 	void makeArray(bool flagMask, wood& w);
+	void makeArray(bool flagMask); // legacy function form without wood class for output
 	void load(solution* fragment);
 	void getJacobi();
 	float findErel();

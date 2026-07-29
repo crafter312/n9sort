@@ -29,7 +29,7 @@ Gobbi28::Gobbi28(Input& in, histo& hist, SortConfig& config) : Targetdist(config
 	Ran = new TRandom(tstamp);
 
 	for (size_t id = 0; id < 4; id++) {
-		Telescope[id] = new telescope(TargetThickness, config, true);
+		Telescope[id] = new telescope(TargetThickness, config, Histo, true);
 		Telescope[id]->init(id, config); // tells Telescope what position it is in
 		Telescope[id]->SetTargetDistance(Targetdist);
 	}
@@ -232,8 +232,8 @@ void Gobbi28::analyze() {
 #endif
 
 		// This is the spot where we run Telescope->Neighbours() for addback
-		Telescope[id]->Front.Neighbours(id);
-		Telescope[id]->Back.Neighbours(id);
+		//Telescope[id]->Front.Neighbours(id);
+		//Telescope[id]->Back.Neighbours(id);
 		
 		int FrontN = Telescope[id]->Front.Nstore;
 		int BackN  = Telescope[id]->Back.Nstore;
@@ -407,7 +407,7 @@ void Gobbi28::analyze() {
 		// Post Eloss calculation plots and output
 		for (size_t isol = 0; isol < Telescope[id]->Nsolution; isol++) {
 			solution& sol = Telescope[id]->Solution[isol];
-			Histo.solutions.push_back(Telescope[id]->Solution[isol]);
+			//Histo.solutions.push_back(Telescope[id]->Solution[isol]);
 			if (sol.iZ == 1 && sol.iA == 1)
 				Histo.ProtonEnergy->Fill(sol.Ekin, sol.theta * rad_to_deg);
 			else if (sol.iZ == 2 && sol.iA == 3)

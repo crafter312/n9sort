@@ -34,6 +34,7 @@
 
 #include "calibrate.h"
 #include "elist.h"
+#include "histo.h"
 #include "losses.h"
 #include "pid.h"
 #include "solution.h"
@@ -42,7 +43,7 @@
 class telescope {
 
 public:
-	telescope(double, SortConfig&, bool csi=false);
+	telescope(double, SortConfig&, histo&, bool csi=false);
 	~telescope();
 	void reset();
 	void init(int, SortConfig&);
@@ -56,6 +57,8 @@ public:
 	size_t getPID();
 	int calcEloss();
 	bool isCenter(size_t ifront, size_t iback);
+
+	histo& Histo;
 
 	CLosses* losses;
 	CLosses* Allosses;

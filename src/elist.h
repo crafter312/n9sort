@@ -1,6 +1,8 @@
 #ifndef elist_
 #define elist_
 
+#include "histo.h"
+
 using namespace std;
 
 struct order {
@@ -34,6 +36,9 @@ public:
 	order Order[nnn];
 	int mult;
 
+  histo& Histo;
+
+  elist(histo&);
 	void Add(int, double, double, int, int, double, double, int);
 	void Add(int, double, int, int, double);
 	void Add(int, double, int, int);
