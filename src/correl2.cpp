@@ -71,6 +71,22 @@ void correl2::makeArray(bool flagMask, wood& w) {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
+// Legacy function form without wood class for use in external macros
+// where one might wish to perform calculations without saving an output
+void correl2::makeArray(bool flagMask) {
+	N = 0;
+	for (size_t i = 0; i < Nparticles; i++) {
+		for (int j = 0; j < particle[i]->mult; j++) {
+			if (!flagMask || particle[i]->mask[j]) {
+				frag[N] = particle[i]->Sol[j];
+				N++;
+			}
+		}
+	}
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
 void correl2::load(solution* fragment) {
 	for (int i = 0; i < Nparticles; i++) {
 		if (fragment->iZ == particle[i]->Z && fragment->iA == particle[i]->A)

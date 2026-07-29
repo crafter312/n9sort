@@ -132,6 +132,11 @@ Det::Det(Input& in, histo& hist, SortConfig& config, size_t run) : input(in.GetG
 	Correl.alpha.mask[1]  = 1;
 	C10_2p2a = make_unique<wood>(Correl, "t_C10_2p2a", Histo.dir10C, false);
 	Correl.zeroMask();
+	Correl.alpha.mask[0] = 1;
+	Correl.alpha.mask[1] = 1;
+	Correl.alpha.mask[2] = 1;
+	C12_3a = make_unique<wood>(Correl, "t_C12_3a", Histo.dir12C, false);
+	Correl.zeroMask();
 	Correl.proton.mask[0]=1;
 	Correl.proton.mask[1]=1;
 	Correl.proton.mask[2]=1;
@@ -179,11 +184,12 @@ void Det::analyze() {
 	//corr_6Li();
 	//corr_7Li();
 	corr_6Be();
-	//corr_7Be();
+	corr_7Be();
 	corr_8Be();
 	corr_9B();
 	corr_8C();
 	corr_10C();
+	corr_12C();
 	corr_9N();
 	corr_12O();
 
@@ -864,6 +870,7 @@ void Det::corr_10C() {
 	// p+p+a+a
 	if (Correl.proton.mult == 2 && Correl.alpha.mult == 2) {
 		float const Q10C = mass_10C - (2*mass_p) - (2*mass_alpha);
+		Correl.zeroMask();
 		Correl.proton.mask[0] = 1;
 		Correl.proton.mask[1] = 1;
 		Correl.alpha.mask[0]  = 1;
@@ -882,6 +889,33 @@ void Det::corr_10C() {
 		Histo.Ex_10C_2p2a->Fill(Ex);
 		Histo.ThetaCM_10C_2p2a->Fill(thetaCM);
 		Histo.VCM_10C_2p2a->Fill(Vcm);
+	}
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void Det::corr_12C() {
+	// a+a+a
+	if (Correl.alpha.mult==3) {
+		float const Q12C = mass_12C - (3*mass_alpha);
+		Correl.zeroMask();
+		Correl.alpha.mask[0] = 1;
+		Correl.alpha.mask[1] = 1;
+		Correl.alpha.mask[2] = 1;
+		Correl.makeArray(1, *C12_3a);
+
+		float Erel_12C = Correl.findErel();
+		float Ex = Erel_12C - Q12C;
+		float Vcm = Correl.velocityCM;
+		float thetaCM = Correl.thetaCM*rad_to_deg;
+		float cos_thetaH = Correl.cos_thetaH;
+		
+		C12_3a->Fill(Erel_12C, Ex, Vcm, thetaCM, cos_thetaH, runnum, 8);
+		
+		Histo.Erel_12C_3a->Fill(Erel_12C);
+		Histo.Ex_12C_3a->Fill(Ex);
+		Histo.ThetaCM_12C_3a->Fill(thetaCM);
+		Histo.VCM_12C_3a->Fill(Vcm);
 	}
 }
 

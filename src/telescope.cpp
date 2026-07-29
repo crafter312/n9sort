@@ -40,7 +40,7 @@ using namespace std;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-telescope::telescope(double thick0, SortConfig& config, bool csi) : alThick(config.GetAlThick()), hasCsI(csi) {
+telescope::telescope(double thick0, SortConfig& config, histo& h, bool csi) : alThick(config.GetAlThick()), Histo(h), hasCsI(csi), Front(h), Back(h), Delta(h), CsI(h) {
 	TargetThickness = thick0;
 	SiWidth = 6.45;  // cm
 	SiFrame = 7.237; // cm

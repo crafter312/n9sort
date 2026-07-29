@@ -43,6 +43,7 @@ cmake_install.cmake
 
 # All build files
 build/*
+*.pcm
 
 # Data files
 *.root

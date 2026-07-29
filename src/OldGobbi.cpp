@@ -18,7 +18,7 @@ using namespace std;
 
 OldGobbi::OldGobbi(Input& in, histo& hist, SortConfig& config) : Targetdist(config.GetTargDist()), TargetThickness(config.GetTargThick()), hinpboards(config.GetHinpboards()), hinpchans(config.GetHinpchans()), Histo(hist), input(in.GetGobbi()), input_tdc(in.GetTDC()) {
 	for (size_t id = 0; id < 4; id++) {
-		Telescope[id] = new telescope(TargetThickness, config);
+		Telescope[id] = new telescope(TargetThickness, config, Histo);
 		Telescope[id]->init(id, config); // tells Telescope what position it is in
 		Telescope[id]->SetTargetDistance(Targetdist);
 	}

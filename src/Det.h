@@ -59,6 +59,7 @@ public:
 	void corr_9B();
 	void corr_8C();
 	void corr_10C();
+	void corr_12C();
 	void corr_9N();
 	void corr_12O();
 
@@ -85,6 +86,7 @@ public:
 	std::unique_ptr<wood> B9_paa;
 	std::unique_ptr<wood> C8_4pa;
 	std::unique_ptr<wood> C10_2p2a;
+	std::unique_ptr<wood> C12_3a;
 	std::unique_ptr<wood> N9_5pa;
 	std::unique_ptr<wood> O12_4p2a;
 

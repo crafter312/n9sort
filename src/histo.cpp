@@ -12,8 +12,8 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, SortConfig& config) : hinpbo
 
   // Create global tree for storing pre-solution variables
   const char* otreename = config.GetOtreeName().c_str();
-  tpar = new TTree(otreename, otreename);
-  tpar->Branch("solutions", &solutions);
+  //tpar = new TTree(otreename, otreename);
+  //tpar->Branch("solutions", &solutions);
 
   //// Create subdirectories to store arrays of spectra
 
@@ -68,6 +68,7 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, SortConfig& config) : hinpbo
   dir9B  = dirInvMass->mkdir("9B","9B");
   dir8C  = dirInvMass->mkdir("8C","8C");
   dir10C = dirInvMass->mkdir("10C","10C");
+	dir12C = dirInvMass->mkdir("12C","12C");
   dir9N  = dirInvMass->mkdir("9N","9N");
   dir12O = dirInvMass->mkdir("12O","12O");
 
@@ -365,6 +366,8 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, SortConfig& config) : hinpbo
 
   CorrelationTable = new TH2I("CorrelationTable","",9,-0.5,8.5,9,0,8.5);
 
+	NeighborStripECorrelations = new TH2I("NeighborStripECorrelations","",500,0,20,500,0,20); // Order is energy ordered, so x is larger energy and y is smaller energy
+
 
   // He4
   dir4He->cd();
@@ -587,6 +590,13 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, SortConfig& config) : hinpbo
 	ThetaCM_10C_2p2a = new TH1I("ThetaCM_10C_2p2a","",200,0,10);
 	VCM_10C_2p2a = new TH1I("VCM_10C_2p2a","",100,0,14);
 
+	// C12
+	dir12C->cd();
+	Erel_12C_3a = new TH1I("Erel_12C_3a","",800,0,17);
+	Ex_12C_3a = new TH1I("Ex_12C_3a","",800,-2,15);
+	ThetaCM_12C_3a = new TH1I("ThetaCM_12C_3a","",200,0,10);
+	VCM_12C_3a = new TH1I("VCM_12C_3a","",100,0,14);
+
 	// N9
 	dir9N->cd();
 	Erel_9N_5pa = new TH1I("Erel_9N_5pa","",800,0,17);
@@ -610,14 +620,14 @@ histo::~histo() {
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void histo::reset() {
-	solutions.clear();
+	//solutions.clear();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 // Eventually, this function is where global tree should be filled with pre-solution Gobbi information
 void histo::Fill() {
-	tpar->Fill();
+	//tpar->Fill();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

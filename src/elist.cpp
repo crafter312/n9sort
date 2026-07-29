@@ -7,6 +7,8 @@
 
 using namespace std;
 
+elist::elist(histo& h) : Histo(h) {}
+
 // New elist function with qdc added as option, old functions kept for backwards compatability
 void elist::Add(int StripNum, double energy, double energylow, int energyRlow, int energyR, double time, double qdc, int qdcflag)
 {
@@ -236,7 +238,7 @@ void elist::Neighbours(int id)
       if (j >= Nstore) break;
       if (abs(Order[i].strip - Order[j].strip) == 1) //neighboring strips
       {
-
+				Histo.NeighborStripECorrelations->Fill(Order[i].energy, Order[j].energy); // Order is energy ordered, so x is larger energy and y is smaller energy
         //cout << "!!!!!  neighbour addback " << endl;
         Order[i].energy += Order[j].energy; // add energy from adjacent strip
         Order[i].neighbours++;

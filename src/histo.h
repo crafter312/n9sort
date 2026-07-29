@@ -34,8 +34,8 @@ public:
 	~histo();
 
 	// Global tree for storing pre-solution variables
-	TTree* tpar;
-	std::vector<solution> solutions;
+	//TTree* tpar;
+	//std::vector<solution> solutions;
 
 	void reset();
 	void Fill();
@@ -87,6 +87,7 @@ public:
 	TDirectory* dir9B;
 	TDirectory* dir8C;
 	TDirectory* dir10C;
+	TDirectory* dir12C;
 	TDirectory* dir9N;
 	TDirectory* dir12O;
 
@@ -219,6 +220,7 @@ public:
 	TH1I* dTime_He6;
 	TH1I* dTime_Li;
 	TH2I* CorrelationTable;
+	TH2I* NeighborStripECorrelations; // Order is energy ordered, so x is larger energy and y is smaller energy
 
 	/******** CORRELATIONS AND INVARIANT MASS PLOTS ********/
 
@@ -410,6 +412,12 @@ public:
 	TH1I* Ex_10C_2p2a;
 	TH1I* ThetaCM_10C_2p2a;
 	TH1I* VCM_10C_2p2a;
+
+	// C12
+	TH1I* Erel_12C_3a;
+	TH1I* Ex_12C_3a;
+	TH1I* ThetaCM_12C_3a;
+	TH1I* VCM_12C_3a;
 
 	// N9
 	TH1I* Erel_9N_5pa;

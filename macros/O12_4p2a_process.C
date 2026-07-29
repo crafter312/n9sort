@@ -8,6 +8,13 @@
 
 #include "../src/wood.h"
 
+/**
+ * Run this from inside the main project's build directory with something
+ * like `root -l -q ../macros/O12_4p2a_process.C`. This way, the various
+ * library and ROOT dictionary files required for this to work are in the
+ * current directory and can be loaded automatically.
+ */
+
 using namespace std;
 
 void O12_4p2a_process() {
