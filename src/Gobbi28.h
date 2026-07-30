@@ -6,6 +6,7 @@
  * used by Johnathan Phillips (j.s.phillips@wustl.edu) for 22Si FRIB experiment.
  */
 
+#include <fstream>
 #include <unordered_map>
 
 #include <TRandom.h>
@@ -69,6 +70,8 @@ private:
 	size_t pidSkipped{0};  // # solutions invalidated during Eloss calculations due to errors thrown by Eloss calculations
 	
 	TRandom* Ran;
+
+	ofstream testOut{"../RootFiles/TestDataOut_20Entries.txt"};
 
 	// Inputs are telescope number, channel number, and hit index for below functions
 	void addFrontHit(size_t tel, size_t ch, size_t i);

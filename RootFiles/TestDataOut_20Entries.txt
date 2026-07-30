@@ -1,0 +1,866 @@
+===================================================================
+This file contains silicon and CsI data for the first 20 events at 
+various stages of processing, including input, pre-solution, and   
+post-PID.                                                          
+===================================================================
+
+=================
+EVENT START
+=================
+
+Input data:
+Silicon hit: b 3, strip 11, E 1554, ELo 373, t 8478
+Silicon hit: b 4, strip 29, E 1518, ELo 366, t 8756
+Silicon hit: b 5, strip 20, E 302, ELo 59, t 9023
+Silicon hit: b 5, strip 21, E 327, ELo 68, t 8610
+Silicon hit: b 6, strip 4, E 364, ELo 64, t 8584
+Silicon hit: b 7, strip 24, E 1542, ELo 408, t 8436
+Silicon hit: b 7, strip 25, E 176, ELo 33, t 8404
+Silicon hit: b 8, strip 1, E 1478, ELo 351, t 8219
+CsI hit: adcchan 12, tel 1, id 4, ER 458
+CsI hit: adcchan 22, tel 2, id 6, ER 703
+
+Pre-solution data:
+Silicon front hit: telescope 1, strip 11, E_cal 10.1523
+Silicon back hit: telescope 1, strip 29, E_cal 10.1609
+CsI hit: id 4, tel 1, E proton equivalent 33.1797
+Silicon back hit: telescope 2, strip 4, E_cal 2.36254
+CsI hit: id 6, tel 2, E proton equivalent 61.3666
+Silicon front hit: telescope 3, strip 24, E_cal 9.81582
+Silicon back hit: telescope 3, strip 1, E_cal 9.70872
+
+Post-PID data:
+iZ 1, iA 3, telescope 1, front strip 11, front energy 10.1523, back strip 29, back energy 10.1609, CsI ID 4, CsI energy 33.1797
+
+=================
+EVENT START
+=================
+
+Input data:
+Silicon hit: b 1, strip 1, E 196, ELo 16, t 8446
+Silicon hit: b 1, strip 2, E 2046, ELo 486, t 8308
+Silicon hit: b 1, strip 3, E 208, ELo 66, t 8620
+Silicon hit: b 1, strip 12, E 534, ELo 109, t 8462
+Silicon hit: b 1, strip 13, E 604, ELo 144, t 8477
+Silicon hit: b 1, strip 24, E 809, ELo 200, t 15694
+Silicon hit: b 2, strip 3, E 710, ELo 152, t 15675
+Silicon hit: b 2, strip 4, E 1237, ELo 306, t 8616
+Silicon hit: b 2, strip 5, E 902, ELo 192, t 8491
+Silicon hit: b 2, strip 6, E 419, ELo 75, t 8672
+Silicon hit: b 2, strip 13, E 583, ELo 107, t 9190
+Silicon hit: b 3, strip 30, E 687, ELo 160, t 15765
+Silicon hit: b 4, strip 11, E 629, ELo 137, t 15672
+Silicon hit: b 5, strip 6, E 265, ELo 45, t 8288
+Silicon hit: b 5, strip 7, E 5768, ELo 1478, t 8164
+Silicon hit: b 5, strip 8, E 224, ELo 36, t 8320
+Silicon hit: b 5, strip 28, E 469, ELo 90, t 11604
+Silicon hit: b 6, strip 4, E 346, ELo 54, t 11834
+Silicon hit: b 6, strip 22, E 98, ELo 0, t 8390
+Silicon hit: b 6, strip 23, E 6045, ELo 1531, t 8630
+Silicon hit: b 6, strip 24, E 52, ELo 0, t 8267
+Silicon hit: b 7, strip 28, E 1211, ELo 286, t 15736
+Silicon hit: b 8, strip 16, E 457, ELo 83, t 15698
+Silicon hit: b 8, strip 17, E 741, ELo 149, t 15666
+CsI hit: adcchan 0, tel 0, id 0, ER 1702
+CsI hit: adcchan 2, tel 0, id 2, ER 499
+CsI hit: adcchan 3, tel 0, id 3, ER 260
+CsI hit: adcchan 6, tel 0, id 6, ER 436
+CsI hit: adcchan 14, tel 1, id 6, ER 764
+CsI hit: adcchan 16, tel 2, id 0, ER 120
+CsI hit: adcchan 20, tel 2, id 4, ER 283
+CsI hit: adcchan 22, tel 2, id 6, ER 1098
+CsI hit: adcchan 24, tel 3, id 0, ER 230
+CsI hit: adcchan 29, tel 3, id 5, ER 221
+
+Pre-solution data:
+Silicon front hit: telescope 0, strip 2, E_cal 13.6392
+Silicon front hit: telescope 0, strip 24, E_cal 4.73484
+Silicon front hit: telescope 0, strip 13, E_cal 3.30329
+Silicon front hit: telescope 0, strip 12, E_cal 2.68868
+Silicon back hit: telescope 0, strip 4, E_cal 8.08581
+Silicon back hit: telescope 0, strip 5, E_cal 5.81732
+Silicon back hit: telescope 0, strip 3, E_cal 4.61257
+Silicon back hit: telescope 0, strip 13, E_cal 3.40149
+Silicon back hit: telescope 0, strip 6, E_cal 2.77452
+CsI hit: id 0, tel 0, E proton equivalent 220.111
+CsI hit: id 2, tel 0, E proton equivalent 59.5488
+CsI hit: id 3, tel 0, E proton equivalent 36.0092
+CsI hit: id 6, tel 0, E proton equivalent 35.1891
+Silicon front hit: telescope 1, strip 30, E_cal 3.81923
+Silicon back hit: telescope 1, strip 11, E_cal 3.81491
+CsI hit: id 6, tel 1, E proton equivalent 83.6125
+Silicon front hit: telescope 2, strip 7, E_cal 39.5953
+Silicon front hit: telescope 2, strip 28, E_cal 2.15544
+Silicon front hit: telescope 2, strip 6, E_cal 0.827443
+Silicon back hit: telescope 2, strip 23, E_cal 40.473
+Silicon back hit: telescope 2, strip 4, E_cal 2.24527
+CsI hit: id 6, tel 2, E proton equivalent 101.923
+CsI hit: id 4, tel 2, E proton equivalent 25.3881
+CsI hit: id 0, tel 2, E proton equivalent 5.15117
+Silicon front hit: telescope 3, strip 28, E_cal 7.43152
+Silicon back hit: telescope 3, strip 17, E_cal 4.73631
+Silicon back hit: telescope 3, strip 16, E_cal 2.89542
+CsI hit: id 0, tel 3, E proton equivalent 16.3519
+CsI hit: id 5, tel 3, E proton equivalent 12.8754
+
+Post-PID data:
+iZ 2, iA 4, telescope 0, front strip 2, front energy 13.6392, back strip 4, back energy 8.08581, CsI ID 0, CsI energy 202.413
+iZ 1, iA 1, telescope 0, front strip 13, front energy 3.30329, back strip 13, back energy 3.40149, CsI ID 2, CsI energy 59.5488
+iZ 0, iA 0, telescope 0, front strip 12, front energy 2.68868, back strip 6, back energy 2.77452, CsI ID 3, CsI energy 36.0092
+iZ 1, iA 1, telescope 0, front strip 24, front energy 4.73484, back strip 3, back energy 4.61257, CsI ID 6, CsI energy 35.1891
+iZ 1, iA 2, telescope 1, front strip 30, front energy 3.81923, back strip 11, back energy 3.81491, CsI ID 6, CsI energy 83.6125
+iZ 2, iA 4, telescope 2, front strip 7, front energy 39.5953, back strip 23, back energy 40.473, CsI ID 4, CsI energy 44.4125
+iZ 1, iA 1, telescope 2, front strip 28, front energy 2.15544, back strip 4, back energy 2.24527, CsI ID 6, CsI energy 101.923
+iZ 1, iA 1, telescope 3, front strip 28, front energy 7.43152, back strip 17, back energy 4.73631, CsI ID 5, CsI energy 12.8754
+
+=================
+EVENT START
+=================
+
+Input data:
+Silicon hit: b 1, strip 17, E 1209, ELo 319, t 8960
+Silicon hit: b 2, strip 3, E 1172, ELo 271, t 8866
+Silicon hit: b 3, strip 7, E 710, ELo 164, t 8860
+Silicon hit: b 3, strip 10, E 601, ELo 126, t 8918
+Silicon hit: b 3, strip 11, E 2009, ELo 474, t 8542
+Silicon hit: b 4, strip 0, E 550, ELo 127, t 8619
+Silicon hit: b 4, strip 1, E 80, ELo 0, t 9605
+Silicon hit: b 4, strip 2, E 560, ELo 113, t 8709
+Silicon hit: b 4, strip 9, E 671, ELo 137, t 9145
+Silicon hit: b 4, strip 18, E 549, ELo 101, t 8904
+Silicon hit: b 5, strip 9, E 205, ELo 27, t 9448
+Silicon hit: b 5, strip 10, E 610, ELo 126, t 8877
+Silicon hit: b 6, strip 27, E 611, ELo 124, t 9279
+CsI hit: adcchan 6, tel 0, id 6, ER 387
+CsI hit: adcchan 10, tel 1, id 2, ER 175
+CsI hit: adcchan 11, tel 1, id 3, ER 2018
+CsI hit: adcchan 12, tel 1, id 4, ER 687
+CsI hit: adcchan 14, tel 1, id 6, ER 112
+CsI hit: adcchan 20, tel 2, id 4, ER 422
+CsI hit: adcchan 26, tel 3, id 2, ER 123
+
+Pre-solution data:
+Silicon front hit: telescope 0, strip 17, E_cal 7.78569
+Silicon back hit: telescope 0, strip 3, E_cal 7.74404
+CsI hit: id 6, tel 0, E proton equivalent 29.903
+Silicon front hit: telescope 1, strip 11, E_cal 13.4353
+Silicon front hit: telescope 1, strip 7, E_cal 4.05381
+Silicon front hit: telescope 1, strip 10, E_cal 3.13992
+Silicon back hit: telescope 1, strip 9, E_cal 4.23929
+Silicon back hit: telescope 1, strip 0, E_cal 3.68942
+Silicon back hit: telescope 1, strip 2, E_cal 3.54828
+Silicon back hit: telescope 1, strip 18, E_cal 3.25464
+CsI hit: id 3, tel 1, E proton equivalent 273.339
+CsI hit: id 4, tel 1, E proton equivalent 56.2088
+CsI hit: id 2, tel 1, E proton equivalent 10.5227
+CsI hit: id 6, tel 1, E proton equivalent -1.67027
+Silicon front hit: telescope 2, strip 10, E_cal 3.17228
+Silicon front hit: telescope 2, strip 9, E_cal 0.543167
+Silicon back hit: telescope 2, strip 27, E_cal 3.69993
+CsI hit: id 4, tel 2, E proton equivalent 44.246
+CsI hit: id 2, tel 3, E proton equivalent 1.24896
+
+Post-PID data:
+iZ 1, iA 2, telescope 0, front strip 17, front energy 7.78569, back strip 3, back energy 7.74404, CsI ID 6, CsI energy 29.903
+iZ 0, iA 0, telescope 1, front strip 11, front energy 13.4353, back strip 9, back energy 4.23929, CsI ID 2, CsI energy 10.5227
+iZ 1, iA 1, telescope 1, front strip 10, front energy 3.13992, back strip 18, back energy 3.25464, CsI ID 4, CsI energy 56.2088
+iZ 1, iA 1, telescope 2, front strip 10, front energy 3.17228, back strip 27, back energy 3.69993, CsI ID 4, CsI energy 44.246
+
+=================
+EVENT START
+=================
+
+Input data:
+Silicon hit: b 1, strip 14, E 676, ELo 152, t 8197
+Silicon hit: b 2, strip 1, E 570, ELo 117, t 8101
+Silicon hit: b 5, strip 19, E 471, ELo 110, t 7893
+Silicon hit: b 5, strip 20, E 1277, ELo 311, t 8198
+Silicon hit: b 5, strip 21, E 1091, ELo 272, t 7887
+Silicon hit: b 6, strip 2, E 2569, ELo 636, t 7782
+Silicon hit: b 7, strip 10, E 747, ELo 166, t 8014
+Silicon hit: b 7, strip 11, E 228, ELo 30, t 8086
+Silicon hit: b 8, strip 0, E 694, ELo 164, t 7657
+CsI hit: adcchan 3, tel 0, id 3, ER 300
+CsI hit: adcchan 19, tel 2, id 3, ER 298
+CsI hit: adcchan 24, tel 3, id 0, ER 467
+CsI hit: adcchan 27, tel 3, id 3, ER 274
+
+Pre-solution data:
+Silicon front hit: telescope 0, strip 14, E_cal 3.69668
+Silicon back hit: telescope 0, strip 1, E_cal 3.64818
+CsI hit: id 3, tel 0, E proton equivalent 44.7824
+Silicon front hit: telescope 2, strip 19, E_cal 2.35641
+Silicon back hit: telescope 2, strip 2, E_cal 16.7837
+CsI hit: id 3, tel 2, E proton equivalent 26.2814
+Silicon front hit: telescope 3, strip 10, E_cal 4.14832
+Silicon front hit: telescope 3, strip 11, E_cal 0.674866
+Silicon back hit: telescope 3, strip 0, E_cal 4.57181
+CsI hit: id 0, tel 3, E proton equivalent 50.4477
+CsI hit: id 3, tel 3, E proton equivalent 27.4131
+
+Post-PID data:
+iZ 1, iA 1, telescope 0, front strip 14, front energy 3.69668, back strip 1, back energy 3.64818, CsI ID 3, CsI energy 44.7824
+iZ 1, iA 1, telescope 3, front strip 10, front energy 4.14832, back strip 0, back energy 4.57181, CsI ID 3, CsI energy 27.4131
+
+=================
+EVENT START
+=================
+
+Input data:
+Silicon hit: b 1, strip 13, E 629, ELo 147, t 8623
+Silicon hit: b 1, strip 17, E 202, ELo 47, t 8520
+Silicon hit: b 1, strip 18, E 7091, ELo 1886, t 8726
+Silicon hit: b 1, strip 19, E 248, ELo 52, t 8745
+Silicon hit: b 2, strip 3, E 541, ELo 111, t 8587
+Silicon hit: b 2, strip 15, E 124, ELo 0, t 8527
+Silicon hit: b 2, strip 16, E 7346, ELo 1990, t 8587
+Silicon hit: b 2, strip 17, E 125, ELo 0, t 8414
+Silicon hit: b 5, strip 10, E 657, ELo 127, t 8447
+Silicon hit: b 6, strip 10, E 572, ELo 92, t 8684
+Silicon hit: b 7, strip 6, E 251, ELo 48, t 8380
+Silicon hit: b 7, strip 7, E 2435, ELo 609, t 8140
+Silicon hit: b 7, strip 8, E 254, ELo 60, t 8417
+Silicon hit: b 8, strip 8, E 2557, ELo 595, t 8312
+CsI hit: adcchan 3, tel 0, id 3, ER 335
+CsI hit: adcchan 18, tel 2, id 2, ER 365
+CsI hit: adcchan 26, tel 3, id 2, ER 1168
+CsI hit: adcchan 28, tel 3, id 4, ER 123
+
+Pre-solution data:
+Silicon front hit: telescope 0, strip 18, E_cal 49.8761
+Silicon front hit: telescope 0, strip 13, E_cal 3.4828
+Silicon front hit: telescope 0, strip 19, E_cal 0.666275
+Silicon back hit: telescope 0, strip 16, E_cal 49.7474
+Silicon back hit: telescope 0, strip 3, E_cal 3.46708
+CsI hit: id 3, tel 0, E proton equivalent 52.4589
+Silicon front hit: telescope 2, strip 10, E_cal 3.50205
+Silicon back hit: telescope 2, strip 10, E_cal 3.48118
+CsI hit: id 2, tel 2, E proton equivalent 44.4677
+Silicon front hit: telescope 3, strip 7, E_cal 16.1488
+Silicon front hit: telescope 3, strip 8, E_cal 0.742918
+Silicon front hit: telescope 3, strip 6, E_cal 0.662929
+Silicon back hit: telescope 3, strip 8, E_cal 16.8931
+CsI hit: id 2, tel 3, E proton equivalent 150.02
+CsI hit: id 4, tel 3, E proton equivalent 1.84823
+
+Post-PID data:
+iZ 1, iA 1, telescope 0, front strip 13, front energy 3.4828, back strip 3, back energy 3.46708, CsI ID 3, CsI energy 52.4589
+iZ 1, iA 1, telescope 2, front strip 10, front energy 3.50205, back strip 10, back energy 3.48118, CsI ID 2, CsI energy 44.4677
+
+=================
+EVENT START
+=================
+
+Input data:
+Silicon hit: b 5, strip 5, E 860, ELo 213, t 7437
+Silicon hit: b 5, strip 6, E 177, ELo 26, t 8079
+Silicon hit: b 5, strip 7, E 1249, ELo 303, t 7542
+Silicon hit: b 5, strip 8, E 183, ELo 34, t 7768
+Silicon hit: b 5, strip 9, E 1883, ELo 458, t 7546
+Silicon hit: b 5, strip 10, E 148, ELo 1, t 7985
+Silicon hit: b 6, strip 0, E 329, ELo 64, t 7535
+Silicon hit: b 6, strip 1, E 1034, ELo 244, t 7746
+Silicon hit: b 6, strip 2, E 2067, ELo 502, t 7513
+CsI hit: adcchan 8, tel 1, id 0, ER 445
+CsI hit: adcchan 16, tel 2, id 0, ER 1188
+CsI hit: adcchan 19, tel 2, id 3, ER 242
+CsI hit: adcchan 24, tel 3, id 0, ER 188
+
+Pre-solution data:
+CsI hit: id 0, tel 1, E proton equivalent 50.7428
+Silicon front hit: telescope 2, strip 9, E_cal 12.3009
+Silicon front hit: telescope 2, strip 7, E_cal 7.79912
+Silicon front hit: telescope 2, strip 5, E_cal 4.94787
+Silicon back hit: telescope 2, strip 2, E_cal 13.4975
+Silicon back hit: telescope 2, strip 1, E_cal 6.94374
+Silicon back hit: telescope 2, strip 0, E_cal 2.11441
+CsI hit: id 0, tel 2, E proton equivalent 219.039
+CsI hit: id 3, tel 2, E proton equivalent 18.9153
+CsI hit: id 0, tel 3, E proton equivalent 10.3096
+
+Post-PID data:
+iZ 1, iA 3, telescope 2, front strip 9, front energy 12.3009, back strip 2, back energy 13.4975, CsI ID 3, CsI energy 18.9153
+
+=================
+EVENT START
+=================
+
+Input data:
+Silicon hit: b 3, strip 11, E 674, ELo 135, t 8195
+Silicon hit: b 4, strip 7, E 584, ELo 104, t 8571
+Silicon hit: b 5, strip 15, E 180, ELo 17, t 7931
+Silicon hit: b 5, strip 16, E 3780, ELo 984, t 8373
+Silicon hit: b 5, strip 17, E 196, ELo 45, t 7924
+Silicon hit: b 6, strip 4, E 19, ELo 0, t 8133
+Silicon hit: b 6, strip 5, E 3892, ELo 962, t 8180
+Silicon hit: b 6, strip 6, E 40, ELo 0, t 8412
+CsI hit: adcchan 10, tel 1, id 2, ER 1006
+CsI hit: adcchan 22, tel 2, id 6, ER 879
+CsI hit: adcchan 28, tel 3, id 4, ER 299
+
+Pre-solution data:
+Silicon front hit: telescope 1, strip 11, E_cal 3.80262
+Silicon back hit: telescope 1, strip 7, E_cal 3.76646
+CsI hit: id 2, tel 1, E proton equivalent 147.603
+Silicon front hit: telescope 2, strip 16, E_cal 25.7011
+Silicon back hit: telescope 2, strip 5, E_cal 25.9369
+CsI hit: id 6, tel 2, E proton equivalent 79.4372
+CsI hit: id 4, tel 3, E proton equivalent 19.0308
+
+Post-PID data:
+iZ 1, iA 3, telescope 1, front strip 11, front energy 3.80262, back strip 7, back energy 3.76646, CsI ID 2, CsI energy 147.603
+iZ 2, iA 4, telescope 2, front strip 16, front energy 25.7011, back strip 5, back energy 25.9369, CsI ID 6, CsI energy 82.0962
+
+=================
+EVENT START
+=================
+
+Input data:
+Silicon hit: b 1, strip 0, E 528, ELo 118, t 7786
+Silicon hit: b 1, strip 4, E 190, ELo 25, t 8063
+Silicon hit: b 1, strip 5, E 2460, ELo 631, t 8075
+Silicon hit: b 1, strip 6, E 207, ELo 23, t 8100
+Silicon hit: b 2, strip 4, E 64, ELo 4, t 8191
+Silicon hit: b 2, strip 5, E 2548, ELo 621, t 7992
+Silicon hit: b 5, strip 15, E 835, ELo 187, t 7691
+Silicon hit: b 6, strip 8, E 777, ELo 149, t 8062
+CsI hit: adcchan 0, tel 0, id 0, ER 1321
+CsI hit: adcchan 1, tel 0, id 1, ER 195
+CsI hit: adcchan 4, tel 0, id 4, ER 257
+CsI hit: adcchan 18, tel 2, id 2, ER 259
+
+Pre-solution data:
+Silicon front hit: telescope 0, strip 5, E_cal 16.8725
+Silicon front hit: telescope 0, strip 0, E_cal 2.64902
+Silicon back hit: telescope 0, strip 5, E_cal 16.9636
+CsI hit: id 0, tel 0, E proton equivalent 167.905
+CsI hit: id 4, tel 0, E proton equivalent 17.2918
+CsI hit: id 1, tel 0, E proton equivalent 10.6071
+Silicon front hit: telescope 2, strip 15, E_cal 4.91202
+Silicon back hit: telescope 2, strip 8, E_cal 4.86038
+CsI hit: id 2, tel 2, E proton equivalent 26.8949
+
+Post-PID data:
+iZ 2, iA 4, telescope 0, front strip 5, front energy 16.8725, back strip 5, back energy 16.9636, CsI ID 0, CsI energy 158.349
+iZ 1, iA 1, telescope 2, front strip 15, front energy 4.91202, back strip 8, back energy 4.86038, CsI ID 2, CsI energy 26.8949
+
+=================
+EVENT START
+=================
+
+Input data:
+Silicon hit: b 5, strip 0, E 497, ELo 105, t 8567
+Silicon hit: b 5, strip 7, E 603, ELo 132, t 7230
+Silicon hit: b 6, strip 4, E 552, ELo 113, t 7495
+Silicon hit: b 7, strip 0, E 289, ELo 68, t 2156
+Silicon hit: b 7, strip 1, E 258, ELo 59, t 2222
+Silicon hit: b 7, strip 2, E 241, ELo 68, t 2371
+Silicon hit: b 7, strip 8, E 1906, ELo 429, t 8607
+Silicon hit: b 7, strip 9, E 151, ELo 30, t 8348
+Silicon hit: b 8, strip 5, E 1591, ELo 362, t 2048
+CsI hit: adcchan 0, tel 0, id 0, ER 101
+CsI hit: adcchan 16, tel 2, id 0, ER 237
+CsI hit: adcchan 17, tel 2, id 1, ER 308
+CsI hit: adcchan 19, tel 2, id 3, ER 351
+CsI hit: adcchan 27, tel 3, id 3, ER 938
+
+Pre-solution data:
+CsI hit: id 0, tel 0, E proton equivalent 0.735929
+Silicon front hit: telescope 2, strip 7, E_cal 3.25379
+Silicon front hit: telescope 2, strip 0, E_cal 2.60101
+Silicon back hit: telescope 2, strip 4, E_cal 3.58732
+CsI hit: id 1, tel 2, E proton equivalent 35.5202
+CsI hit: id 3, tel 2, E proton equivalent 33.253
+CsI hit: id 0, tel 2, E proton equivalent 28.5827
+Silicon front hit: telescope 3, strip 8, E_cal 12.5095
+Silicon front hit: telescope 3, strip 0, E_cal 1.01023
+Silicon front hit: telescope 3, strip 1, E_cal 0.785049
+Silicon front hit: telescope 3, strip 2, E_cal 0.597332
+Silicon back hit: telescope 3, strip 5, E_cal 10.8293
+CsI hit: id 3, tel 3, E proton equivalent 131.553
+
+Post-PID data:
+iZ 0, iA 0, telescope 2, front strip 7, front energy 3.25379, back strip 4, back energy 3.58732, CsI ID 0, CsI energy 28.5827
+
+=================
+EVENT START
+=================
+
+Input data:
+Silicon hit: b 1, strip 9, E 723, ELo 176, t 7844
+Silicon hit: b 2, strip 22, E 700, ELo 140, t 8099
+Silicon hit: b 5, strip 0, E 2115, ELo 524, t 7786
+Silicon hit: b 5, strip 1, E 247, ELo 59, t 8185
+Silicon hit: b 5, strip 4, E 249, ELo 42, t 7856
+Silicon hit: b 5, strip 5, E 524, ELo 126, t 7486
+Silicon hit: b 5, strip 14, E 754, ELo 184, t 7634
+Silicon hit: b 5, strip 30, E 256, ELo 49, t 8796
+Silicon hit: b 5, strip 31, E 2237, ELo 581, t 7866
+Silicon hit: b 6, strip 0, E 1224, ELo 295, t 7997
+Silicon hit: b 6, strip 1, E 193, ELo 19, t 9237
+Silicon hit: b 6, strip 5, E 224, ELo 5, t 10506
+Silicon hit: b 6, strip 7, E 238, ELo 17, t 9330
+Silicon hit: b 6, strip 24, E 707, ELo 140, t 7709
+Silicon hit: b 6, strip 31, E 1238, ELo 257, t 8238
+CsI hit: adcchan 0, tel 0, id 0, ER 106
+CsI hit: adcchan 4, tel 0, id 4, ER 937
+CsI hit: adcchan 19, tel 2, id 3, ER 1207
+CsI hit: adcchan 20, tel 2, id 4, ER 221
+
+Pre-solution data:
+Silicon front hit: telescope 0, strip 9, E_cal 4.09361
+Silicon back hit: telescope 0, strip 22, E_cal 4.29164
+CsI hit: id 4, tel 0, E proton equivalent 88.8785
+CsI hit: id 0, tel 0, E proton equivalent 1.42105
+Silicon front hit: telescope 2, strip 31, E_cal 14.5717
+Silicon front hit: telescope 2, strip 0, E_cal 14.0122
+Silicon front hit: telescope 2, strip 14, E_cal 4.23823
+Silicon front hit: telescope 2, strip 5, E_cal 2.59395
+Silicon front hit: telescope 2, strip 1, E_cal 0.849657
+Silicon front hit: telescope 2, strip 30, E_cal 0.751912
+Silicon front hit: telescope 2, strip 4, E_cal 0.663681
+Silicon back hit: telescope 2, strip 31, E_cal 8.08118
+Silicon back hit: telescope 2, strip 0, E_cal 8.0192
+Silicon back hit: telescope 2, strip 24, E_cal 4.56832
+Silicon back hit: telescope 2, strip 7, E_cal 1.30521
+Silicon back hit: telescope 2, strip 5, E_cal 1.24539
+Silicon back hit: telescope 2, strip 1, E_cal 1.20021
+CsI hit: id 3, tel 2, E proton equivalent 145.85
+CsI hit: id 4, tel 2, E proton equivalent 16.9767
+
+Post-PID data:
+iZ 1, iA 2, telescope 0, front strip 9, front energy 4.09361, back strip 22, back energy 4.29164, CsI ID 4, CsI energy 88.8785
+iZ 1, iA 3, telescope 2, front strip 0, front energy 14.0122, back strip 31, back energy 8.08118, CsI ID 4, CsI energy 16.9767
+
+=================
+EVENT START
+=================
+
+Input data:
+Silicon hit: b 3, strip 4, E 501, ELo 109, t 8481
+Silicon hit: b 4, strip 3, E 442, ELo 74, t 8670
+Silicon hit: b 5, strip 2, E 657, ELo 147, t 8439
+Silicon hit: b 5, strip 26, E 1682, ELo 442, t 8518
+Silicon hit: b 5, strip 27, E 499, ELo 119, t 8313
+Silicon hit: b 6, strip 4, E 2046, ELo 491, t 8321
+Silicon hit: b 6, strip 5, E 568, ELo 97, t 8415
+CsI hit: adcchan 8, tel 1, id 0, ER 547
+CsI hit: adcchan 16, tel 2, id 0, ER 342
+CsI hit: adcchan 22, tel 2, id 6, ER 2379
+
+Pre-solution data:
+Silicon front hit: telescope 1, strip 4, E_cal 2.54109
+Silicon back hit: telescope 1, strip 3, E_cal 2.80879
+CsI hit: id 0, tel 1, E proton equivalent 65.9259
+Silicon front hit: telescope 2, strip 26, E_cal 10.7447
+Silicon front hit: telescope 2, strip 2, E_cal 3.54253
+Silicon front hit: telescope 2, strip 27, E_cal 2.48698
+Silicon back hit: telescope 2, strip 4, E_cal 13.3205
+Silicon back hit: telescope 2, strip 5, E_cal 3.56106
+CsI hit: id 6, tel 2, E proton equivalent 233.447
+CsI hit: id 0, tel 2, E proton equivalent 49.6109
+
+Post-PID data:
+iZ 1, iA 1, telescope 1, front strip 4, front energy 2.54109, back strip 3, back energy 2.80879, CsI ID 0, CsI energy 65.9259
+iZ 1, iA 1, telescope 2, front strip 2, front energy 3.54253, back strip 5, back energy 3.56106, CsI ID 0, CsI energy 49.6109
+iZ 2, iA 3, telescope 2, front strip 26, front energy 10.7447, back strip 4, back energy 13.3205, CsI ID 6, CsI energy 208.585
+
+=================
+EVENT START
+=================
+
+Input data:
+Silicon hit: b 3, strip 10, E 2244, ELo 556, t 9910
+Silicon hit: b 3, strip 11, E 183, ELo 5, t 10132
+Silicon hit: b 4, strip 5, E 176, ELo 23, t 9933
+Silicon hit: b 4, strip 6, E 2169, ELo 538, t 9673
+Silicon hit: b 4, strip 7, E 72, ELo 0, t 10374
+Silicon hit: b 5, strip 9, E 629, ELo 136, t 9585
+Silicon hit: b 5, strip 12, E 559, ELo 115, t 9898
+Silicon hit: b 5, strip 15, E 153, ELo 11, t 9773
+Silicon hit: b 5, strip 16, E 2894, ELo 753, t 9960
+Silicon hit: b 5, strip 17, E 165, ELo 33, t 9564
+Silicon hit: b 6, strip 4, E 44, ELo 0, t 10020
+Silicon hit: b 6, strip 5, E 2850, ELo 692, t 9830
+Silicon hit: b 6, strip 6, E 46, ELo 0, t 10101
+Silicon hit: b 6, strip 10, E 484, ELo 70, t 9976
+Silicon hit: b 6, strip 18, E 571, ELo 117, t 10007
+Silicon hit: b 7, strip 10, E 867, ELo 197, t 9810
+Silicon hit: b 8, strip 18, E 761, ELo 175, t 9794
+CsI hit: adcchan 11, tel 1, id 3, ER 1501
+CsI hit: adcchan 18, tel 2, id 2, ER 1039
+CsI hit: adcchan 20, tel 2, id 4, ER 471
+CsI hit: adcchan 22, tel 2, id 6, ER 1252
+CsI hit: adcchan 28, tel 3, id 4, ER 379
+
+Pre-solution data:
+Silicon front hit: telescope 1, strip 10, E_cal 14.8074
+Silicon back hit: telescope 1, strip 6, E_cal 14.1563
+Silicon back hit: telescope 1, strip 5, E_cal 0.937899
+CsI hit: id 3, tel 1, E proton equivalent 199.219
+Silicon front hit: telescope 2, strip 16, E_cal 19.4149
+Silicon front hit: telescope 2, strip 9, E_cal 3.51414
+Silicon front hit: telescope 2, strip 12, E_cal 2.87139
+Silicon back hit: telescope 2, strip 5, E_cal 18.9226
+Silicon back hit: telescope 2, strip 18, E_cal 3.58315
+Silicon back hit: telescope 2, strip 10, E_cal 2.90341
+CsI hit: id 2, tel 2, E proton equivalent 156.204
+CsI hit: id 6, tel 2, E proton equivalent 117.734
+CsI hit: id 4, tel 2, E proton equivalent 50.8938
+Silicon front hit: telescope 3, strip 10, E_cal 5.00159
+Silicon back hit: telescope 3, strip 18, E_cal 5.00876
+CsI hit: id 4, tel 3, E proton equivalent 26.841
+
+Post-PID data:
+iZ 2, iA 4, telescope 1, front strip 10, front energy 14.8074, back strip 6, back energy 14.1563, CsI ID 3, CsI energy 176.656
+iZ 1, iA 2, telescope 2, front strip 12, front energy 2.87139, back strip 10, back energy 2.90341, CsI ID 2, CsI energy 156.204
+iZ 1, iA 1, telescope 2, front strip 9, front energy 3.51414, back strip 18, back energy 3.58315, CsI ID 4, CsI energy 50.8938
+iZ 1, iA 1, telescope 3, front strip 10, front energy 5.00159, back strip 18, back energy 5.00876, CsI ID 4, CsI energy 26.841
+
+=================
+EVENT START
+=================
+
+Input data:
+Silicon hit: b 1, strip 7, E 285, ELo 36, t 7322
+Silicon hit: b 1, strip 8, E 7826, ELo 2043, t 7353
+Silicon hit: b 1, strip 9, E 240, ELo 40, t 7331
+Silicon hit: b 2, strip 12, E 166, ELo 0, t 7332
+Silicon hit: b 2, strip 13, E 8565, ELo 2203, t 7392
+Silicon hit: b 2, strip 14, E 86, ELo 0, t 7326
+Silicon hit: b 3, strip 0, E 181, ELo 4, t 7217
+Silicon hit: b 3, strip 1, E 2010, ELo 496, t 7100
+Silicon hit: b 4, strip 8, E 938, ELo 234, t 7089
+Silicon hit: b 4, strip 9, E 1132, ELo 257, t 7454
+Silicon hit: b 7, strip 31, E 301, ELo 61, t 8949
+CsI hit: adcchan 2, tel 0, id 2, ER 583
+CsI hit: adcchan 6, tel 0, id 6, ER 208
+CsI hit: adcchan 9, tel 1, id 1, ER 1687
+
+Pre-solution data:
+Silicon front hit: telescope 0, strip 8, E_cal 55.217
+Silicon front hit: telescope 0, strip 7, E_cal 0.937011
+Silicon front hit: telescope 0, strip 9, E_cal 0.61543
+Silicon back hit: telescope 0, strip 13, E_cal 58.0384
+Silicon back hit: telescope 0, strip 12, E_cal 0.813265
+CsI hit: id 2, tel 0, E proton equivalent 72.2363
+CsI hit: id 6, tel 0, E proton equivalent 10.5922
+Silicon front hit: telescope 1, strip 1, E_cal 13.4312
+Silicon back hit: telescope 1, strip 9, E_cal 7.47128
+Silicon back hit: telescope 1, strip 8, E_cal 5.8851
+CsI hit: id 1, tel 1, E proton equivalent 224.248
+Silicon front hit: telescope 3, strip 31, E_cal 1.06071
+
+Post-PID data:
+iZ 2, iA 4, telescope 1, front strip 1, front energy 13.4312, back strip 9, back energy 7.47128, CsI ID 1, CsI energy 201.363
+
+=================
+EVENT START
+=================
+
+Input data:
+Silicon hit: b 1, strip 0, E 601, ELo 139, t 9344
+Silicon hit: b 1, strip 10, E 178, ELo 48, t 9689
+Silicon hit: b 1, strip 11, E 2754, ELo 715, t 9784
+Silicon hit: b 1, strip 12, E 210, ELo 18, t 9588
+Silicon hit: b 2, strip 3, E 503, ELo 99, t 9614
+Silicon hit: b 2, strip 16, E 30, ELo 0, t 9512
+Silicon hit: b 2, strip 17, E 2882, ELo 683, t 9514
+Silicon hit: b 2, strip 18, E 122, ELo 5, t 10101
+Silicon hit: b 3, strip 8, E 634, ELo 139, t 9540
+Silicon hit: b 3, strip 25, E 505, ELo 124, t 9815
+Silicon hit: b 4, strip 0, E 142, ELo 22, t 10162
+Silicon hit: b 4, strip 29, E 527, ELo 110, t 10023
+CsI hit: adcchan 0, tel 0, id 0, ER 859
+CsI hit: adcchan 4, tel 0, id 4, ER 1274
+CsI hit: adcchan 12, tel 1, id 4, ER 393
+CsI hit: adcchan 14, tel 1, id 6, ER 702
+
+Pre-solution data:
+Silicon front hit: telescope 0, strip 11, E_cal 19.0312
+Silicon front hit: telescope 0, strip 0, E_cal 3.1704
+Silicon back hit: telescope 0, strip 17, E_cal 19.2999
+Silicon back hit: telescope 0, strip 3, E_cal 3.20951
+CsI hit: id 4, tel 0, E proton equivalent 124.356
+CsI hit: id 0, tel 0, E proton equivalent 104.6
+Silicon front hit: telescope 1, strip 8, E_cal 3.38527
+Silicon front hit: telescope 1, strip 25, E_cal 2.51055
+Silicon back hit: telescope 1, strip 29, E_cal 3.28972
+Silicon back hit: telescope 1, strip 0, E_cal 0.914527
+CsI hit: id 6, tel 1, E proton equivalent 75.5028
+CsI hit: id 4, tel 1, E proton equivalent 26.6431
+
+Post-PID data:
+iZ 1, iA 2, telescope 0, front strip 0, front energy 3.1704, back strip 3, back energy 3.20951, CsI ID 0, CsI energy 104.6
+iZ 2, iA 4, telescope 0, front strip 11, front energy 19.0312, back strip 17, back energy 19.2999, CsI ID 4, CsI energy 126.985
+iZ 0, iA 0, telescope 1, front strip 8, front energy 3.38527, back strip 29, back energy 3.28972, CsI ID 4, CsI energy 26.6431
+iZ 1, iA 1, telescope 1, front strip 25, front energy 2.51055, back strip 0, back energy 0.914527, CsI ID 6, CsI energy 75.5028
+
+=================
+EVENT START
+=================
+
+Input data:
+Silicon hit: b 3, strip 5, E 200, ELo 32, t 9059
+Silicon hit: b 3, strip 6, E 3445, ELo 873, t 8859
+Silicon hit: b 3, strip 7, E 467, ELo 84, t 8476
+Silicon hit: b 4, strip 11, E 117, ELo 5, t 9156
+Silicon hit: b 4, strip 12, E 3582, ELo 916, t 8759
+Silicon hit: b 4, strip 13, E 120, ELo 0, t 9181
+Silicon hit: b 7, strip 4, E 960, ELo 229, t 8745
+Silicon hit: b 8, strip 13, E 883, ELo 207, t 8978
+CsI hit: adcchan 3, tel 0, id 3, ER 632
+CsI hit: adcchan 9, tel 1, id 1, ER 556
+CsI hit: adcchan 25, tel 3, id 1, ER 732
+CsI hit: adcchan 31, tel 3, id 6, ER 515
+
+Pre-solution data:
+CsI hit: id 3, tel 0, E proton equivalent 117.6
+Silicon front hit: telescope 1, strip 6, E_cal 23.3303
+Silicon front hit: telescope 1, strip 7, E_cal 2.2964
+Silicon back hit: telescope 1, strip 12, E_cal 23.7202
+CsI hit: id 1, tel 1, E proton equivalent 62.8344
+Silicon front hit: telescope 3, strip 4, E_cal 5.67783
+Silicon back hit: telescope 3, strip 13, E_cal 5.70343
+CsI hit: id 1, tel 3, E proton equivalent 80.9955
+CsI hit: id 6, tel 3, E proton equivalent 41.8761
+
+Post-PID data:
+iZ 2, iA 3, telescope 1, front strip 6, front energy 23.3303, back strip 12, back energy 23.7202, CsI ID 1, CsI energy 66.9168
+iZ 1, iA 3, telescope 3, front strip 4, front energy 5.67783, back strip 13, back energy 5.70343, CsI ID 1, CsI energy 80.9955
+
+=================
+EVENT START
+=================
+
+Input data:
+Silicon hit: b 1, strip 31, E 593, ELo 129, t 8825
+Silicon hit: b 2, strip 21, E 506, ELo 85, t 8865
+Silicon hit: b 3, strip 6, E 463, ELo 90, t 8903
+Silicon hit: b 4, strip 19, E 402, ELo 58, t 9197
+Silicon hit: b 5, strip 18, E 473, ELo 105, t 9021
+Silicon hit: b 6, strip 31, E 348, ELo 29, t 9185
+CsI hit: adcchan 5, tel 0, id 5, ER 480
+CsI hit: adcchan 12, tel 1, id 4, ER 922
+CsI hit: adcchan 21, tel 2, id 5, ER 369
+
+Pre-solution data:
+Silicon front hit: telescope 0, strip 31, E_cal 3.10584
+Silicon back hit: telescope 0, strip 21, E_cal 3.12327
+CsI hit: id 5, tel 0, E proton equivalent 54.4363
+Silicon front hit: telescope 1, strip 6, E_cal 2.1916
+Silicon back hit: telescope 1, strip 19, E_cal 2.28607
+CsI hit: id 4, tel 1, E proton equivalent 79.8412
+Silicon front hit: telescope 2, strip 18, E_cal 2.27316
+Silicon back hit: telescope 2, strip 31, E_cal 2.05516
+CsI hit: id 5, tel 2, E proton equivalent 26.5936
+
+Post-PID data:
+iZ 1, iA 1, telescope 0, front strip 31, front energy 3.10584, back strip 21, back energy 3.12327, CsI ID 5, CsI energy 54.4363
+iZ 1, iA 1, telescope 1, front strip 6, front energy 2.1916, back strip 19, back energy 2.28607, CsI ID 4, CsI energy 79.8412
+iZ 0, iA 0, telescope 2, front strip 18, front energy 2.27316, back strip 31, back energy 2.05516, CsI ID 5, CsI energy 26.5936
+
+=================
+EVENT START
+=================
+
+Input data:
+Silicon hit: b 3, strip 1, E 572, ELo 117, t 13644
+Silicon hit: b 3, strip 17, E 2030, ELo 517, t 9058
+Silicon hit: b 3, strip 30, E 563, ELo 128, t 9771
+Silicon hit: b 4, strip 0, E 1808, ELo 454, t 9412
+Silicon hit: b 4, strip 1, E 57, ELo 0, t 10085
+Silicon hit: b 4, strip 3, E 478, ELo 78, t 13687
+Silicon hit: b 4, strip 30, E 494, ELo 89, t 9623
+Silicon hit: b 5, strip 0, E 11399, ELo 3014, t 9516
+Silicon hit: b 5, strip 1, E 327, ELo 71, t 9247
+Silicon hit: b 5, strip 4, E 430, ELo 91, t 13688
+Silicon hit: b 5, strip 30, E 2131, ELo 537, t 13607
+Silicon hit: b 5, strip 31, E 182, ELo 52, t 13756
+Silicon hit: b 6, strip 2, E 89, ELo 0, t 9338
+Silicon hit: b 6, strip 3, E 11733, ELo 3177, t 9583
+Silicon hit: b 6, strip 4, E 2115, ELo 509, t 9457
+Silicon hit: b 6, strip 22, E 367, ELo 39, t 14072
+CsI hit: adcchan 8, tel 1, id 0, ER 553
+CsI hit: adcchan 9, tel 1, id 1, ER 818
+CsI hit: adcchan 12, tel 1, id 4, ER 1965
+CsI hit: adcchan 13, tel 1, id 5, ER 848
+CsI hit: adcchan 14, tel 1, id 6, ER 2123
+CsI hit: adcchan 16, tel 2, id 0, ER 812
+CsI hit: adcchan 20, tel 2, id 4, ER 788
+CsI hit: adcchan 22, tel 2, id 6, ER 2056
+CsI hit: adcchan 31, tel 3, id 6, ER 413
+
+Pre-solution data:
+Silicon front hit: telescope 1, strip 17, E_cal 13.6115
+Silicon front hit: telescope 1, strip 1, E_cal 3.04718
+Silicon front hit: telescope 1, strip 30, E_cal 2.93945
+Silicon back hit: telescope 1, strip 0, E_cal 12.2454
+Silicon back hit: telescope 1, strip 3, E_cal 3.06151
+Silicon back hit: telescope 1, strip 30, E_cal 2.9795
+CsI hit: id 6, tel 1, E proton equivalent 261.372
+CsI hit: id 4, tel 1, E proton equivalent 184.729
+CsI hit: id 1, tel 1, E proton equivalent 100.227
+CsI hit: id 0, tel 1, E proton equivalent 66.8191
+CsI hit: id 5, tel 1, E proton equivalent 65.0613
+Silicon front hit: telescope 2, strip 0, E_cal 79.4888
+Silicon front hit: telescope 2, strip 30, E_cal 13.8274
+Silicon front hit: telescope 2, strip 4, E_cal 1.93821
+Silicon front hit: telescope 2, strip 1, E_cal 1.41107
+Silicon back hit: telescope 2, strip 3, E_cal 79.1619
+Silicon back hit: telescope 2, strip 4, E_cal 13.77
+Silicon back hit: telescope 2, strip 22, E_cal 2.14269
+Silicon back hit: telescope 2, strip 2, E_cal 0.549177
+CsI hit: id 6, tel 2, E proton equivalent 200.284
+CsI hit: id 0, tel 2, E proton equivalent 143.737
+CsI hit: id 4, tel 2, E proton equivalent 93.9006
+CsI hit: id 6, tel 3, E proton equivalent 31.7626
+
+Post-PID data:
+iZ 1, iA 1, telescope 1, front strip 1, front energy 3.04718, back strip 3, back energy 3.06151, CsI ID 0, CsI energy 66.8191
+iZ 1, iA 1, telescope 1, front strip 30, front energy 2.93945, back strip 30, back energy 2.9795, CsI ID 5, CsI energy 65.0613
+iZ 2, iA 4, telescope 1, front strip 17, front energy 13.6115, back strip 0, back energy 12.2454, CsI ID 6, CsI energy 233.082
+iZ 1, iA 1, telescope 2, front strip 1, front energy 1.41107, back strip 2, back energy 0.549177, CsI ID 0, CsI energy 143.737
+iZ 1, iA 1, telescope 2, front strip 4, front energy 1.93821, back strip 22, back energy 2.14269, CsI ID 4, CsI energy 93.9006
+iZ 2, iA 4, telescope 2, front strip 30, front energy 13.8274, back strip 4, back energy 13.77, CsI ID 6, CsI energy 181.348
+
+=================
+EVENT START
+=================
+
+Input data:
+Silicon hit: b 1, strip 0, E 469, ELo 103, t 8252
+Silicon hit: b 1, strip 9, E 1837, ELo 461, t 8487
+Silicon hit: b 1, strip 20, E 498, ELo 122, t 2232
+Silicon hit: b 1, strip 26, E 612, ELo 140, t 8531
+Silicon hit: b 2, strip 6, E 350, ELo 57, t 8583
+Silicon hit: b 2, strip 7, E 1822, ELo 430, t 8466
+Silicon hit: b 2, strip 25, E 588, ELo 125, t 8798
+Silicon hit: b 2, strip 29, E 471, ELo 95, t 2350
+Silicon hit: b 5, strip 10, E 187, ELo 12, t 8611
+Silicon hit: b 5, strip 11, E 2216, ELo 558, t 8149
+Silicon hit: b 5, strip 12, E 148, ELo 12, t 8643
+Silicon hit: b 5, strip 20, E 297, ELo 58, t 2349
+Silicon hit: b 5, strip 21, E 318, ELo 76, t 2318
+Silicon hit: b 6, strip 3, E 387, ELo 71, t 2142
+Silicon hit: b 6, strip 24, E 2234, ELo 544, t 8270
+Silicon hit: b 7, strip 6, E 214, ELo 50, t 8152
+Silicon hit: b 7, strip 7, E 2980, ELo 750, t 7980
+Silicon hit: b 7, strip 8, E 172, ELo 37, t 8267
+Silicon hit: b 8, strip 4, E 18, ELo 0, t 7978
+Silicon hit: b 8, strip 5, E 2919, ELo 695, t 8256
+Silicon hit: b 8, strip 6, E 66, ELo 0, t 8187
+CsI hit: adcchan 0, tel 0, id 0, ER 303
+CsI hit: adcchan 2, tel 0, id 2, ER 1821
+CsI hit: adcchan 5, tel 0, id 5, ER 780
+CsI hit: adcchan 20, tel 2, id 4, ER 1147
+CsI hit: adcchan 22, tel 2, id 6, ER 883
+
+Pre-solution data:
+Silicon front hit: telescope 0, strip 9, E_cal 12.1158
+Silicon front hit: telescope 0, strip 26, E_cal 3.22386
+Silicon front hit: telescope 0, strip 20, E_cal 2.48056
+Silicon front hit: telescope 0, strip 0, E_cal 2.22763
+Silicon back hit: telescope 0, strip 7, E_cal 12.2323
+Silicon back hit: telescope 0, strip 25, E_cal 3.39502
+Silicon back hit: telescope 0, strip 29, E_cal 2.66047
+Silicon back hit: telescope 0, strip 6, E_cal 2.31191
+CsI hit: id 2, tel 0, E proton equivalent 259.227
+CsI hit: id 5, tel 0, E proton equivalent 94.9134
+CsI hit: id 0, tel 0, E proton equivalent 28.4147
+Silicon front hit: telescope 2, strip 11, E_cal 14.5176
+Silicon back hit: telescope 2, strip 24, E_cal 14.6063
+Silicon back hit: telescope 2, strip 3, E_cal 2.42001
+CsI hit: id 4, tel 2, E proton equivalent 142.606
+CsI hit: id 6, tel 2, E proton equivalent 79.8478
+Silicon front hit: telescope 3, strip 7, E_cal 19.9749
+Silicon back hit: telescope 3, strip 5, E_cal 20.0523
+
+Post-PID data:
+iZ 0, iA 0, telescope 0, front strip 0, front energy 2.22763, back strip 6, back energy 2.31191, CsI ID 0, CsI energy 28.4147
+iZ 2, iA 4, telescope 0, front strip 9, front energy 12.1158, back strip 7, back energy 12.2323, CsI ID 2, CsI energy 233.46
+iZ 0, iA 0, telescope 0, front strip 26, front energy 3.22386, back strip 25, back energy 3.39502, CsI ID 5, CsI energy 94.9134
+iZ 2, iA 3, telescope 2, front strip 11, front energy 14.5176, back strip 24, back energy 14.6063, CsI ID 4, CsI energy 139.013
+
+=================
+EVENT START
+=================
+
+Input data:
+Silicon hit: b 1, strip 22, E 636, ELo 146, t 8860
+Silicon hit: b 2, strip 22, E 565, ELo 108, t 9036
+Silicon hit: b 3, strip 19, E 772, ELo 184, t 8835
+Silicon hit: b 4, strip 16, E 707, ELo 146, t 8567
+Silicon hit: b 7, strip 28, E 615, ELo 132, t 8563
+Silicon hit: b 8, strip 18, E 497, ELo 103, t 8520
+CsI hit: adcchan 5, tel 0, id 5, ER 459
+CsI hit: adcchan 13, tel 1, id 5, ER 1005
+CsI hit: adcchan 29, tel 3, id 5, ER 615
+
+Pre-solution data:
+Silicon front hit: telescope 0, strip 22, E_cal 3.36766
+Silicon back hit: telescope 0, strip 22, E_cal 3.39136
+CsI hit: id 5, tel 0, E proton equivalent 51.6029
+Silicon front hit: telescope 1, strip 19, E_cal 4.3819
+Silicon back hit: telescope 1, strip 16, E_cal 4.3888
+CsI hit: id 5, tel 1, E proton equivalent 78.9889
+Silicon front hit: telescope 3, strip 28, E_cal 3.1891
+Silicon back hit: telescope 3, strip 18, E_cal 3.19887
+CsI hit: id 5, tel 3, E proton equivalent 48.8238
+
+Post-PID data:
+iZ 1, iA 1, telescope 0, front strip 22, front energy 3.36766, back strip 22, back energy 3.39136, CsI ID 5, CsI energy 51.6029
+iZ 1, iA 2, telescope 1, front strip 19, front energy 4.3819, back strip 16, back energy 4.3888, CsI ID 5, CsI energy 78.9889
+iZ 1, iA 1, telescope 3, front strip 28, front energy 3.1891, back strip 18, back energy 3.19887, CsI ID 5, CsI energy 48.8238
+
+=================
+EVENT START
+=================
+
+Input data:
+Silicon hit: b 1, strip 2, E 477, ELo 86, t 8504
+Silicon hit: b 1, strip 3, E 1584, ELo 420, t 8688
+Silicon hit: b 1, strip 16, E 459, ELo 110, t 8910
+Silicon hit: b 2, strip 8, E 1570, ELo 362, t 8757
+Silicon hit: b 2, strip 28, E 421, ELo 70, t 8936
+Silicon hit: b 3, strip 7, E 707, ELo 164, t 8624
+Silicon hit: b 4, strip 9, E 644, ELo 133, t 8952
+Silicon hit: b 5, strip 25, E 185, ELo 39, t 8433
+Silicon hit: b 5, strip 26, E 4695, ELo 1226, t 8701
+Silicon hit: b 5, strip 27, E 243, ELo 39, t 8396
+Silicon hit: b 5, strip 31, E 529, ELo 135, t 8573
+Silicon hit: b 6, strip 1, E 33, ELo 0, t 8483
+Silicon hit: b 6, strip 2, E 4930, ELo 1250, t 8243
+Silicon hit: b 6, strip 3, E 73, ELo 0, t 8458
+Silicon hit: b 6, strip 7, E 161, ELo 0, t 9741
+CsI hit: adcchan 1, tel 0, id 1, ER 2362
+CsI hit: adcchan 4, tel 0, id 4, ER 176
+CsI hit: adcchan 5, tel 0, id 5, ER 397
+CsI hit: adcchan 9, tel 1, id 1, ER 157
+CsI hit: adcchan 16, tel 2, id 0, ER 236
+CsI hit: adcchan 22, tel 2, id 6, ER 1240
+
+Pre-solution data:
+Silicon front hit: telescope 0, strip 3, E_cal 10.2578
+Silicon front hit: telescope 0, strip 2, E_cal 2.33822
+Silicon front hit: telescope 0, strip 16, E_cal 2.22425
+Silicon back hit: telescope 0, strip 8, E_cal 10.2165
+Silicon back hit: telescope 0, strip 28, E_cal 2.47454
+CsI hit: id 1, tel 0, E proton equivalent 324.57
+CsI hit: id 5, tel 0, E proton equivalent 43.2377
+CsI hit: id 4, tel 0, E proton equivalent 8.76457
+Silicon front hit: telescope 1, strip 7, E_cal 4.03211
+Silicon back hit: telescope 1, strip 9, E_cal 4.05
+CsI hit: id 1, tel 1, E proton equivalent 5.88993
+Silicon front hit: telescope 2, strip 26, E_cal 31.9021
+Silicon front hit: telescope 2, strip 31, E_cal 2.57073
+Silicon front hit: telescope 2, strip 27, E_cal 0.688058
+Silicon back hit: telescope 2, strip 2, E_cal 32.2392
+Silicon back hit: telescope 2, strip 7, E_cal 0.786424
+CsI hit: id 6, tel 2, E proton equivalent 116.502
+CsI hit: id 0, tel 2, E proton equivalent 28.3824
+
+Post-PID data:
+iZ 0, iA 0, telescope 0, front strip 2, front energy 2.33822, back strip 28, back energy 2.47454, CsI ID 4, CsI energy 8.76457
+iZ 0, iA 0, telescope 1, front strip 7, front energy 4.03211, back strip 9, back energy 4.05, CsI ID 1, CsI energy 5.88993
+

@@ -59,7 +59,7 @@ int main() {
 	cout << GREEN << "Output file: " << ofname << RESET << endl;
 
 	// Enable implicit multi-threading
-	int nthreads = 8;
+	int nthreads = 1;
 	ROOT::EnableImplicitMT(nthreads);
 	
 	// Initialize some variables up here so that they are accessible inside the lambda function
@@ -85,6 +85,7 @@ int main() {
 	// and it must be thread safe. To enforce the latter requirement,
 	// TBufferMerger::GetFile will be used for the output file.
 	auto f = [&](TTreeReader &reader) {
+		if (globalProcessed == 20) return;
 		Input input(reader, sortConfig);
 
 		// Output using thread safe file
@@ -99,7 +100,7 @@ int main() {
 		// Thread-local event loop
 		size_t localCounter = 0;
 		while (reader.Next()) {
-			
+			if (globalProcessed == 20) return;
 			// Reset global tree output variables
 			Histo.reset();
 
@@ -114,7 +115,7 @@ int main() {
 			
 			// Handle progress bar
 			localCounter++;
-			if (localCounter >= updateRate) {
+			if ((localCounter >= updateRate) || localCounter == 20) {
 				long long total = globalProcessed.fetch_add(localCounter);
 				lock_guard<mutex> lock(consoleMutex);
 				long double percentage = (long double)total / numentries * 100.0;
@@ -175,6 +176,7 @@ int main() {
 	for (;;) {
 		runFile >> runnum;
 		if (runFile.eof() || runFile.bad()) break;
+		if (globalProcessed == 20) continue;
 
 		datastring.str("");
 		datastring << sortConfig.GetDataDir() << "run-" << runnum << ".root";
