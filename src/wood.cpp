@@ -130,6 +130,9 @@ void wood::loadFrag(size_t i, parType::detType det, solution* frag) {
 			gobbiOut->ifront = frag->ifront;
 			gobbiOut->iback = frag->iback;
 			gobbiOut->time = frag->CsITime;
+			gobbiOut->dtime = frag->time;
+			gobbiOut->btime = frag->btime;
+			gobbiOut->timediff = frag->timediff;
 			gobbiOut->denergy_R = frag->denergyR;
 			gobbiOut->energy_p_R = frag->energyR;
 			return;

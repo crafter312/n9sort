@@ -71,7 +71,7 @@ private:
 	
 	TRandom* Ran;
 
-	ofstream testOut{"../RootFiles/TestDataOut_20Entries.txt"};
+	//ofstream testOut{"../RootFiles/TestDataOut_20Entries.txt"};
 
 	// Inputs are telescope number, channel number, and hit index for below functions
 	void addFrontHit(size_t tel, size_t ch, size_t i);

@@ -28,7 +28,7 @@ using namespace std;
 void N9_5pa_process() {
 
 	// Read in file
-	TFile *file = TFile::Open("/data4/N9/mnt/analysis/e25001/rootout/sort_all_noneighbors.root");
+	TFile *file = TFile::Open("/data4/N9/mnt/analysis/e25001/rootout/sort_run16-54_noneighbors_hasCsITDC_SiFGate.root");
 	if (!file || file->IsZombie()) return;
 
 	// Get TTree from file
@@ -51,13 +51,18 @@ void N9_5pa_process() {
 	// Total counters
 	vector<size_t> singleMults(4, 0); // per-telescope total count of events with only one particle in this telescope
 	vector<size_t> multiMults(4, 0);  // per-telescope total count of events with multiple particles in this telescope
+
+	size_t num9Ns{0};
+	double avgSubeventsInGate{0.};
 	
 	// ROOT output
-	TFile* ofile = new TFile("/data4/N9/mnt/analysis/e25001/rootout/N9_5pa_processed_all_noneighbors.root", "RECREATE");
+	TFile* ofile = new TFile("/data4/N9/mnt/analysis/e25001/rootout/N9_5pa_processed_run16-54_noneighbors_hasCsITDC_SiFGate.root", "RECREATE");
 	ofile->cd();
 	TH2I* p2_csicombos = new TH2I("p2_csicombos", "p2_csicombos", 7, 0, 7, 7, 0, 7);
 	TDirectoryFile* dirInvMass = new TDirectoryFile("InvMass", "InvMass");
 	TDirectory* dir9N = dirInvMass->mkdir("9N", "9N");
+	dir9N->cd();
+	TH1I* C8_subevents = new TH1I("C8_subevents", "C8_subevents", 200, 0, 16);
 	correl.zeroMask();
 	correl.proton.mask[0] = 1;
 	correl.proton.mask[1] = 1;
@@ -89,8 +94,8 @@ void N9_5pa_process() {
 		for (size_t i = 0; i < frags.size(); i++) {
 			wood::GobbiOut& frag = frags[i];
 		
-			// Particle types are ordered, so first four are protons and last two are alphas
-			if (i < 4) {
+			// Particle types are ordered, so first five are protons and last is an alpha
+			if (i < 5) {
 				multsP[frag.itele]++;
 				pIDs[frag.itele].push_back(frag.id);
 			}
@@ -123,7 +128,11 @@ void N9_5pa_process() {
 			sol->iZ = 1;
 			sol->iA = 1;
 			sol->mass = Mass_p;
-			if (i == 5) sol->mass = Mass_alpha;
+			if (i == 5) {
+				sol->iZ = 2;
+				sol->iA = 4;
+				sol->mass = Mass_alpha;
+			}
 
 			// Now to load solutions into correl
 			correl.load(sol);
@@ -151,16 +160,19 @@ void N9_5pa_process() {
 		correl.alpha.mask[0]  = 1;
 
 		// Loop through all combinations of 4p + a and perform 8C reconstruction
-		bool has8C = false;
+		double num8C = 0.;
 		for (size_t i = 0; i < 5; i++) {
 			size_t idx = (i > 0) ? i - 1 : 0;
 			correl.proton.mask[idx] = 1;
 			correl.proton.mask[i] = 0;
 			correl.makeArray(1);
 			float Erel_8C = correl.findErel();
-			has8C = (Erel_8C > 2.) && (Erel_8C < 4.);
+			C8_subevents->Fill(Erel_8C);
+			num8C += (double)((Erel_8C > 2.) && (Erel_8C < 4.));
 		}
-		if (!has8C) continue;
+		if (num8C == 0.) continue;
+		num9Ns++;
+		avgSubeventsInGate = avgSubeventsInGate + ((num8C - avgSubeventsInGate) / (double)num9Ns);
 
 		// At this point, at least one combination of 4p + a is 8C, perform the
 		// 9N reconstruction
@@ -177,6 +189,8 @@ void N9_5pa_process() {
 		N9_5pa.Fill(Erel_9N, -1, Vcm, thetaCM, cos_thetaH, runnum, 8);
 	}
 	
+	cout << "Number of 8C gated 9N events: " << num9Ns << endl;
+	cout << "Average # 8C subevents inside gate per 8C gated 9N event: " << avgSubeventsInGate << endl;
 	cout << "=======================================================" << endl;
 	for (size_t i = 0; i < 4; i++) {
 		cout << "Telescope " << i << " statistics:" << endl;

@@ -44,6 +44,7 @@ cmake_install.cmake
 # All build files
 build/*
 *.pcm
+macros/*ACLiC*
 
 # Data files
 *.root

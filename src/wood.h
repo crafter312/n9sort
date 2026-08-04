@@ -79,6 +79,9 @@ public:
 		int ifront;
 		int iback;
 		float time;
+		float dtime;
+		float btime;
+		float timediff;
 		float energy_p_R;
 		float denergy_R;
 

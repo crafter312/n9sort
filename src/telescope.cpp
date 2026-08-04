@@ -350,6 +350,7 @@ int telescope::simpleECsI() {
 	Solution[0].CsITime = CsI.Order[0].time;
 	Solution[0].timediff = timediff;
 	Solution[0].time = Front.Order[0].time;
+	Solution[0].btime = Back.Order[0].time;
 	Solution[0].isSiCsI = true;
 	Solution[0].itele = id;
 	Nsolution = 1;
@@ -603,6 +604,8 @@ int telescope::multiHit() {
 			Solution[i].energy = Front.Order[i].energy;
 			Solution[i].energyR = Front.Order[i].energyR;
 			Solution[i].time = Front.Order[i].time;
+			Solution[i].btime = Back.Order[arrayB[i]].time;
+			Solution[i].dtime = Delta.Order[arrayD[i]].time;
 			Solution[i].denergy = Delta.Order[arrayD[i]].energy;
 			Solution[i].ifront = Front.Order[i].strip;
 			Solution[i].iback = Back.Order[arrayB[i]].strip;
@@ -856,6 +859,7 @@ int telescope::multiHitECsI(stringstream& ss) {
 					float timediff = CsI.Order[order[icsi]].time - Front.Order[iif].time;
 					Solution[Nsolution].timediff = timediff;
 					Solution[Nsolution].time = Front.Order[iif].time;
+					Solution[Nsolution].btime = Back.Order[iib].time;
 					Nsolution++;
 
 					Front.Order[iif].CsIFlag = true;
@@ -904,6 +908,7 @@ int telescope::multiHitECsI(stringstream& ss) {
 			float timediff = CsI.Order[order[icsi]].time - Front.Order[iif].time;
 			Solution[Nsolution].timediff = timediff;
 			Solution[Nsolution].time = Front.Order[iif].time;
+			Solution[Nsolution].btime = Back.Order[iib].time;
 			Nsolution++;
 
 			Front.Order[iif].CsIFlag = true;

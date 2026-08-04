@@ -171,14 +171,14 @@ Gobbi28::Gobbi28(Input& in, histo& hist, SortConfig& config) : Targetdist(config
 	Histo.sumCsIE_cal_um     = new TH2I("sumCsIE_cal_um", "", maxadcchan, 0, maxadcchan, 512, 0, 200);
 	Histo.sumCsITime_um      = new TH2I("sumCsITime_um", "", maxadcchan, 0, maxadcchan, 1000, -500, 500);
 	Histo.sumCsITime_matched = new TH2I("sumCsITime_matched", "", nTelCsIs * 4, 0, nTelCsIs * 4, 1000, -500, 500);
-
+/*
 	// Begin output file for test output (data for first 20 events)
 	testOut << "===================================================================" << endl;
 	testOut << "This file contains silicon and CsI data for the first 20 events at " << endl;
 	testOut << "various stages of processing, including input, pre-solution, and   " << endl;
 	testOut << "post-PID.                                                          " << endl;
 	testOut << "===================================================================" << endl;
-	testOut << endl;
+	testOut << endl;*/
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -190,17 +190,18 @@ Gobbi28::~Gobbi28() {
 	delete FrontTimecal;
 	delete BackTimecal;
 	for (int i = 0; i < 4; i++) delete Telescope[i];
-	testOut.close();
+	//testOut.close();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void Gobbi28::analyze() {
+/*
 	testOut << "=================" << endl;
 	testOut << "EVENT START" << endl;
 	testOut << "=================" << endl;
 	testOut << endl;
-	testOut << "Input data:" << endl;
+	testOut << "Input data:" << endl;*/
 
 	// Reset member variables
 	for (size_t i = 0; i < 4; i++) Telescope[i]->reset();
@@ -211,7 +212,7 @@ void Gobbi28::analyze() {
 		size_t board = input.GetBoard(i);
 		size_t chan = input.GetChan(i);
 
-		testOut << "Silicon hit: b " << board << ", strip " << chan << ", E " << input.GetE(i) << ", ELo " << input.GetELo(i) << ", t " << input.GetT(i) << endl;
+		//testOut << "Silicon hit: b " << board << ", strip " << chan << ", E " << input.GetE(i) << ", ELo " << input.GetELo(i) << ", t " << input.GetT(i) << endl;
 
 		if (board > hinpboards || chan >= hinpchans) {
 			cout << "Nhits " << nhits << endl;
@@ -242,8 +243,8 @@ void Gobbi28::analyze() {
 	int NCsI_all = 0; //number of CsI hits across all telescopes
 	int NCsI_matched = 0; //number of CsI hits with good F and B
 	stringstream ss1;
-	testOut << endl;
-	testOut << "Pre-solution data:" << endl;
+	//testOut << endl;
+	//testOut << "Pre-solution data:" << endl;
 	for (size_t id = 0; id < 4; id++) {
 
 #ifdef ENABLE_DEBUG
@@ -264,15 +265,15 @@ void Gobbi28::analyze() {
 		for (size_t n = 0; n < FrontN; n++) {
 			sumchan = id*hinpchans + Telescope[id]->Front.Order[n].strip;
 			Histo.sumFrontE_addback->Fill(sumchan, Telescope[id]->Front.Order[n].energy);
-			testOut << "Silicon front hit: telescope " << id << ", strip " << Telescope[id]->Front.Order[n].strip << ", E_cal " << Telescope[id]->Front.Order[n].energy << endl;
+			//testOut << "Silicon front hit: telescope " << id << ", strip " << Telescope[id]->Front.Order[n].strip << ", E_cal " << Telescope[id]->Front.Order[n].energy << endl;
 		}
 		for (size_t n = 0; n < BackN; n++) {
 			sumchan = id*hinpchans + Telescope[id]->Back.Order[n].strip;
 			Histo.sumBackE_addback->Fill(sumchan, Telescope[id]->Back.Order[n].energy);
-			testOut << "Silicon back hit: telescope " << id << ", strip " << Telescope[id]->Back.Order[n].strip << ", E_cal " << Telescope[id]->Back.Order[n].energy << endl;
+			//testOut << "Silicon back hit: telescope " << id << ", strip " << Telescope[id]->Back.Order[n].strip << ", E_cal " << Telescope[id]->Back.Order[n].energy << endl;
 		}
 		for (size_t n = 0; n < CsIN; n++) {
-			testOut << "CsI hit: id " << Telescope[id]->CsI.Order[n].strip << ", tel " << id << ", E proton equivalent " << Telescope[id]->CsI.Order[n].energy << endl;
+			//testOut << "CsI hit: id " << Telescope[id]->CsI.Order[n].strip << ", tel " << id << ", E proton equivalent " << Telescope[id]->CsI.Order[n].energy << endl;
 		}
 		
 		// No point if not at least one front and one back
@@ -440,7 +441,7 @@ void Gobbi28::analyze() {
 				Histo.AlphaEnergy->Fill(sol.Ekin, sol.theta * rad_to_deg);
 		}
 	}
-
+/*
 	// Final test output
 	testOut << endl;
 	testOut << "Post-PID data:" << endl;
@@ -450,7 +451,7 @@ void Gobbi28::analyze() {
 			testOut << "iZ " << sol.iZ << ", iA " << sol.iA << ", telescope " << id << ", front strip " << sol.ifront << ", front energy " << sol.denergy << ", back strip " << sol.iback << ", back energy " << sol.benergy << ", CsI ID " << sol.iCsI << ", CsI energy " << sol.energy << endl;
 		}
 	}
-	testOut << endl;
+	testOut << endl;*/
 	
 	//Multiplicity of CsI crystals with good ADC,QDC,TDC
 	Histo.CsI_mult_AQT->Fill(NCsI_all);
@@ -550,8 +551,10 @@ float Gobbi28::getEin(float energy, float thick, int Z, float A) {
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void Gobbi28::addFrontHit(size_t tel, size_t ch, size_t i) {
-	size_t ER = input.GetE(i);
 	size_t tR = input.GetT(i);
+	if ((tR < 6000) || (tR > 10750)) return;
+
+	size_t ER = input.GetE(i);
 	size_t ELoR = input.GetELo(i);
 	double Energy = FrontEcal->getEnergy(tel, ch, ER);
 	double time = FrontTimecal->getTime(tel, ch, tR);
@@ -579,8 +582,8 @@ void Gobbi28::addFrontHit(size_t tel, size_t ch, size_t i) {
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void Gobbi28::addBackHit(size_t tel, size_t ch, size_t i) {
-	size_t ER = input.GetE(i);
 	size_t tR = input.GetT(i);
+	size_t ER = input.GetE(i);
 	size_t ELoR = input.GetELo(i);
 	double Energy = BackEcal->getEnergy(tel, ch, ER);
 	double time = BackTimecal->getTime(tel, ch, tR);
@@ -657,7 +660,7 @@ void Gobbi28::addCsIHits() {
 		size_t id = idCsImap[adcchan];
 		double Ecal = CsIEcal->getEnergy(tel, id, ER);
 
-		testOut << "CsI hit: adcchan " << adcchan << ", tel " << tel << ", id " << id << ", ER " << ER << endl;
+		//testOut << "CsI hit: adcchan " << adcchan << ", tel " << tel << ", id " << id << ", ER " << ER << endl;
 		
 		// Test for valid ADC channel
 		if (Histo.CsI_Energy_R_um.find(adcchan) == Histo.CsI_Energy_R_um.end()) {
@@ -718,7 +721,8 @@ void Gobbi28::addCsIHits() {
 		}
 		
 		double t = NAN;
-		if (hasTDC) t = CsITimecal->getTime(tel, id, T.value());
+		if (!hasTDC) continue;
+		t = CsITimecal->getTime(tel, id, T.value());
 		if (!hasQDC) Q = -1;
 		Telescope[tel]->CsI.Add(id, Ecal, 0., 0, ER, t, Q, true);
 		Telescope[tel]->multCsI++;
