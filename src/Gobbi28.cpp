@@ -708,17 +708,17 @@ void Gobbi28::addCsIHits() {
 		
 		for (size_t iq = 0; iq < nQhits; iq++) {
 			qdcchan = input_qdc.GetChan(iq);
-			Q = input_qdc.GetAQ(iq);
-			if (qdcchan == adcchan) Histo.CsI_QDC_matched[adcchan]->Fill(Q);
 		
 #ifdef ENABLE_DEBUG
 			cout << "Gobbi28::addCsIHits adcchan " << adcchan << " qdcchan " << qdcchan << endl;
 #endif
 			
 			if (qdcchan != adcchan) continue;
-			
 			hasQDC = true;
-			Histo.CsIonly_PSD[adcchan]->Fill(ER, Q);
+
+			Q = input_qdc.GetAQ(iq);
+			Histo.CsI_QDC_matched[adcchan]->Fill(Q);
+			if (hasTDC) Histo.CsIonly_PSD[adcchan]->Fill(ER, Q);
 			break;
 		}
 		
