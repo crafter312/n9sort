@@ -228,11 +228,10 @@ void O12_4p2a_process() {
 		float Ex = Erel_12O - Q12O;
 		float Vcm = correl.velocityCM;
 		float thetaCM = correl.thetaCM*rad_to_deg;
-		float cos_thetaH = correl.cos_thetaH;
 
 		// No mass excess for 9N, so no Q value and no excitation energy
 		runnum = *runnumRV;
-		O12_4p2a.Fill(Erel_12O, Ex, Vcm, thetaCM, cos_thetaH, runnum, 8);
+		O12_4p2a.Fill(Erel_12O, Ex, Vcm, thetaCM, runnum, 8);
 	}
 	
 	cout << "=======================================================" << endl;

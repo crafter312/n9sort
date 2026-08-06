@@ -120,7 +120,7 @@ public:
 	// to be completed in the future case where gammas are required.
 	void setGammas();
 
-	void Fill(float _Erel, float _Ex, float _Vcm, float _thetaCM, float _cos_thetaH, int _runnum, int _beamZ);
+	void Fill(float _Erel, float _Ex, float _Vcm, float _thetaCM, int _runnum, int _beamZ);
 
 private:
 
@@ -150,7 +150,6 @@ private:
 	double Ex{NAN};
 	double Vcm{NAN};
 	double thetaCM{NAN};
-	double cos_thetaH{NAN};
 
 	int Ngamma;
 	int Ngamma_Select;

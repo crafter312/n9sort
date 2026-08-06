@@ -290,7 +290,7 @@ void Det::corr_4He() {
 
     Histo.Erel_pt_costhetaH->Fill(Erel_4He, cos_thetaH);
 
-		He4_pt->Fill(Erel_4He, Ex, Vcm, thetaCM, cos_thetaH, runnum, 8); // Beam Z usually comes from S800, but S800 is not used for this experiment and we have a fixed beam type
+		He4_pt->Fill(Erel_4He, Ex, Vcm, thetaCM, runnum, 8); // Beam Z usually comes from S800, but S800 is not used for this experiment and we have a fixed beam type
   }
 
   // d+d
@@ -314,7 +314,7 @@ void Det::corr_4He() {
 
     Histo.Erel_dd_costhetaH->Fill(Erel_4He, cos_thetaH);
 
-		He4_dd->Fill(Erel_4He, Ex, Vcm, thetaCM, cos_thetaH, runnum, 8);
+		He4_dd->Fill(Erel_4He, Ex, Vcm, thetaCM, runnum, 8);
   }
 }
 
@@ -342,7 +342,7 @@ void Det::corr_5He() {
 
 		Histo.Erel_dt_costhetaH->Fill(Erel_5He, cos_thetaH);
 
-		He5_dt->Fill(Erel_5He, Ex, Vcm, thetaCM, cos_thetaH, runnum, 8);
+		He5_dt->Fill(Erel_5He, Ex, Vcm, thetaCM, runnum, 8);
   }
 }
 
@@ -370,7 +370,7 @@ void Det::corr_6He() {
 
 		Histo.Erel_tt_costhetaH->Fill(Erel_6He, cos_thetaH);
 
-		He6_tt->Fill(Erel_6He, Ex, Vcm, thetaCM, cos_thetaH, runnum, 8);
+		He6_tt->Fill(Erel_6He, Ex, Vcm, thetaCM, runnum, 8);
   }
 }
 
@@ -399,7 +399,7 @@ void Det::corr_5Li() {
 
 		Histo.Erel_pa_costhetaH->Fill(Erel_5Li, cos_thetaH);
 
-		Li5_pa->Fill(Erel_5Li, Ex, Vcm, thetaCM, cos_thetaH, runnum, 8);
+		Li5_pa->Fill(Erel_5Li, Ex, Vcm, thetaCM, runnum, 8);
   }
 
   // H2+He3
@@ -424,7 +424,7 @@ void Det::corr_5Li() {
 
 		Histo.Erel_d3He_costhetaH->Fill(Erel_5Li, cos_thetaH);
 
-		Li5_dHe3->Fill(Erel_5Li, Ex, Vcm, thetaCM, cos_thetaH, runnum, 8);
+		Li5_dHe3->Fill(Erel_5Li, Ex, Vcm, thetaCM, runnum, 8);
   }
 }
 
@@ -456,7 +456,7 @@ void Det::corr_6Li() {
     Histo.VCM_vs_ThetaCM->Fill(thetaCM, Vcm);
     Histo.Erel_da_cosThetaH->Fill(Erel_6Li, cos_thetaH);
 
-		Li6_da->Fill(Erel_6Li, Ex, Vcm, thetaCM, cos_thetaH, runnum, 8);
+		Li6_da->Fill(Erel_6Li, Ex, Vcm, thetaCM, runnum, 8);
 
 		// ToF calculations, added by Henry Webb (h.s.webb@wustl.edu)
 		// This is used for quantifying neutron time resolution when
@@ -565,7 +565,7 @@ void Det::corr_7Li() {
 		float thetaCM = Correl.thetaCM*rad_to_deg;
 		float cos_thetaH = Correl.cos_thetaH;
 
-		Li7_pHe6->Fill(Erel_7Li, Ex, Vcm, thetaCM, cos_thetaH, runnum, 8);
+		Li7_pHe6->Fill(Erel_7Li, Ex, Vcm, thetaCM, runnum, 8);
 
     float getqvalue = Correl.Qvalue();
 
@@ -604,7 +604,7 @@ void Det::corr_7Li() {
 		float thetaCM = Correl.thetaCM*rad_to_deg;
 		float cos_thetaH = Correl.cos_thetaH;
 
-		Li7_ta->Fill(Erel_7Li, Ex, Vcm, thetaCM, cos_thetaH, runnum, 8);
+		Li7_ta->Fill(Erel_7Li, Ex, Vcm, thetaCM, runnum, 8);
 
     Histo.Erel_7Li_ta->Fill(Erel_7Li);
     Histo.Ex_7Li_ta->Fill(Ex);
@@ -643,7 +643,7 @@ void Det::corr_6Be() {
 		float thetaCM = Correl.thetaCM*rad_to_deg;
 		float cos_thetaH = Correl.cos_thetaH;
 
-		Be6_ppa->Fill(Erel_6Be, Ex, Vcm, thetaCM, cos_thetaH, runnum, 8);
+		Be6_ppa->Fill(Erel_6Be, Ex, Vcm, thetaCM, runnum, 8);
 
     Histo.Erel_6Be_2pa->Fill(Erel_6Be);
     Histo.ThetaCM_6Be_2pa->Fill(thetaCM);
@@ -668,7 +668,7 @@ void Det::corr_7Be() {
 		float thetaCM = Correl.thetaCM*rad_to_deg;
 		float cos_thetaH = Correl.cos_thetaH;
 
-		Be7_He3a->Fill(Erel_7Be, Ex, Vcm, thetaCM, cos_thetaH, runnum, 8);
+		Be7_He3a->Fill(Erel_7Be, Ex, Vcm, thetaCM, runnum, 8);
 
     Histo.Erel_7Be_a3He->Fill(Erel_7Be);
     Histo.Ex_7Be_a3He->Fill(Ex);
@@ -689,7 +689,7 @@ void Det::corr_7Be() {
 		float thetaCM = Correl.thetaCM*rad_to_deg;
 		float cos_thetaH = Correl.cos_thetaH;
 
-		Be7_pLi6->Fill(Erel_7Be, Ex, Vcm, thetaCM, cos_thetaH, runnum, 8);
+		Be7_pLi6->Fill(Erel_7Be, Ex, Vcm, thetaCM, runnum, 8);
 
     Histo.Erel_7Be_p6Li->Fill(Erel_7Be);
     Histo.Ex_7Be_p6Li->Fill(Ex);
@@ -717,7 +717,7 @@ void Det::corr_8Be() {
     float thetaCM = Correl.thetaCM*rad_to_deg;
     float cos_thetaH = Correl.cos_thetaH;
 
-		Be8_aa->Fill(Erel_8Be, Ex, Vcm, thetaCM, cos_thetaH, runnum, 8);
+		Be8_aa->Fill(Erel_8Be, Ex, Vcm, thetaCM, runnum, 8);
 
     Histo.Erel_8Be_aa->Fill(Erel_8Be);
     Histo.Ex_8Be_aa->Fill(Ex);
@@ -746,7 +746,7 @@ void Det::corr_8Be() {
     float thetaCM = Correl.thetaCM*rad_to_deg;
     float cos_thetaH = Correl.cos_thetaH;
 
-		Be8_pLi7->Fill(Erel_8Be, Ex, Vcm, thetaCM, cos_thetaH, runnum, 8);
+		Be8_pLi7->Fill(Erel_8Be, Ex, Vcm, thetaCM, runnum, 8);
 
     Histo.Erel_8Be_p7Li->Fill(Erel_8Be);
     Histo.Ex_8Be_p7Li->Fill(Ex);
@@ -774,7 +774,7 @@ void Det::corr_8Be() {
     float thetaCM = Correl.thetaCM*rad_to_deg;
 		float cos_thetaH = Correl.cos_thetaH;
 
-		Be8_pta->Fill(Erel_8Be, Ex, Vcm, thetaCM, cos_thetaH, runnum, 8);
+		Be8_pta->Fill(Erel_8Be, Ex, Vcm, thetaCM, runnum, 8);
 
     Histo.Erel_8Be_pta->Fill(Erel_8Be);
     Histo.Ex_8Be_pta->Fill(Ex);
@@ -801,7 +801,7 @@ void Det::corr_8Be() {
     float thetaCM = Correl.thetaCM*rad_to_deg;
     float cos_thetaH = Correl.cos_thetaH;
 
-		Li7_ta_fake->Fill(Erel_7Li, Ex, Vcm, thetaCM, cos_thetaH, runnum, 8);
+		Li7_ta_fake->Fill(Erel_7Li, Ex, Vcm, thetaCM, runnum, 8);
 
     Histo.Erel_7Li_ta_fake->Fill(Erel_7Li);
     Histo.Ex_7Li_ta_fake->Fill(Ex);
@@ -826,7 +826,7 @@ void Det::corr_9B() {
     float thetaCM = Correl.thetaCM*rad_to_deg;
     float cos_thetaH = Correl.cos_thetaH;
 
-		B9_paa->Fill(Erel_9B, Ex, Vcm, thetaCM, cos_thetaH, runnum, 8);
+		B9_paa->Fill(Erel_9B, Ex, Vcm, thetaCM, runnum, 8);
 
     Histo.Erel_9B_paa->Fill(Erel_9B);
     Histo.Ex_9B_paa->Fill(Ex);
@@ -855,7 +855,7 @@ void Det::corr_8C() {
     float thetaCM = Correl.thetaCM*rad_to_deg;
     float cos_thetaH = Correl.cos_thetaH;
 
-		C8_4pa->Fill(Erel_8C, Ex, Vcm, thetaCM, cos_thetaH, runnum, 8);
+		C8_4pa->Fill(Erel_8C, Ex, Vcm, thetaCM, runnum, 8);
 
     Histo.Erel_8C_4pa->Fill(Erel_8C);
     Histo.Ex_8C_4pa->Fill(Ex);
@@ -883,7 +883,7 @@ void Det::corr_10C() {
 		float thetaCM = Correl.thetaCM*rad_to_deg;
 		float cos_thetaH = Correl.cos_thetaH;
 		
-		C10_2p2a->Fill(Erel_10C, Ex, Vcm, thetaCM, cos_thetaH, runnum, 8);
+		C10_2p2a->Fill(Erel_10C, Ex, Vcm, thetaCM, runnum, 8);
 		
 		Histo.Erel_10C_2p2a->Fill(Erel_10C);
 		Histo.Ex_10C_2p2a->Fill(Ex);
@@ -910,7 +910,7 @@ void Det::corr_12C() {
 		float thetaCM = Correl.thetaCM*rad_to_deg;
 		float cos_thetaH = Correl.cos_thetaH;
 		
-		C12_3a->Fill(Erel_12C, Ex, Vcm, thetaCM, cos_thetaH, runnum, 8);
+		C12_3a->Fill(Erel_12C, Ex, Vcm, thetaCM, runnum, 8);
 		
 		Histo.Erel_12C_3a->Fill(Erel_12C);
 		Histo.Ex_12C_3a->Fill(Ex);
@@ -939,7 +939,7 @@ void Det::corr_9N() {
     float cos_thetaH = Correl.cos_thetaH;
 
 		// No mass excess for 9N, so no Q value and no excitation energy
-		N9_5pa->Fill(Erel_9N, -1, Vcm, thetaCM, cos_thetaH, runnum, 8);
+		N9_5pa->Fill(Erel_9N, -1, Vcm, thetaCM, runnum, 8);
 
     Histo.Erel_9N_5pa->Fill(Erel_9N);
     Histo.ThetaCM_9N_5pa->Fill(thetaCM);
@@ -968,7 +968,7 @@ void Det::corr_12O() {
 		float thetaCM = Correl.thetaCM*rad_to_deg;
 		float cos_thetaH = Correl.cos_thetaH;
 		
-		O12_4p2a->Fill(Erel_12O, Ex, Vcm, thetaCM, cos_thetaH, runnum, 8);
+		O12_4p2a->Fill(Erel_12O, Ex, Vcm, thetaCM, runnum, 8);
 		
 		Histo.Erel_12O_4p2a->Fill(Erel_12O);
 		Histo.Ex_12O_4p2a->Fill(Ex);

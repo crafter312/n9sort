@@ -182,11 +182,10 @@ void N9_5pa_process() {
 		float Erel_9N = correl.findErel();
 		float Vcm = correl.velocityCM;
 		float thetaCM = correl.thetaCM*rad_to_deg;
-		float cos_thetaH = correl.cos_thetaH;
 
 		// No mass excess for 9N, so no Q value and no excitation energy
 		runnum = *runnumRV;
-		N9_5pa.Fill(Erel_9N, -1, Vcm, thetaCM, cos_thetaH, runnum, 8);
+		N9_5pa.Fill(Erel_9N, -1, Vcm, thetaCM, runnum, 8);
 	}
 	
 	cout << "Number of 8C gated 9N events: " << num9Ns << endl;

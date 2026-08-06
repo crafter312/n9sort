@@ -55,7 +55,6 @@ wood::wood(correl2& correl, string name, TDirectory* dir, bool gamma0) : gamma(g
 	t->Branch("Ex", &Ex);
 	t->Branch("Vcm", &Vcm);
 	t->Branch("thetaCM", &thetaCM);
-	t->Branch("cos_thetaH", &cos_thetaH);
 
 	if (gamma) {
 		t->Branch("Ngamma", &Ngamma);
@@ -162,12 +161,11 @@ void wood::setGammas() {}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void wood::Fill(float _Erel, float _Ex, float _Vcm, float _thetaCM, float _cos_thetaH, int _runnum, int _beamZ) {
+void wood::Fill(float _Erel, float _Ex, float _Vcm, float _thetaCM, int _runnum, int _beamZ) {
 	Erel = _Erel;
 	Ex = _Ex;
 	Vcm = _Vcm;
 	thetaCM = _thetaCM;
-	cos_thetaH = _cos_thetaH;
 	runnum = _runnum;
 	beamZ = _beamZ;
 
