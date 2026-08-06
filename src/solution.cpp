@@ -53,6 +53,7 @@ void solution::reset() {
 	energyTot = -1;
 	Ekin = -1;
 	velocity = -1;
+	cos_thetaH = NAN;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

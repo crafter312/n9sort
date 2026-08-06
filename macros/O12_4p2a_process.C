@@ -2,6 +2,7 @@
 #include <stdexcept>
 #include <vector>
 
+#include <TCutG.h>
 #include <TFile.h>
 #include <TH2I.h>
 #include <TTree.h>
@@ -26,8 +27,13 @@ using namespace std;
 
 void O12_4p2a_process() {
 
+	// ROOT macro output for 6Be gate
+	vector<double> cutg_vect0{ 1.175373077336973, 0.6156715764594571, 0.5923506805895606, 0.9888059103778015, 1.781716369954282, 2.13152980800273, 2.061567120393041, 1.548507411255317, 1.222014869076766, 1.175373077336973 };
+	vector<double> cutg_vect1{ 2.333333293596901, 2.249999959021805, 1.333333278695738, 0.6249999348074162, 0.3749999310821259, 0.9999999403953517, 1.666666616996126, 2.208333291734256, 2.37499996088445, 2.333333293596901 };
+	TCutG *cutg = new TCutG("O12_6BeGate", 10, cutg_vect0.data(), cutg_vect1.data());
+
 	// Read in file
-	TFile *file = TFile::Open("/data4/N9/mnt/analysis/e25001/rootout/sort_run16-54_noneighbors_hasCsITDC_SiFGate.root");
+	TFile *file = TFile::Open("/data4/N9/mnt/analysis/e25001/rootout/sort_run16-54_noneighbors_hasCsITDC_SiFBGates.root");
 	if (!file || file->IsZombie()) return;
 
 	// Get TTree from file
@@ -53,9 +59,10 @@ void O12_4p2a_process() {
 
 	size_t num12Os{0};
 	double avgSubeventsInGate{0.};
+	float const Q6Be = mass_6Be - (mass_alpha + 2.*mass_p);
 	
 	// ROOT output
-	TFile* ofile = new TFile("/data4/N9/mnt/analysis/e25001/rootout/O12_4p2a_processed_run16-54_noneighbors_hasCsITDC_SiFGate.root", "RECREATE");
+	TFile* ofile = new TFile("/data4/N9/mnt/analysis/e25001/rootout/O12_4p2a_processed_run16-54_noneighbors_hasCsITDC_SiFBGates.root", "RECREATE");
 	ofile->cd();
 	TH2I* p2_csicombos = new TH2I("p2_csicombos", "p2_csicombos", 7, 0, 7, 7, 0, 7);
 	TH2I* a2_csicombos = new TH2I("a2_csicombos", "a2_csicombos", 7, 0, 7, 7, 0, 7);
@@ -63,6 +70,8 @@ void O12_4p2a_process() {
 	TDirectory* dir12O = dirInvMass->mkdir("12O", "12O");
 	dir12O->cd();
 	TH2I* Be6_subevents = new TH2I("Be6_subevents", "Be6_subevents", 200, 0, 10, 200, 0, 10);
+	TH2I* Be6_subevents_zoomed = new TH2I("Be6_subevents_zoomed", "Be6_subevents_zoomed", 25, 0, 2.5, 25, 0, 2.5);
+	TH1I* C8_subevents = new TH1I("C8_subevents", "C8_subevents", 200, 0, 16);
 	correl.zeroMask();
 	correl.proton.mask[0] = 1;
 	correl.proton.mask[1] = 1;
@@ -155,7 +164,7 @@ void O12_4p2a_process() {
 		// reconstruction for each. To do this, only have to pick one alpha and
 		// look at all pairs of protons that could go with that alpha. For each
 		// case, remaining three fragments form the other 6Be.
-		bool has12O = false;
+		double num12Os{0.};
 		for (size_t i = 0; i < 3; i++) {
 			for (size_t j = i + 1; j < 4; j++) {
 				correl.zeroMask();
@@ -164,6 +173,7 @@ void O12_4p2a_process() {
 				correl.proton.mask[j] = 1;
 				correl.makeArray(1);
 				float Erel_6Be_1 = correl.findErel();
+				float Ex_6Be_1 = Erel_6Be_1 - Q6Be;
 
 				// Calculate second 6Be fragment from remaining fragments
 				correl.zeroMask();
@@ -175,26 +185,54 @@ void O12_4p2a_process() {
 				correl.proton.mask[l] = 1;
 				correl.makeArray(1);
 				float Erel_6Be_2 = correl.findErel();
+				float Ex_6Be_2 = Erel_6Be_2 - Q6Be;
 
 				Be6_subevents->Fill(Erel_6Be_1, Erel_6Be_2);
+				Be6_subevents_zoomed->Fill(Erel_6Be_1, Erel_6Be_2);
+				float radius = sqrt((Ex_6Be_1 * Ex_6Be_1) + (Ex_6Be_2 * Ex_6Be_2));
+				//num12Os += (double)cutg->IsInside(Erel_6Be_1, Erel_6Be_2);
+				num12Os += (double)(radius < 0.292);
 			}
 		}
-		//if (!has12O) continue;
-/*
-		// At this point, at least one combination of 4p + a is 8C, perform the
-		// 9N reconstruction
-		correl.proton.mask[4] = 1;
-		correl.makeArray(1, N9_5pa);
 
-		float Erel_9N = correl.findErel();
+		// Then check all combinations of 8C + a (there are only two)
+		double num8Cs{0.};
+		correl.zeroMask();
+		correl.proton.mask[0] = 1;
+		correl.proton.mask[1] = 1;
+		correl.proton.mask[2] = 1;
+		correl.proton.mask[3] = 1;
+		correl.alpha.mask[0]  = 1;
+		correl.makeArray(1);
+		float Erel_8C = correl.findErel();
+		C8_subevents->Fill(Erel_8C);
+		num8Cs += (double)((Erel_8C > 2.) && (Erel_8C < 4.));
+
+		correl.alpha.mask[0]  = 0;
+		correl.alpha.mask[1]  = 1;
+		correl.makeArray(1);
+		Erel_8C = correl.findErel();
+		C8_subevents->Fill(Erel_8C);
+		num8Cs += (double)((Erel_8C > 2.) && (Erel_8C < 4.));
+
+		if ((num12Os == 0.) && (num8Cs == 0.)) continue;
+
+		// At this point, at least one combination of 4p + 2a is either
+		// 6Be+6Be or 8C+a, perform the 12O reconstruction
+		float const Q12O = mass_12O - (4*mass_p) - (2*mass_alpha);
+		correl.alpha.mask[0]  = 1;
+		correl.alpha.mask[1]  = 1;
+		correl.makeArray(1, O12_4p2a);
+
+		float Erel_12O = correl.findErel();
+		float Ex = Erel_12O - Q12O;
 		float Vcm = correl.velocityCM;
 		float thetaCM = correl.thetaCM*rad_to_deg;
 		float cos_thetaH = correl.cos_thetaH;
 
 		// No mass excess for 9N, so no Q value and no excitation energy
 		runnum = *runnumRV;
-		N9_5pa.Fill(Erel_9N, -1, Vcm, thetaCM, cos_thetaH, runnum, 8);
-*/
+		O12_4p2a.Fill(Erel_12O, Ex, Vcm, thetaCM, cos_thetaH, runnum, 8);
 	}
 	
 	cout << "=======================================================" << endl;

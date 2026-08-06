@@ -187,6 +187,7 @@ void wood::loadFragCommon(size_t i, solution* frag) {
 	fragOut.energy_p = frag->Ekin;
 	fragOut.theta = frag->theta;
 	fragOut.phi = frag->phi;
+	fragOut.cos_thetaH = frag->cos_thetaH;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

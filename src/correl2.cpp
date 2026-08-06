@@ -1,5 +1,8 @@
 #include "correl2.h"
 
+#include <stdexcept>
+#include <string>
+
 #include "wood.h"
 
 using namespace std;
@@ -101,97 +104,59 @@ void correl2::load(solution* fragment) {
 	}
 }
 
-//**************************************************************
-/**
- * Finds the total kinetic energy of the fragments
- * in their center-of-mass frame.
- */
-float correl2::findErel()
-{
-	//first find total momentum
-	for (int i=0;i<3;i++) Mtot[i] = 0.;
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+// Finds the total kinetic energy of the fragments
+// in their center-of-mass frame.
+float correl2::findErel() {
+
+	// First find total momentum
 	float energyTot = 0.; // total energy for relativity, total mass for newton
-
-	for (int i=0;i<N;i++) 
-	{
+	Mtot[0] = 0.;
+	Mtot[1] = 0.;
+	Mtot[2] = 0.;
+	for (size_t i = 0; i < N; i++) {
 		energyTot += frag[i]->energyTot;
-		//cout << "frag " << i << " Z = " << frag[i]->iZ;
-		//cout <<" energyTot = " << frag[i]->energyTot;
-		//cout << " Ekin = " << frag[i]->Ekin;
-		//cout << " mass = " << frag[i]->mass << endl;
 
-		if(frag[i]->mass > 1000000) abort();
+		if (frag[i]->mass > 1000000)
+			throw runtime_error(string("ERROR: frag[") + to_string(i) + string("]->mass = ") + to_string(frag[i]->mass) + string(" is invalid"));
 		
-		for (int j=0;j<3;j++)
-		{
-			Mtot[j] += frag[i]->Mvect[j];
-			// cout << "Frag = " << i << " Momentum " << j << " = " << Mtot[j] << endl;
-		}
+		Mtot[0] += frag[i]->Mvect[0];
+		Mtot[1] += frag[i]->Mvect[1];
+		Mtot[2] += frag[i]->Mvect[2];
 	}
+	momentumCM = sqrt((Mtot[0]*Mtot[0]) + (Mtot[1]*Mtot[1]) + (Mtot[1]*Mtot[1]));
 
-	momentumCM = 0.;
-	for (int j=0;j<3;j++) momentumCM += pow(Mtot[j],2);
-	momentumCM = sqrt(momentumCM);
+	// Calculate center of mass velocity
+	velocityCM = momentumCM * Kinematics.c / energyTot;
 
-
-	//float mmc = 0.;
-	//for (int i=0;i<3;i++) mmc += pow(momC[i],2);
-	//mmc = sqrt(mmc);
-	//cosThetaC = momC[2]/mmc;
-
-	//PperpC = sqrt(pow(momC[0],2)+pow(momC[1],2));
-	//PparaC = momC[2];
-	//PtotC = sqrt(pow(momC[0],2)+pow(momC[1],2)+pow(momC[2],2));
-
-	//velocity of cemter of mass
-	velocityCM = momentumCM*Kinematics.c/energyTot;
-
-	// cout << "energyTot = " << energyTot << endl;
-	
-	double velCM[3]={0.};
-	for (int j=0;j<3;j++) velCM[j] = velocityCM/momentumCM*Mtot[j];
-	thetaCM = acos(velCM[2]/velocityCM);
-	phiCM = atan2(velCM[1],velCM[0]);
+	double velCM[3] = {
+		velocityCM / momentumCM * Mtot[0],
+		velocityCM / momentumCM * Mtot[1],
+		velocityCM / momentumCM * Mtot[2]
+	};
+	thetaCM = acos(velCM[2] / velocityCM);
+	phiCM = atan2(velCM[1], velCM[0]);
 
 	float totalKE = 0.;
-	for (int i=0;i<N;i++)
-	{
+	for (size_t i = 0; i < N; i++) {
+		float eKinNew = Kinematics.transformMomentum(frag[i]->Mvect, velCM, frag[i]->energyTot, frag[i]->MomCM);
+		frag[i]->energyCM = eKinNew - (Kinematics.scale * frag[i]->mass);
+		totalKE += frag[i]->energyCM;
 
-		float eKinNew = Kinematics.transformMomentum(frag[i]->Mvect,velCM,frag[i]->energyTot,frag[i]->MomCM);
-		frag[i]->energyCM = eKinNew - Kinematics.scale*frag[i]->mass;
-		totalKE += eKinNew - Kinematics.scale*frag[i]->mass;
-		check_ke = eKinNew - Kinematics.scale*frag[i]->mass;
-		check_mass = Kinematics.scale*frag[i]->mass;
+		// Calculate per fragment cos_thetaH while I'm at it
+		float mv = sqrt((frag[i]->MomCM[0]*frag[i]->MomCM[0]) + (frag[i]->MomCM[1]*frag[i]->MomCM[1]) + (frag[i]->MomCM[2]*frag[i]->MomCM[2]));
+		frag[i]->cos_thetaH = frag[i]->MomCM[2] / mv;
 	}
 
-
-	float mv = 0.;
-	for (int i=0;i<3;i++)
-	{
-		mv += pow(frag[N-1]->MomCM[i],2);
-	}
-	mv = sqrt(mv);
-	cos_thetaH = frag[N-1]->MomCM[2]/mv;
-
-	//In case of 2p decay find angle between heavy fragment's momentum and CM momentum?
-	if (N == 3)
-	{
-		float dot = 0.;
-		float mm = 0.;
-		for (int j=0;j<3;j++)
-		{
-			dot += frag[2]->MomCM[j]*momC[j];
-			mm += pow(frag[2]->MomCM[j],2);
-		}
-		mm = sqrt(mm);
-		cosAlphaQ = dot/mm/PtotC;
-		// cos(x) = A*B/(|A| |B|) where A is heavy fragment's momentum and B is CM momentum
-	}
-
-	// cout << "Erel = " << totalKE << endl;
+	// Previously, only last fragment cos_thetaH was calculated here,
+	// save it in same place for compatability
+	cos_thetaH = frag[N - 1]->cos_thetaH;
 
 	return totalKE;
 }
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 // reconstruct events based on Qvalue, make sure it is a 6He(d,n) reaction and not 6He(p,p)
 float correl2::missingmass()

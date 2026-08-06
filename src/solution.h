@@ -82,6 +82,7 @@ public:
 	double MomRot[3];
 	double MomRot2[3];
 	double energyCM;
+	double cos_thetaH;
 
 	double KE;
 

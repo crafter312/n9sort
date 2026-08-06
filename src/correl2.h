@@ -64,9 +64,6 @@ public:
 	float phiCM;
 	float thetaInReactCM;
 
-	float check_ke;
-	float check_mass;
-
 	int ifront;
 	int istrip;
 	int itele;

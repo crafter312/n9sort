@@ -62,6 +62,7 @@ public:
 		float energy_p;
 		float theta;
 		float phi;
+		float cos_thetaH;
 
 	private:
 		parType::detType detector;

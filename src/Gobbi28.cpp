@@ -583,6 +583,8 @@ void Gobbi28::addFrontHit(size_t tel, size_t ch, size_t i) {
 
 void Gobbi28::addBackHit(size_t tel, size_t ch, size_t i) {
 	size_t tR = input.GetT(i);
+	if ((tR < 5500) || (tR > 11750)) return;
+
 	size_t ER = input.GetE(i);
 	size_t ELoR = input.GetELo(i);
 	double Energy = BackEcal->getEnergy(tel, ch, ER);
@@ -707,7 +709,7 @@ void Gobbi28::addCsIHits() {
 		for (size_t iq = 0; iq < nQhits; iq++) {
 			qdcchan = input_qdc.GetChan(iq);
 			Q = input_qdc.GetAQ(iq);
-			if (qdcchan == qdcchan) Histo.CsI_QDC_matched[adcchan]->Fill(Q);
+			if (qdcchan == adcchan) Histo.CsI_QDC_matched[adcchan]->Fill(Q);
 		
 #ifdef ENABLE_DEBUG
 			cout << "Gobbi28::addCsIHits adcchan " << adcchan << " qdcchan " << qdcchan << endl;
