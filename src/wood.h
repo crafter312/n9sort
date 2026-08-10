@@ -75,7 +75,7 @@ public:
 		GobbiOut() : GenericOut(parType::detType::Gobbi) {}
 
 		// Output variables unique to Gobbi
-		int id;
+		int iCsI;
 		int itele;
 		int ifront;
 		int iback;
@@ -85,6 +85,7 @@ public:
 		float timediff;
 		float energy_p_R;
 		float denergy_R;
+		float qdc;
 
 	};
 

@@ -97,11 +97,11 @@ void N9_5pa_process() {
 			// Particle types are ordered, so first five are protons and last is an alpha
 			if (i < 5) {
 				multsP[frag.itele]++;
-				pIDs[frag.itele].push_back(frag.id);
+				pIDs[frag.itele].push_back(frag.iCsI);
 			}
 			else {
 				multsA[frag.itele]++;
-				aIDs[frag.itele].push_back(frag.id);
+				aIDs[frag.itele].push_back(frag.iCsI);
 			}
 
 			// Transfer input data back into solutions for re-processing
@@ -115,12 +115,13 @@ void N9_5pa_process() {
 			sol->theta     = frag.theta;
 			sol->phi       = frag.phi;
 			sol->itele     = frag.itele;
-			sol->iCsI      = frag.id;
+			sol->iCsI      = frag.iCsI;
 			sol->ifront    = frag.ifront;
 			sol->iback     = frag.iback;
 			sol->CsITime   = frag.time;
 			sol->denergyR  = frag.denergy_R;
 			sol->energyR   = frag.energy_p_R;
+			sol->qdc       = frag.qdc;
 
 			// Set mass value (total mass in MeV)
 			// 6th and last fragment should be alpha (heaviest),
@@ -177,7 +178,7 @@ void N9_5pa_process() {
 		// At this point, at least one combination of 4p + a is 8C, perform the
 		// 9N reconstruction
 		correl.proton.mask[4] = 1;
-		correl.makeArray(1, N9_5pa);
+		correl.makeArray(1);
 
 		float Erel_9N = correl.findErel();
 		float Vcm = correl.velocityCM;
@@ -185,6 +186,7 @@ void N9_5pa_process() {
 
 		// No mass excess for 9N, so no Q value and no excitation energy
 		runnum = *runnumRV;
+		correl.makeOutput(1, N9_5pa);
 		N9_5pa.Fill(Erel_9N, -1, Vcm, thetaCM, runnum, 8);
 	}
 	

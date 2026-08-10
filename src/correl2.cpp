@@ -59,7 +59,7 @@ void correl2::initWood(wood* w) {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void correl2::makeArray(bool flagMask, wood& w) {
+void correl2::makeArrayAndOutput(bool flagMask, wood& w) {
 	N = 0;
 	for (size_t i = 0; i < Nparticles; i++) {
 		for (int j = 0; j < particle[i]->mult; j++) {
@@ -86,6 +86,23 @@ void correl2::makeArray(bool flagMask) {
 			}
 		}
 	}
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void correl2::makeOutput(bool flagMask, wood& w) {
+	int prevN = N;
+	N = 0;
+	for (size_t i = 0; i < Nparticles; i++) {
+		for (int j = 0; j < particle[i]->mult; j++) {
+			if (!flagMask || particle[i]->mask[j]) {
+				w.loadFrag(N, particle[i]->detector, particle[i]->Sol[j]);
+				N++;
+			}
+		}
+	}
+	if (N != prevN)
+		cout << "WARNING: N = " << N << " while making output different from N = " << prevN << " from most recent fragment array creation" << endl;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

@@ -106,11 +106,11 @@ void O12_4p2a_process() {
 			// Particle types are ordered, so first four are protons and last two are alphas
 			if (i < 4) {
 				multsP[frag.itele]++;
-				pIDs[frag.itele].push_back(frag.id);
+				pIDs[frag.itele].push_back(frag.iCsI);
 			}
 			else {
 				multsA[frag.itele]++;
-				aIDs[frag.itele].push_back(frag.id);
+				aIDs[frag.itele].push_back(frag.iCsI);
 			}
 
 			// Transfer input data back into solutions for re-processing
@@ -124,12 +124,13 @@ void O12_4p2a_process() {
 			sol->theta     = frag.theta;
 			sol->phi       = frag.phi;
 			sol->itele     = frag.itele;
-			sol->iCsI      = frag.id;
+			sol->iCsI      = frag.iCsI;
 			sol->ifront    = frag.ifront;
 			sol->iback     = frag.iback;
 			sol->CsITime   = frag.time;
 			sol->denergyR  = frag.denergy_R;
 			sol->energyR   = frag.energy_p_R;
+			sol->qdc       = frag.qdc;
 
 			// Set mass value (total mass in MeV)
 			// 5th and 6th fragments (last two) should be alpha (heaviest),
@@ -222,7 +223,7 @@ void O12_4p2a_process() {
 		float const Q12O = mass_12O - (4*mass_p) - (2*mass_alpha);
 		correl.alpha.mask[0]  = 1;
 		correl.alpha.mask[1]  = 1;
-		correl.makeArray(1, O12_4p2a);
+		correl.makeArray(1);
 
 		float Erel_12O = correl.findErel();
 		float Ex = Erel_12O - Q12O;
@@ -231,6 +232,7 @@ void O12_4p2a_process() {
 
 		// No mass excess for 9N, so no Q value and no excitation energy
 		runnum = *runnumRV;
+		correl.makeOutput(1, O12_4p2a);
 		O12_4p2a.Fill(Erel_12O, Ex, Vcm, thetaCM, runnum, 8);
 	}
 	

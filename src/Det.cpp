@@ -256,7 +256,7 @@ void Det::corr_4He() {
     Correl.zeroMask();
     Correl.proton.mask[0]=1;
     Correl.H3.mask[0]=1;
-    Correl.makeArray(1, *He4_pt);
+    Correl.makeArray(1);
 
     float Erel_4He = Correl.findErel();
     float Ex = Erel_4He - Q4He;
@@ -290,6 +290,7 @@ void Det::corr_4He() {
 
     Histo.Erel_pt_costhetaH->Fill(Erel_4He, cos_thetaH);
 
+		Correl.makeOutput(1, *He4_pt);
 		He4_pt->Fill(Erel_4He, Ex, Vcm, thetaCM, runnum, 8); // Beam Z usually comes from S800, but S800 is not used for this experiment and we have a fixed beam type
   }
 
@@ -299,7 +300,7 @@ void Det::corr_4He() {
     Correl.zeroMask();
     Correl.H2.mask[0]=1;
     Correl.H2.mask[1]=1;
-    Correl.makeArray(1, *He4_dd);
+    Correl.makeArray(1);
 
     float Erel_4He = Correl.findErel();
     float Ex = Erel_4He - Q4He;
@@ -314,6 +315,7 @@ void Det::corr_4He() {
 
     Histo.Erel_dd_costhetaH->Fill(Erel_4He, cos_thetaH);
 
+		Correl.makeOutput(1, *He4_dd);
 		He4_dd->Fill(Erel_4He, Ex, Vcm, thetaCM, runnum, 8);
   }
 }
@@ -327,7 +329,7 @@ void Det::corr_5He() {
     Correl.zeroMask();
     Correl.H2.mask[0]=1;
     Correl.H3.mask[0]=1;
-    Correl.makeArray(1, *He5_dt);
+    Correl.makeArray(1);
 
     float Erel_5He = Correl.findErel();
     float Ex = Erel_5He - Q5He;
@@ -342,6 +344,7 @@ void Det::corr_5He() {
 
 		Histo.Erel_dt_costhetaH->Fill(Erel_5He, cos_thetaH);
 
+		Correl.makeOutput(1, *He5_dt);
 		He5_dt->Fill(Erel_5He, Ex, Vcm, thetaCM, runnum, 8);
   }
 }
@@ -355,7 +358,7 @@ void Det::corr_6He() {
     Correl.zeroMask();
     Correl.H3.mask[0]=1;
     Correl.H3.mask[1]=1;
-    Correl.makeArray(1, *He6_tt);
+    Correl.makeArray(1);
 
     float Erel_6He = Correl.findErel();
 		float Ex = Erel_6He - Q6He;
@@ -370,6 +373,7 @@ void Det::corr_6He() {
 
 		Histo.Erel_tt_costhetaH->Fill(Erel_6He, cos_thetaH);
 
+		Correl.makeOutput(1, *He6_tt);
 		He6_tt->Fill(Erel_6He, Ex, Vcm, thetaCM, runnum, 8);
   }
 }
@@ -384,7 +388,7 @@ void Det::corr_5Li() {
     Correl.zeroMask();
     Correl.proton.mask[0]=1;
     Correl.alpha.mask[0]=1;
-    Correl.makeArray(1, *Li5_pa);
+    Correl.makeArray(1);
 
     float Erel_5Li = Correl.findErel();
 		float Ex = Erel_5Li - Q5Li;
@@ -399,6 +403,7 @@ void Det::corr_5Li() {
 
 		Histo.Erel_pa_costhetaH->Fill(Erel_5Li, cos_thetaH);
 
+		Correl.makeOutput(1, *Li5_pa);
 		Li5_pa->Fill(Erel_5Li, Ex, Vcm, thetaCM, runnum, 8);
   }
 
@@ -409,7 +414,7 @@ void Det::corr_5Li() {
     Correl.zeroMask();
     Correl.H2.mask[0]=1;
     Correl.He3.mask[0]=1;
-    Correl.makeArray(1, *Li5_dHe3);
+    Correl.makeArray(1);
 
     float Erel_5Li = Correl.findErel();
 		float Ex = Erel_5Li - Q5Li;
@@ -424,6 +429,7 @@ void Det::corr_5Li() {
 
 		Histo.Erel_d3He_costhetaH->Fill(Erel_5Li, cos_thetaH);
 
+		Correl.makeOutput(1, *Li5_dHe3);
 		Li5_dHe3->Fill(Erel_5Li, Ex, Vcm, thetaCM, runnum, 8);
   }
 }
@@ -440,7 +446,7 @@ void Det::corr_6Li() {
     Correl.zeroMask();
     Correl.H2.mask[0]=1;
     Correl.alpha.mask[0]=1;
-    Correl.makeArray(1, *Li6_da);
+    Correl.makeArray(1);
 
     float Erel_6Li = Correl.findErel();
 		float Ex = Erel_6Li - Q6Li;
@@ -456,6 +462,7 @@ void Det::corr_6Li() {
     Histo.VCM_vs_ThetaCM->Fill(thetaCM, Vcm);
     Histo.Erel_da_cosThetaH->Fill(Erel_6Li, cos_thetaH);
 
+		Correl.makeOutput(1, *Li6_da);
 		Li6_da->Fill(Erel_6Li, Ex, Vcm, thetaCM, runnum, 8);
 
 		// ToF calculations, added by Henry Webb (h.s.webb@wustl.edu)
@@ -531,7 +538,7 @@ void Det::corr_6Li() {
     Correl.H2.mask[0]=0;
     Correl.H3_fake.mask[0]=1;
     Correl.alpha.mask[0]=1;   
-    Correl.makeArray(1, *Li7_ta_bad);
+    Correl.makeArray(1);
 
 		float Erel_7Li = Correl.findErel();
 		float Ex_7Li = Erel_7Li - Q7Li;
@@ -541,6 +548,7 @@ void Det::corr_6Li() {
 
     Histo.Ex_7Li_ta_bad->Fill(Ex_7Li);
 
+		Correl.makeOutput(1, *Li7_ta_bad);
 		Li7_ta_bad->Fill(Erel_7Li, Ex_7Li, Vcm_7Li, thetaCM_7Li, cos_thetaH_7Li, runnum, 8);
 */
   }
@@ -557,7 +565,7 @@ void Det::corr_7Li() {
     Correl.zeroMask();
     Correl.proton.mask[0]=1;
     Correl.He6.mask[0]=1;   
-    Correl.makeArray(1, *Li7_pHe6);
+    Correl.makeArray(1);
 
     float Erel_7Li = Correl.findErel();
     float Ex = Erel_7Li - Q7Li;
@@ -565,6 +573,7 @@ void Det::corr_7Li() {
 		float thetaCM = Correl.thetaCM*rad_to_deg;
 		float cos_thetaH = Correl.cos_thetaH;
 
+		Correl.makeOutput(1, *Li7_pHe6);
 		Li7_pHe6->Fill(Erel_7Li, Ex, Vcm, thetaCM, runnum, 8);
 
     float getqvalue = Correl.Qvalue();
@@ -596,7 +605,7 @@ void Det::corr_7Li() {
     Correl.zeroMask();
     Correl.H3.mask[0]=1;
     Correl.alpha.mask[0]=1;   
-    Correl.makeArray(1, *Li7_ta);
+    Correl.makeArray(1);
 
     float Erel_7Li = Correl.findErel();
     float Ex = Erel_7Li - Q7Li;
@@ -604,6 +613,7 @@ void Det::corr_7Li() {
 		float thetaCM = Correl.thetaCM*rad_to_deg;
 		float cos_thetaH = Correl.cos_thetaH;
 
+		Correl.makeOutput(1, *Li7_ta);
 		Li7_ta->Fill(Erel_7Li, Ex, Vcm, thetaCM, runnum, 8);
 
     Histo.Erel_7Li_ta->Fill(Erel_7Li);
@@ -635,7 +645,7 @@ void Det::corr_6Be() {
     Correl.alpha.mask[0]=1;
     Correl.proton.mask[0]=1;
     Correl.proton.mask[1]=1;
-    Correl.makeArray(1, *Be6_ppa);
+    Correl.makeArray(1);
 
     float Erel_6Be = Correl.findErel();
 		float Ex = Erel_6Be - Q6Be;
@@ -643,6 +653,7 @@ void Det::corr_6Be() {
 		float thetaCM = Correl.thetaCM*rad_to_deg;
 		float cos_thetaH = Correl.cos_thetaH;
 
+		Correl.makeOutput(1, *Be6_ppa);
 		Be6_ppa->Fill(Erel_6Be, Ex, Vcm, thetaCM, runnum, 8);
 
     Histo.Erel_6Be_2pa->Fill(Erel_6Be);
@@ -660,7 +671,7 @@ void Det::corr_7Be() {
     Correl.zeroMask();
     Correl.He3.mask[0]=1;
     Correl.alpha.mask[0]=1;
-    Correl.makeArray(1, *Be7_He3a);
+    Correl.makeArray(1);
 
 		float Erel_7Be = Correl.findErel();
 		float Ex = Erel_7Be - Q7Be;
@@ -668,6 +679,7 @@ void Det::corr_7Be() {
 		float thetaCM = Correl.thetaCM*rad_to_deg;
 		float cos_thetaH = Correl.cos_thetaH;
 
+		Correl.makeOutput(1, *Be7_He3a);
 		Be7_He3a->Fill(Erel_7Be, Ex, Vcm, thetaCM, runnum, 8);
 
     Histo.Erel_7Be_a3He->Fill(Erel_7Be);
@@ -681,7 +693,7 @@ void Det::corr_7Be() {
     Correl.zeroMask();
     Correl.proton.mask[0]=1;
     Correl.Li6.mask[0]=1;
-    Correl.makeArray(1, *Be7_pLi6);
+    Correl.makeArray(1);
 
     float Erel_7Be = Correl.findErel();
     float Ex = Erel_7Be - Q7Be;
@@ -689,6 +701,7 @@ void Det::corr_7Be() {
 		float thetaCM = Correl.thetaCM*rad_to_deg;
 		float cos_thetaH = Correl.cos_thetaH;
 
+		Correl.makeOutput(1, *Be7_pLi6);
 		Be7_pLi6->Fill(Erel_7Be, Ex, Vcm, thetaCM, runnum, 8);
 
     Histo.Erel_7Be_p6Li->Fill(Erel_7Be);
@@ -709,7 +722,7 @@ void Det::corr_8Be() {
     Correl.zeroMask();
     Correl.alpha.mask[0]=1;
     Correl.alpha.mask[1]=1;
-    Correl.makeArray(1, *Be8_aa);
+    Correl.makeArray(1);
 
     float Erel_8Be = Correl.findErel();
 		float Ex = Erel_8Be - Q8Be;
@@ -717,6 +730,7 @@ void Det::corr_8Be() {
     float thetaCM = Correl.thetaCM*rad_to_deg;
     float cos_thetaH = Correl.cos_thetaH;
 
+		Correl.makeOutput(1, *Be8_aa);
 		Be8_aa->Fill(Erel_8Be, Ex, Vcm, thetaCM, runnum, 8);
 
     Histo.Erel_8Be_aa->Fill(Erel_8Be);
@@ -738,7 +752,7 @@ void Det::corr_8Be() {
     Correl.zeroMask();
     Correl.proton.mask[0]=1;
     Correl.Li7.mask[0]=1;
-    Correl.makeArray(1, *Be8_pLi7);
+    Correl.makeArray(1);
 
     float Erel_8Be = Correl.findErel();
 		float Ex = Erel_8Be - Q8Be;
@@ -746,6 +760,7 @@ void Det::corr_8Be() {
     float thetaCM = Correl.thetaCM*rad_to_deg;
     float cos_thetaH = Correl.cos_thetaH;
 
+		Correl.makeOutput(1, *Be8_pLi7);
 		Be8_pLi7->Fill(Erel_8Be, Ex, Vcm, thetaCM, runnum, 8);
 
     Histo.Erel_8Be_p7Li->Fill(Erel_8Be);
@@ -766,7 +781,7 @@ void Det::corr_8Be() {
     Correl.proton.mask[0]=1;
     Correl.H3.mask[0]=1;
     Correl.alpha.mask[0]=1;
-    Correl.makeArray(1, *Be8_pta);
+    Correl.makeArray(1);
 
     float Erel_8Be = Correl.findErel();
 		float Ex = Erel_8Be - Q8Be;
@@ -774,6 +789,7 @@ void Det::corr_8Be() {
     float thetaCM = Correl.thetaCM*rad_to_deg;
 		float cos_thetaH = Correl.cos_thetaH;
 
+		Correl.makeOutput(1, *Be8_pta);
 		Be8_pta->Fill(Erel_8Be, Ex, Vcm, thetaCM, runnum, 8);
 
     Histo.Erel_8Be_pta->Fill(Erel_8Be);
@@ -793,7 +809,7 @@ void Det::corr_8Be() {
     Correl.zeroMask();
     Correl.H3.mask[0]=1;
     Correl.alpha.mask[0]=1;   
-    Correl.makeArray(1, *Li7_ta_fake);
+    Correl.makeArray(1);
 
     float Erel_7Li = Correl.findErel();
 		float Ex = Erel_7Li - Q7Li;
@@ -801,6 +817,7 @@ void Det::corr_8Be() {
     float thetaCM = Correl.thetaCM*rad_to_deg;
     float cos_thetaH = Correl.cos_thetaH;
 
+		Correl.makeOutput(1, *Li7_ta_fake);
 		Li7_ta_fake->Fill(Erel_7Li, Ex, Vcm, thetaCM, runnum, 8);
 
     Histo.Erel_7Li_ta_fake->Fill(Erel_7Li);
@@ -818,7 +835,7 @@ void Det::corr_9B() {
     Correl.alpha.mask[0]=1;
     Correl.alpha.mask[1]=1;
     Correl.proton.mask[0]=1;
-    Correl.makeArray(1, *B9_paa);
+    Correl.makeArray(1);
 
     float Erel_9B = Correl.findErel();
 		float Ex = Erel_9B - Q9B;
@@ -826,6 +843,7 @@ void Det::corr_9B() {
     float thetaCM = Correl.thetaCM*rad_to_deg;
     float cos_thetaH = Correl.cos_thetaH;
 
+		Correl.makeOutput(1, *B9_paa);
 		B9_paa->Fill(Erel_9B, Ex, Vcm, thetaCM, runnum, 8);
 
     Histo.Erel_9B_paa->Fill(Erel_9B);
@@ -847,7 +865,7 @@ void Det::corr_8C() {
 		Correl.proton.mask[2]=1;
 		Correl.proton.mask[3]=1;
 		Correl.alpha.mask[0]=1;
-		Correl.makeArray(1, *C8_4pa);
+		Correl.makeArray(1);
 
 		float Erel_8C = Correl.findErel();
 		float Ex = Erel_8C - Q8C;
@@ -855,6 +873,7 @@ void Det::corr_8C() {
     float thetaCM = Correl.thetaCM*rad_to_deg;
     float cos_thetaH = Correl.cos_thetaH;
 
+		Correl.makeOutput(1, *C8_4pa);
 		C8_4pa->Fill(Erel_8C, Ex, Vcm, thetaCM, runnum, 8);
 
     Histo.Erel_8C_4pa->Fill(Erel_8C);
@@ -875,7 +894,7 @@ void Det::corr_10C() {
 		Correl.proton.mask[1] = 1;
 		Correl.alpha.mask[0]  = 1;
 		Correl.alpha.mask[1]  = 1;
-		Correl.makeArray(1, *C10_2p2a);
+		Correl.makeArray(1);
 		
 		float Erel_10C = Correl.findErel();
 		float Ex = Erel_10C - Q10C;
@@ -883,6 +902,7 @@ void Det::corr_10C() {
 		float thetaCM = Correl.thetaCM*rad_to_deg;
 		float cos_thetaH = Correl.cos_thetaH;
 		
+		Correl.makeOutput(1, *C10_2p2a);
 		C10_2p2a->Fill(Erel_10C, Ex, Vcm, thetaCM, runnum, 8);
 		
 		Histo.Erel_10C_2p2a->Fill(Erel_10C);
@@ -902,7 +922,7 @@ void Det::corr_12C() {
 		Correl.alpha.mask[0] = 1;
 		Correl.alpha.mask[1] = 1;
 		Correl.alpha.mask[2] = 1;
-		Correl.makeArray(1, *C12_3a);
+		Correl.makeArray(1);
 
 		float Erel_12C = Correl.findErel();
 		float Ex = Erel_12C - Q12C;
@@ -910,6 +930,7 @@ void Det::corr_12C() {
 		float thetaCM = Correl.thetaCM*rad_to_deg;
 		float cos_thetaH = Correl.cos_thetaH;
 		
+		Correl.makeOutput(1, *C12_3a);
 		C12_3a->Fill(Erel_12C, Ex, Vcm, thetaCM, runnum, 8);
 		
 		Histo.Erel_12C_3a->Fill(Erel_12C);
@@ -931,7 +952,7 @@ void Det::corr_9N() {
 		Correl.proton.mask[3]=1;
 		Correl.proton.mask[4]=1;
 		Correl.alpha.mask[0]=1;
-		Correl.makeArray(1, *N9_5pa);
+		Correl.makeArray(1);
 
 		float Erel_9N = Correl.findErel();
 		float Vcm = Correl.velocityCM;
@@ -939,6 +960,7 @@ void Det::corr_9N() {
     float cos_thetaH = Correl.cos_thetaH;
 
 		// No mass excess for 9N, so no Q value and no excitation energy
+		Correl.makeOutput(1, *N9_5pa);
 		N9_5pa->Fill(Erel_9N, -1, Vcm, thetaCM, runnum, 8);
 
     Histo.Erel_9N_5pa->Fill(Erel_9N);
@@ -960,7 +982,7 @@ void Det::corr_12O() {
 		Correl.proton.mask[3] = 1;
 		Correl.alpha.mask[0]  = 1;
 		Correl.alpha.mask[1]  = 1;
-		Correl.makeArray(1, *O12_4p2a);
+		Correl.makeArray(1);
 		
 		float Erel_12O = Correl.findErel();
 		float Ex = Erel_12O - Q12O;
@@ -968,6 +990,7 @@ void Det::corr_12O() {
 		float thetaCM = Correl.thetaCM*rad_to_deg;
 		float cos_thetaH = Correl.cos_thetaH;
 		
+		Correl.makeOutput(1, *O12_4p2a);
 		O12_4p2a->Fill(Erel_12O, Ex, Vcm, thetaCM, runnum, 8);
 		
 		Histo.Erel_12O_4p2a->Fill(Erel_12O);

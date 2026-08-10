@@ -125,7 +125,7 @@ void wood::loadFrag(size_t i, parType::detType det, solution* frag) {
 			if (gobbiIndexMap.find(i) == gobbiIndexMap.end()) break;
 			gobbiOut = &gobbiFrags[gobbiIndexMap[i]];
 			gobbiOut->itele = frag->itele;
-			gobbiOut->id = frag->iCsI;
+			gobbiOut->iCsI = frag->iCsI;
 			gobbiOut->ifront = frag->ifront;
 			gobbiOut->iback = frag->iback;
 			gobbiOut->time = frag->CsITime;
@@ -134,6 +134,7 @@ void wood::loadFrag(size_t i, parType::detType det, solution* frag) {
 			gobbiOut->timediff = frag->timediff;
 			gobbiOut->denergy_R = frag->denergyR;
 			gobbiOut->energy_p_R = frag->energyR;
+			gobbiOut->qdc = frag->qdc;
 			return;
 		case parType::detType::TexNeut:
 			if (texNeutIndexMap.find(i) == texNeutIndexMap.end()) break;
