@@ -230,7 +230,6 @@ void O12_4p2a_process() {
 		float Vcm = correl.velocityCM;
 		float thetaCM = correl.thetaCM*rad_to_deg;
 
-		// No mass excess for 9N, so no Q value and no excitation energy
 		runnum = *runnumRV;
 		correl.makeOutput(1, O12_4p2a);
 		O12_4p2a.Fill(Erel_12O, Ex, Vcm, thetaCM, runnum, 8);

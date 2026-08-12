@@ -181,7 +181,6 @@ void C8_4pa_process() {
 		float Vcm = correl.velocityCM;
 		float thetaCM = correl.thetaCM*rad_to_deg;
 
-		// No mass excess for 9N, so no Q value and no excitation energy
 		runnum = *runnumRV;
 		correl.makeOutput(1, C8_4pa);
 		C8_4pa.Fill(Erel_8C, Ex, Vcm, thetaCM, runnum, 8);
