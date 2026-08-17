@@ -59,7 +59,7 @@ public:
 		// Output variables every particle type should have from any detector
 		float M[3];
 		float et;
-		float energy_p;
+		float Ekin;
 		float theta;
 		float phi;
 		float cos_thetaH;
@@ -79,12 +79,14 @@ public:
 		int itele;
 		int ifront;
 		int iback;
+		float CsITime;
 		float time;
-		float dtime;
 		float btime;
 		float timediff;
-		float energy_p_R;
-		float denergy_R;
+		float energyR;
+		float denergyR;
+		float energy;
+		float denergy;
 		float qdc;
 
 	};

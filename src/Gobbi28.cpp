@@ -397,8 +397,8 @@ void Gobbi28::analyze() {
 
 				// Shift proton energies here to test cos_theta straightening.
 				// `energylow` is just a copy of the CsI energy, so shift both
-				//sol.energy = (1. * sol.energy) + 1.;
-				//sol.energylow = (1. * sol.energylow) + 1.;
+				sol.energy = (1. * sol.energy) + 1.;
+				sol.energylow = (1. * sol.energylow) + 1.;
 			}
 			else if (ZA == sz_pair(1, 2)) { // deuterons
 				Histo.deuteronhitmap->Fill(xpos, ypos);

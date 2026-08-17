@@ -47,6 +47,14 @@ public:
 
 	float getEnergy(int board, int chan, int Ehigh);
 
+	// Output for single particle events (calibrations and whatnot)
+	void corr_p();
+	void corr_a();
+
+	std::unique_ptr<wood> p_out;
+	std::unique_ptr<wood> a_out;
+
+	// Output for reconstructed decay channels
 	void corr_4He();
 	void corr_5He();
 	void corr_6He();
@@ -100,6 +108,7 @@ public:
 	size_t hinpboards;      // total number of HINP boards used
 	size_t hinpchans;       // number of channels per HINP board (should always be 32)
 	size_t runnum;
+	size_t goodMult;
 	
 	// Record particle combinations, start with most important
 	size_t a_p{0};

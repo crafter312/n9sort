@@ -111,16 +111,21 @@ void N9_5pa_process() {
 			sol->Mvect[1]  = frag.M[1];
 			sol->Mvect[2]  = frag.M[2];
 			sol->energyTot = frag.et;
-			sol->Ekin      = frag.energy_p;
+			sol->Ekin      = frag.Ekin;
 			sol->theta     = frag.theta;
 			sol->phi       = frag.phi;
 			sol->itele     = frag.itele;
 			sol->iCsI      = frag.iCsI;
 			sol->ifront    = frag.ifront;
 			sol->iback     = frag.iback;
-			sol->CsITime   = frag.time;
-			sol->denergyR  = frag.denergy_R;
-			sol->energyR   = frag.energy_p_R;
+			sol->CsITime   = frag.CsITime;
+			sol->time      = frag.time;
+			sol->btime     = frag.btime;
+			sol->timediff  = frag.timediff;
+			sol->energyR   = frag.energyR;
+			sol->denergyR  = frag.denergyR;
+			sol->energy    = frag.energy;
+			sol->denergy   = frag.denergy;
 			sol->qdc       = frag.qdc;
 
 			// Set mass value (total mass in MeV)

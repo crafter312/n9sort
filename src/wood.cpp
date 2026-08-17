@@ -128,12 +128,14 @@ void wood::loadFrag(size_t i, parType::detType det, solution* frag) {
 			gobbiOut->iCsI = frag->iCsI;
 			gobbiOut->ifront = frag->ifront;
 			gobbiOut->iback = frag->iback;
-			gobbiOut->time = frag->CsITime;
-			gobbiOut->dtime = frag->time;
+			gobbiOut->CsITime = frag->CsITime;
+			gobbiOut->time = frag->time;
 			gobbiOut->btime = frag->btime;
 			gobbiOut->timediff = frag->timediff;
-			gobbiOut->denergy_R = frag->denergyR;
-			gobbiOut->energy_p_R = frag->energyR;
+			gobbiOut->energyR = frag->energyR;
+			gobbiOut->denergyR = frag->denergyR;
+			gobbiOut->energy = frag->energy;
+			gobbiOut->denergy = frag->denergy;
 			gobbiOut->qdc = frag->qdc;
 			return;
 		case parType::detType::TexNeut:
@@ -183,7 +185,7 @@ void wood::loadFragCommon(size_t i, solution* frag) {
 	fragOut.M[1] = frag->Mvect[1];
 	fragOut.M[2] = frag->Mvect[2];
 	fragOut.et = frag->energyTot;
-	fragOut.energy_p = frag->Ekin;
+	fragOut.Ekin = frag->Ekin;
 	fragOut.theta = frag->theta;
 	fragOut.phi = frag->phi;
 	fragOut.cos_thetaH = frag->cos_thetaH;

@@ -19,6 +19,8 @@
 
 #include "Det.h"
 
+#include <cmath>
+
 #include "constants.h"
 
 using namespace std;
@@ -32,6 +34,12 @@ Det::Det(Input& in, histo& hist, SortConfig& config, size_t run) : input(in.GetG
 #endif
 
 	// Initialize wood class instances for ROOT TTree output
+	Correl.zeroMask();
+	Correl.proton.mask[0] = 1;
+	p_out = make_unique<wood>(Correl, "t_p_out", Histo.singleFrags, false);
+	Correl.zeroMask();
+	Correl.alpha.mask[0] = 1;
+	a_out = make_unique<wood>(Correl, "t_a_out", Histo.singleFrags, false);
 	Correl.zeroMask();
 	Correl.proton.mask[0] = 1;
 	Correl.H3.mask[0] = 1;
@@ -173,10 +181,12 @@ void Det::analyze() {
 
 	//transfer Solution classes from detectors to Correl
 	Correl.reset();
-	size_t goodMult = gobbi.loadSolutions(Correl);
+	goodMult = gobbi.loadSolutions(Correl);
 	if (goodMult < 2) return;
 
 	// List all functions to look for correlations here
+	corr_p();
+	corr_a();
 	//corr_4He();
 	//corr_5He();
 	//corr_6He();
@@ -245,6 +255,28 @@ void Det::analyze() {
 	
 	// Other counters
 	pidSkipped += gobbi.GetPidSkipped();
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void Det::corr_p() {
+	if ((goodMult == 1) && (Correl.proton.mult == 1)) {
+		Correl.zeroMask();
+		Correl.proton.mask[0] = 1;
+		Correl.makeArrayAndOutput(1, *p_out);
+		p_out->Fill(NAN, NAN, NAN, NAN, runnum, 8);
+	}
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void Det::corr_a() {
+	if ((goodMult == 1) && (Correl.alpha.mult == 1)) {
+		Correl.zeroMask();
+		Correl.alpha.mask[0] = 1;
+		Correl.makeArrayAndOutput(1, *a_out);
+		a_out->Fill(NAN, NAN, NAN, NAN, runnum, 8);
+	}
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

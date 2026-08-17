@@ -56,6 +56,7 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, SortConfig& config) : hinpbo
 
   // Directory for all correlations and inv-mass
   dirInvMass = new TDirectoryFile("InvMass","InvMass");
+	singleFrags = dirInvMass->mkdir("singleFrags", "singleFrags");
   dir4He = dirInvMass->mkdir("4He","4He");
   dir5He = dirInvMass->mkdir("5He","5He");
   dir6He = dirInvMass->mkdir("6He","6He");

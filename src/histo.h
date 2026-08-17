@@ -75,6 +75,7 @@ public:
 	TDirectoryFile* dirhitmaps;  // directory for all particle type hitmaps
 
 	TDirectoryFile* dirInvMass;  // directory for all correlations and inv-mass
+	TDirectory* singleFrags; // directory for single multiplicity events (calibrations and whatnot)
 	TDirectory* dir4He;
 	TDirectory* dir5He;
 	TDirectory* dir6He;
