@@ -182,11 +182,12 @@ void Det::analyze() {
 	//transfer Solution classes from detectors to Correl
 	Correl.reset();
 	goodMult = gobbi.loadSolutions(Correl);
+
+	corr_p();
+	corr_a();
 	if (goodMult < 2) return;
 
 	// List all functions to look for correlations here
-	corr_p();
-	corr_a();
 	//corr_4He();
 	//corr_5He();
 	//corr_6He();
