@@ -163,6 +163,7 @@ public:
 	std::unordered_map<size_t, TH1I*> CsI_QDC_matched;
 	std::unordered_map<size_t, TH1I*> CsI_Time_um;
 	std::unordered_map<size_t, TH2I*> CsIonly_PSD;
+	std::unordered_map<size_t, TH2I*> CsIonly_PSD_tgate;
 	std::vector<TH1I*> CsI_Energy_R[4];
 	std::vector<TH1I*> CsI_Energy_R_center[4];
 	std::vector<TH1I*> CsI_Energy_pcal[4];

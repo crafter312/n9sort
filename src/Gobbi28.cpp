@@ -103,6 +103,8 @@ Gobbi28::Gobbi28(Input& in, histo& hist, SortConfig& config) : Targetdist(config
 		Histo.dirPSD->cd();
 		name = "CsIonly_PSD_" + to_string(chan);
 		Histo.CsIonly_PSD[chan] = new TH2I(name.c_str(), "", 1024, 0, 4096, 1024, 0, 4096);
+		name = "CsIonly_PSD_tgate_" + to_string(chan);
+		Histo.CsIonly_PSD_tgate[chan] = new TH2I(name.c_str(), "", 1024, 0, 4096, 1024, 0, 4096);
 	}
 	
 #ifdef ENABLE_DEBUG
@@ -731,6 +733,8 @@ void Gobbi28::addCsIHits() {
 		if (!hasTDC) continue;
 		t = CsITimecal->getTime(tel, id, T.value());
 		if (!hasQDC) Q = -1;
+		if ((t > -15) && (t < 15))
+			Histo.CsIonly_PSD_tgate[adcchan]->Fill(ER, Q);
 		Telescope[tel]->CsI.Add(id, Ecal, 0., 0, ER, t, Q, true);
 		Telescope[tel]->multCsI++;
 	}
