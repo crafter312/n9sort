@@ -21,7 +21,7 @@ using namespace std;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-Gobbi28::Gobbi28(Input& in, histo& hist, SortConfig& config) : Targetdist(config.GetTargDist()), TargetThickness(config.GetTargThick()), hinpboards(config.GetHinpboards()), hinpchans(config.GetHinpchans()), Histo(hist), input(in.GetGobbi()), input_qdc(in.GetQDC()), input_adc(in.GetADC()), input_tdc(in.GetTDC()) {
+Gobbi28::Gobbi28(Input& in, histo& hist, SortConfig& config) : Targetdist(config.GetTargDist()), TargetThickness(config.GetTargThick()), hinpboards(config.GetHinpboards()), hinpchans(config.GetHinpchans()), Histo(hist), input(in.GetGobbi()), input_qdc(in.GetQDC()), input_adc(in.GetADC()), input_tdc(in.GetTDC()), csiGates(config) {
 
 	// Seed TRandom with current system clock
 	auto now = chrono::system_clock::now();
@@ -732,9 +732,10 @@ void Gobbi28::addCsIHits() {
 		double t = NAN;
 		if (!hasTDC) continue;
 		t = CsITimecal->getTime(tel, id, T.value());
-		if (!hasQDC) Q = -1;
+		if (!hasQDC) continue;
 		if ((t > -15) && (t < 15))
 			Histo.CsIonly_PSD_tgate[adcchan]->Fill(ER, Q);
+		//if (!csiGates.IsParticle(tel, id, ER, Q)) continue;
 		Telescope[tel]->CsI.Add(id, Ecal, 0., 0, ER, t, Q, true);
 		Telescope[tel]->multCsI++;
 	}

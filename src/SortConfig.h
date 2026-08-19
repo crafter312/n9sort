@@ -41,6 +41,7 @@ private:
 	std::string CsITimecalFile;
 	std::string CsIStripExtentsFile;
 	std::string CsIChannelMapFile;
+	std::string CsIPSDGateFile;
 	double targdist;      // in cm
 	double targthick;     // in mg/cm^2
 	double alThick;       // thickness of aluminum absorbers in front of Gobbi (mg/cm^2)
@@ -82,6 +83,7 @@ public:
 	std::string GetCsITimecalFile() const { return CsITimecalFile; }
 	std::string GetCsIStripExtentsFile() const { return CsIStripExtentsFile; }
 	std::string GetCsIChannelMapFile() const { return CsIChannelMapFile; }
+	std::string GetCsIPSDGateFile() const { return CsIPSDGateFile; }
 	double GetTargDist() const { return targdist; }
 	double GetTargThick() const { return targthick; }
 	double GetAlThick() const { return alThick; }

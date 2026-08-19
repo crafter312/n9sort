@@ -13,6 +13,7 @@
 
 #include "calibrate.h"
 #include "correl2.h"
+#include "CsIPSDGates.h"
 #include "histo.h"
 #include "Input.h"
 #include "solution.h"
@@ -63,6 +64,9 @@ private:
 	// Map of CsI ADC/QDC/TDC channel to telescope and id (per-telescope CsI channel)
 	std::unordered_map<size_t, size_t> telCsImap;
 	std::unordered_map<size_t, size_t> idCsImap;
+
+	// Class for managing CsI PSD gates for general data cleanup
+	CsIPSDGates csiGates;
 	
 	// Counters
 	size_t NsimpleECsI{0}; // # simple events with one each of front, back, and CsI in a telescope
