@@ -735,7 +735,7 @@ void Gobbi28::addCsIHits() {
 		if (!hasQDC) continue;
 		if ((t > -15) && (t < 15))
 			Histo.CsIonly_PSD_tgate[adcchan]->Fill(ER, Q);
-		//if (!csiGates.IsParticle(tel, id, ER, Q)) continue;
+		if (!csiGates.IsParticle(tel, id, ER, Q)) continue;
 		Telescope[tel]->CsI.Add(id, Ecal, 0., 0, ER, t, Q, true);
 		Telescope[tel]->multCsI++;
 	}
