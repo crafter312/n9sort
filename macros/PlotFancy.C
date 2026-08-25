@@ -55,7 +55,7 @@ void PlotFancyHist(string tname, string params, string gate, string options, str
 
 	// Macro constants
 	string ifdir  = "/data4/N9/mnt/analysis/e25001/rootout/";
-	string ifname = "sort_run16-54_noneighbors_hasCsITDC_SiFBGates_CsIrecal_p+3MeV.root";
+	string ifname = "N9_5pa_processed_all_noneighbors_hasCsITDCQDC_SiFBGates_CsIPSD_CsIrecal.root";
 
 	// Set default style attributes
 	TStyle* Sty = new TStyle("MyStyle", "MyStyle");
@@ -127,6 +127,7 @@ void PlotFancyHist(string tname, string params, string gate, string options, str
 		cerr << "Problem retrieving supposedly drawn histogram, exiting..." << endl;
 	}
 
+	hist->SetLineColor(kBlue+2); // `kBlue+2` is the default blue shade used when plotting histograms via `TTree::Draw`
 	hist->GetXaxis()->SetTitle(xtitle.c_str());
 	hist->GetXaxis()->CenterTitle();
 	hist->GetYaxis()->SetTitle(ytitle.c_str());

@@ -34,12 +34,14 @@ Det::Det(Input& in, histo& hist, SortConfig& config, size_t run) : input(in.GetG
 #endif
 
 	// Initialize wood class instances for ROOT TTree output
+/*
 	Correl.zeroMask();
 	Correl.proton.mask[0] = 1;
 	p_out = make_unique<wood>(Correl, "t_p_out", Histo.singleFrags, false);
 	Correl.zeroMask();
 	Correl.alpha.mask[0] = 1;
 	a_out = make_unique<wood>(Correl, "t_a_out", Histo.singleFrags, false);
+*/
 	Correl.zeroMask();
 	Correl.proton.mask[0] = 1;
 	Correl.H3.mask[0] = 1;
@@ -183,8 +185,8 @@ void Det::analyze() {
 	Correl.reset();
 	goodMult = gobbi.loadSolutions(Correl);
 
-	corr_p();
-	corr_a();
+	//corr_p();
+	//corr_a();
 	if (goodMult < 2) return;
 
 	// List all functions to look for correlations here
@@ -259,7 +261,7 @@ void Det::analyze() {
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
+/*
 void Det::corr_p() {
 	if ((goodMult == 1) && (Correl.proton.mult == 1)) {
 		Correl.zeroMask();
@@ -279,7 +281,7 @@ void Det::corr_a() {
 		a_out->Fill(NAN, NAN, NAN, NAN, runnum, 8);
 	}
 }
-
+*/
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void Det::corr_4He() {

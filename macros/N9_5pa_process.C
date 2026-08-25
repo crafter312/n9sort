@@ -28,7 +28,7 @@ using namespace std;
 void N9_5pa_process() {
 
 	// Read in file
-	TFile *file = TFile::Open("/data4/N9/mnt/analysis/e25001/rootout/sort_run16-54_noneighbors_hasCsITDC_SiFBGates.root");
+	TFile *file = TFile::Open("/data4/N9/mnt/analysis/e25001/rootout/sort_all_noneighbors_hasCsITDCQDC_SiFBGates_CsIPSD_CsIrecal.root");
 	if (!file || file->IsZombie()) return;
 
 	// Get TTree from file
@@ -56,7 +56,7 @@ void N9_5pa_process() {
 	double avgSubeventsInGate{0.};
 	
 	// ROOT output
-	TFile* ofile = new TFile("/data4/N9/mnt/analysis/e25001/rootout/N9_5pa_processed_run16-54_noneighbors_hasCsITDC_SiFBGates.root", "RECREATE");
+	TFile* ofile = new TFile("/data4/N9/mnt/analysis/e25001/rootout/N9_5pa_processed_all_noneighbors_hasCsITDCQDC_SiFBGates_CsIPSD_CsIrecal.root", "RECREATE");
 	ofile->cd();
 	TH2I* p2_csicombos = new TH2I("p2_csicombos", "p2_csicombos", 7, 0, 7, 7, 0, 7);
 	TDirectoryFile* dirInvMass = new TDirectoryFile("InvMass", "InvMass");

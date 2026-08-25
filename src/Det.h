@@ -48,11 +48,11 @@ public:
 	float getEnergy(int board, int chan, int Ehigh);
 
 	// Output for single particle events (calibrations and whatnot)
-	void corr_p();
-	void corr_a();
+	//void corr_p();
+	//void corr_a();
 
-	std::unique_ptr<wood> p_out;
-	std::unique_ptr<wood> a_out;
+	//std::unique_ptr<wood> p_out;
+	//std::unique_ptr<wood> a_out;
 
 	// Output for reconstructed decay channels
 	void corr_4He();

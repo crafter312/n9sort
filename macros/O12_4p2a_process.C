@@ -33,7 +33,7 @@ void O12_4p2a_process() {
 	TCutG *cutg = new TCutG("O12_6BeGate", 10, cutg_vect0.data(), cutg_vect1.data());
 
 	// Read in file
-	TFile *file = TFile::Open("/data4/N9/mnt/analysis/e25001/rootout/sort_run16-54_noneighbors_hasCsITDC_SiFBGates.root");
+	TFile *file = TFile::Open("/data4/N9/mnt/analysis/e25001/rootout/sort_all_noneighbors_hasCsITDCQDC_SiFBGates_CsIPSD_CsIrecal.root");
 	if (!file || file->IsZombie()) return;
 
 	// Get TTree from file
@@ -62,7 +62,7 @@ void O12_4p2a_process() {
 	float const Q6Be = mass_6Be - (mass_alpha + 2.*mass_p);
 	
 	// ROOT output
-	TFile* ofile = new TFile("/data4/N9/mnt/analysis/e25001/rootout/O12_4p2a_processed_run16-54_noneighbors_hasCsITDC_SiFBGates.root", "RECREATE");
+	TFile* ofile = new TFile("/data4/N9/mnt/analysis/e25001/rootout/O12_4p2a_processed_all_noneighbors_hasCsITDCQDC_SiFBGates_CsIPSD_CsIrecal.root", "RECREATE");
 	ofile->cd();
 	TH2I* p2_csicombos = new TH2I("p2_csicombos", "p2_csicombos", 7, 0, 7, 7, 0, 7);
 	TH2I* a2_csicombos = new TH2I("a2_csicombos", "a2_csicombos", 7, 0, 7, 7, 0, 7);

@@ -28,7 +28,7 @@ using namespace std;
 void C8_4pa_process() {
 
 	// Read in file
-	TFile *file = TFile::Open("/data4/N9/mnt/analysis/e25001/rootout/sort_run16-54_noneighbors_hasCsITDC_SiFGate.root");
+	TFile *file = TFile::Open("/data4/N9/mnt/analysis/e25001/rootout/sort_all_noneighbors_hasCsITDCQDC_SiFBGates_CsIPSD_CsIrecal.root");
 	if (!file || file->IsZombie()) return;
 
 	// Get TTree from file
@@ -55,7 +55,7 @@ void C8_4pa_process() {
 	float const Q8C = mass_8C - (4*mass_p) - mass_alpha;
 	
 	// ROOT output
-	TFile* ofile = new TFile("/data4/N9/mnt/analysis/e25001/rootout/C8_4pa_processed_run16-54_noneighbors_hasCsITDC_SiFGate.root", "RECREATE");
+	TFile* ofile = new TFile("/data4/N9/mnt/analysis/e25001/rootout/C8_4pa_processed_all_noneighbors_hasCsITDCQDC_SiFBGates_CsIPSD_CsIrecal.root", "RECREATE");
 	ofile->cd();
 	TH2I* p2_csicombos = new TH2I("p2_csicombos", "p2_csicombos", 7, 0, 7, 7, 0, 7);
 	TDirectoryFile* dirInvMass = new TDirectoryFile("InvMass", "InvMass");
