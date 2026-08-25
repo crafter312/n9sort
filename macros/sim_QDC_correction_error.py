@@ -14,14 +14,26 @@ N_events = 10000
 np.random.seed(42)
 
 # Unshifted reference integral value I_1 (Arbitrary scale)
-I1_true = 1000.0  
+# For this, just used the decay fit amplitude from the data
+#I1_true = 574.815 # alphas
+I1_true = 800.556 # protons
 
 # Centroids and standard deviations (Spread)
-dx_mean = 0.0        # Center time shift (ns)
-dx_std  = 50.0       # Spread in time shifts (ns)
+# The lambda_mean comes from an exponential fit of the data,
+# and the other values are estimated from a visual inspection
+# of the data.
 
-lambda_mean = 0.0015 # Mean decay constant (1/ns) ~ 666 ns lifetime
-lambda_std  = 0.0003 # Spread in decay constants across particles (1/ns)
+# For alphas
+#dx_mean     = 100.0       # Center time shift (ns)
+#dx_std      = 100.0       # Spread in time shifts (ns)
+#lambda_mean = 0.000407085 # Mean decay constant (1/ns)
+#lambda_std  = 0.0001      # Spread in decay constants across particles (1/ns)
+
+# For protons
+dx_mean     = 0.0         # Center time shift (ns)
+dx_std      = 100.0       # Spread in time shifts (ns)
+lambda_mean = 0.00031785  # Mean decay constant (1/ns)
+lambda_std  = 0.0001      # Spread in decay constants across particles (1/ns)
 
 # Generate distributions of true event parameters
 dx_samples = np.random.normal(dx_mean, dx_std, N_events)
