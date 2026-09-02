@@ -37,12 +37,38 @@ void decay_constant() {
 		file->Close();
 		return;
 	}
+
+	// Histogram ranges
+
+	// For ADC gate 975 to 1025
+	const double adc_min   = 975.;
+	const double adc_max   = 1025.;
+	const double adc_p_min = 500.;
+	const double adc_p_max = 1000.;
+	const double adc_a_min = 250.;
+	const double adc_a_max = 750.;
+
+	// For ADC gate 390 to 410
+	//const double adc_min   = 390.;
+	//const double adc_max   = 410.;
+	//const double adc_p_min = 0.;
+	//const double adc_p_max = 500.;
+	//const double adc_a_min = 0.;
+	//const double adc_a_max = 250.;
+
+	// Extracted decay constants
+	const double lambda_p = 0.5 * (0.00031785 + 0.000290268);
+	const double lambda_a = 0.000407085;
 	
 	// ROOT output
 	TFile* ofile = new TFile("/data4/N9/mnt/analysis/e25001/rootout/decay_constant_tele0csi0_pa.root", "RECREATE");
 	ofile->cd();
-	TH2I* p_tail_shape = new TH2I("p_tail_shape", "p_tail_shape", 250, -500, 500, 125, 500, 1000);
-	TH2I* a_tail_shape = new TH2I("a_tail_shape", "a_tail_shape", 250, -500, 500, 125, 250, 750);
+	TH2I* p_tail_shape = new TH2I("p_tail_shape", "p_tail_shape", 250, -500, 500, 125, adc_p_min, adc_p_max);
+	TH2I* a_tail_shape = new TH2I("a_tail_shape", "a_tail_shape", 250, -500, 500, 125, adc_a_min, adc_a_max);
+	TH2I* p_PSD        = new TH2I("p_PSD", "", 1024, 0, 4096, 1024, 0, 4096);
+	TH2I* a_PSD        = new TH2I("a_PSD", "", 1024, 0, 4096, 1024, 0, 4096);
+	TH2I* p_corr_PSD   = new TH2I("p_corr_PSD", "", 1024, 0, 4096, 1024, 0, 4096);
+	TH2I* a_corr_PSD   = new TH2I("a_corr_PSD", "", 1024, 0, 4096, 1024, 0, 4096);
 
 	// Set PSD gates
 	vector<double> gate_tele0csi0_pdt_vect0{ 189.8357211034637, 904.0386302966413, 1581.140089661602, 2316.985511254573, 2623.072472337363, 2570.512085080722, 2044.908212514315, 1544.038639833385, 894.7632678395871, 347.5168828733861, 115.6328214470296, 189.8357211034637 };
@@ -65,11 +91,17 @@ void decay_constant() {
 		
 			// First apply shared gates
 			if ((frag.iCsI != 0) || (frag.itele != 0)) continue;
-			if ((frag.energyR < 975) || (frag.energyR > 1025)) continue;
-			if (gate_tele0csi0_pdt->IsInside(frag.energyR, frag.qdc))
-				p_tail_shape->Fill(frag.CsITime, frag.qdc);
+			if (gate_tele0csi0_pdt->IsInside(frag.energyR, frag.qdc)) {
+				p_PSD->Fill(frag.energyR, frag.qdc);
+				p_corr_PSD->Fill(frag.energyR, frag.qdc*exp(lambda_p*frag.CsITime));
+				if ((frag.energyR > adc_min) & (frag.energyR < adc_max))
+					p_tail_shape->Fill(frag.CsITime, frag.qdc);
+			}
 			if (gate_tele0csi0_He3a->IsInside(frag.energyR, frag.qdc))
-				a_tail_shape->Fill(frag.CsITime, frag.qdc);
+				a_PSD->Fill(frag.energyR, frag.qdc);
+				a_corr_PSD->Fill(frag.energyR, frag.qdc*exp(lambda_a*frag.CsITime));
+				if ((frag.energyR > adc_min) && (frag.energyR < adc_max))
+					a_tail_shape->Fill(frag.CsITime, frag.qdc);
 		}
 	}
 	

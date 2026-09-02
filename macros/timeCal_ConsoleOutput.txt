@@ -1,351 +1,215 @@
-Irregular time spectrum for (board==3 && chan==28), saving histogram...
-3 time peaks found:
-	13710 333
-	13894 333
-	15710 587
-Irregular time spectrum for (board==3 && chan==30), saving histogram...
-3 time peaks found:
-	15710 2792
-	13710 355
-	13898 317
-Irregular time spectrum for (board==3 && chan==31), saving histogram...
-3 time peaks found:
-	15706 3470
-	13682 274
-	13870 386
-Irregular time spectrum for (board==4 && chan==7), saving histogram...
-3 time peaks found:
-	15670 673
-	13582 365
-	13770 332
-Irregular time spectrum for (board==5 && chan==28), saving histogram...
-3 time peaks found:
-	13586 314
-	13774 328
-	15694 190
-Irregular time spectrum for (board==5 && chan==30), saving histogram...
-3 time peaks found:
-	13670 308
-	13858 285
-	15702 4713
-Irregular time spectrum for (board==5 && chan==31), saving histogram...
-3 time peaks found:
-	13794 316
-	13606 306
-	15702 4429
-Irregular time spectrum for (board==6 && chan==0), saving histogram...
-8 time peaks found:
-	13246 249
-	13050 223
-	15658 119
-	12998 104
-	13214 70
-	13194 75
-	13018 84
-	13458 19
-Irregular time spectrum for (board==6 && chan==1), saving histogram...
-5 time peaks found:
-	13250 300
-	13058 277
-	13006 111
-	13198 72
-	15658 64
-Irregular time spectrum for (board==6 && chan==2), saving histogram...
-5 time peaks found:
-	13726 191
-	13530 225
-	15658 293
-	13674 72
-	13482 76
-Irregular time spectrum for (board==6 && chan==3), saving histogram...
-5 time peaks found:
-	15658 575
-	13734 241
-	13542 202
-	13490 95
-	13686 78
-Irregular time spectrum for (board==6 && chan==4), saving histogram...
-6 time peaks found:
-	13350 274
-	13158 274
-	15662 373
-	13106 137
-	13298 95
-	13130 126
-Irregular time spectrum for (board==6 && chan==5), saving histogram...
-6 time peaks found:
-	15658 666
-	13274 300
-	13086 246
-	13034 121
-	13222 88
-	13054 120
-Irregular time spectrum for (board==6 && chan==6), saving histogram...
-7 time peaks found:
-	15658 405
-	13306 275
-	13114 279
-	13062 137
-	13254 72
-	13082 105
-	13274 84
-Irregular time spectrum for (board==6 && chan==7), saving histogram...
-6 time peaks found:
-	15658 871
-	13278 232
-	13086 225
-	13034 133
-	13058 122
-	13226 81
-Irregular time spectrum for (board==6 && chan==8), saving histogram...
-7 time peaks found:
-	15662 473
-	13106 274
-	13298 298
-	13054 118
-	13078 120
-	13266 81
-	13246 60
-Irregular time spectrum for (board==6 && chan==9), saving histogram...
-6 time peaks found:
-	15662 689
-	13794 194
-	13602 179
-	13770 128
-	13554 161
-	13742 113
-Irregular time spectrum for (board==6 && chan==10), saving histogram...
-6 time peaks found:
-	15666 709
-	13462 157
-	13650 159
-	13702 76
-	13414 59
-	13510 80
-Irregular time spectrum for (board==6 && chan==11), saving histogram...
-5 time peaks found:
-	13522 192
-	13766 184
-	15670 167
-	13574 171
-	13714 125
-Irregular time spectrum for (board==6 && chan==12), saving histogram...
-5 time peaks found:
-	15670 756
-	13650 219
-	13842 224
-	13602 155
-	13794 124
-Irregular time spectrum for (board==6 && chan==13), saving histogram...
-6 time peaks found:
-	13258 311
-	13070 232
-	15666 196
-	13018 113
-	13206 97
-	13226 63
-Irregular time spectrum for (board==6 && chan==14), saving histogram...
-6 time peaks found:
-	15674 285
-	13122 281
-	13314 320
-	13094 120
-	13074 129
-	13262 84
-Irregular time spectrum for (board==6 && chan==15), saving histogram...
-6 time peaks found:
-	13102 247
-	13294 280
-	15670 213
-	13054 124
-	13242 80
-	13262 83
-Irregular time spectrum for (board==6 && chan==16), saving histogram...
-5 time peaks found:
-	15702 610
-	13722 193
-	13910 175
-	13686 125
-	13870 93
-Irregular time spectrum for (board==6 && chan==17), saving histogram...
-6 time peaks found:
-	13418 299
-	13234 272
-	15702 253
-	13178 131
-	13366 87
-	13198 88
-Irregular time spectrum for (board==6 && chan==18), saving histogram...
-6 time peaks found:
-	13438 284
-	13250 260
-	13198 118
-	13222 108
-	13386 84
-	15702 28
-Irregular time spectrum for (board==6 && chan==19), saving histogram...
-5 time peaks found:
-	13914 171
-	13730 181
-	13686 118
-	15698 89
-	13870 89
-Irregular time spectrum for (board==6 && chan==20), saving histogram...
-9 time peaks found:
-	13414 230
-	13234 264
-	13178 111
-	13198 67
-	15698 121
-	13382 60
-	13362 57
-	13694 26
-	13654 24
-Irregular time spectrum for (board==6 && chan==21), saving histogram...
-7 time peaks found:
-	13406 295
-	13222 283
-	15702 272
-	13166 127
-	13190 114
-	13354 87
-	13374 86
-Irregular time spectrum for (board==6 && chan==22), saving histogram...
-7 time peaks found:
-	13458 303
-	13274 303
-	13222 118
-	13242 108
-	13402 83
-	13422 66
-	15698 23
-Irregular time spectrum for (board==6 && chan==23), saving histogram...
-5 time peaks found:
-	15706 1101
-	13898 177
-	13718 164
-	13662 148
-	13842 111
-Irregular time spectrum for (board==6 && chan==24), saving histogram...
-6 time peaks found:
-	15706 283
-	13426 278
-	13242 265
-	13190 123
-	13394 86
-	13374 76
-Irregular time spectrum for (board==6 && chan==25), saving histogram...
-5 time peaks found:
-	13798 184
-	13982 168
-	13762 154
-	13942 102
-	15710 201
-Irregular time spectrum for (board==6 && chan==26), saving histogram...
-5 time peaks found:
-	13282 293
-	13466 305
-	13230 128
-	13254 140
-	13414 87
-Irregular time spectrum for (board==6 && chan==27), saving histogram...
-7 time peaks found:
-	13486 296
-	13306 284
-	13254 120
-	13274 94
-	13434 82
-	13454 75
-	15714 81
-Irregular time spectrum for (board==6 && chan==28), saving histogram...
-5 time peaks found:
-	13446 317
-	13266 289
-	13214 114
-	13394 99
-	13234 106
-Irregular time spectrum for (board==6 && chan==29), saving histogram...
-5 time peaks found:
-	13494 299
-	13310 269
-	13258 138
-	13278 92
-	13442 82
-Irregular time spectrum for (board==6 && chan==30), saving histogram...
-4 time peaks found:
-	13706 174
-	13666 148
-	13894 219
-	13850 94
-Irregular time spectrum for (board==6 && chan==31), saving histogram...
-5 time peaks found:
-	13446 299
-	13262 285
-	13214 117
-	13234 108
-	13398 83
-Irregular time spectrum for (board==7 && chan==30), saving histogram...
-3 time peaks found:
-	15686 3816
-	13534 262
-	13726 230
-Irregular time spectrum for (board==7 && chan==31), saving histogram...
-3 time peaks found:
-	15690 1223
-	13786 311
-	13594 307
-Irregular time spectrum for (board==8 && chan==26), saving histogram...
-3 time peaks found:
-	13706 144
-	13538 163
-	13726 135
-Irregular time spectrum for (board==9 && chan==30), saving histogram...
-3 time peaks found:
-	13794 412
-	13978 411
-	15710 4518
-Irregular time spectrum for (board==9 && chan==31), saving histogram...
-3 time peaks found:
-	15706 3846
-	13758 404
-	13938 370
-Irregular time spectrum for (board==10 && chan==28), saving histogram...
-3 time peaks found:
-	15658 638
-	13754 358
-	13566 309
-Irregular time spectrum for (board==10 && chan==30), saving histogram...
-3 time peaks found:
-	15662 3536
-	13542 319
-	13734 292
-Irregular time spectrum for (board==10 && chan==31), saving histogram...
-3 time peaks found:
-	15666 3090
-	13658 360
-	13854 284
-Irregular time spectrum for (board==11 && chan==30), saving histogram...
-3 time peaks found:
-	15682 2454
-	13802 357
-	13606 304
-Irregular time spectrum for (board==11 && chan==31), saving histogram...
-3 time peaks found:
-	15686 559
-	13622 372
-	13814 336
-Irregular time spectrum for (board==12 && chan==28), saving histogram...
-3 time peaks found:
-	15674 1252
-	13598 386
-	13790 360
-Irregular time spectrum for (board==12 && chan==30), saving histogram...
-3 time peaks found:
-	13570 326
-	13758 348
-	15678 4465
-Irregular time spectrum for (board==12 && chan==31), saving histogram...
-3 time peaks found:
-	15678 3319
-	13538 390
-	13730 332
+Irregular time spectrum for board 1 channel 3, saving histogram...
+1 time peaks found:
+	10695.3 38308
+Less than two time spectrum peaks for board 1 channel 3, skipping...
+Irregular time spectrum for board 1 channel 4, saving histogram...
+1 time peaks found:
+	10711.3 42049
+Less than two time spectrum peaks for board 1 channel 4, skipping...
+Irregular time spectrum for board 1 channel 5, saving histogram...
+1 time peaks found:
+	10711.3 42522
+Less than two time spectrum peaks for board 1 channel 5, skipping...
+Irregular time spectrum for board 1 channel 6, saving histogram...
+1 time peaks found:
+	10711.3 42300
+Less than two time spectrum peaks for board 1 channel 6, skipping...
+Irregular time spectrum for board 1 channel 7, saving histogram...
+1 time peaks found:
+	10663.3 43037
+Less than two time spectrum peaks for board 1 channel 7, skipping...
+Irregular time spectrum for board 1 channel 8, saving histogram...
+1 time peaks found:
+	10663.3 42740
+Less than two time spectrum peaks for board 1 channel 8, skipping...
+Irregular time spectrum for board 1 channel 9, saving histogram...
+1 time peaks found:
+	10679.3 36991
+Less than two time spectrum peaks for board 1 channel 9, skipping...
+Irregular time spectrum for board 1 channel 10, saving histogram...
+1 time peaks found:
+	10727.3 36827
+Less than two time spectrum peaks for board 1 channel 10, skipping...
+Irregular time spectrum for board 1 channel 11, saving histogram...
+1 time peaks found:
+	10663.3 3
+Less than two time spectrum peaks for board 1 channel 11, skipping...
+Irregular time spectrum for board 1 channel 12, saving histogram...
+1 time peaks found:
+	10727.3 43132
+Less than two time spectrum peaks for board 1 channel 12, skipping...
+Irregular time spectrum for board 1 channel 13, saving histogram...
+1 time peaks found:
+	10711.3 32250
+Less than two time spectrum peaks for board 1 channel 13, skipping...
+Irregular time spectrum for board 1 channel 14, saving histogram...
+1 time peaks found:
+	10743.3 14164
+Less than two time spectrum peaks for board 1 channel 14, skipping...
+Irregular time spectrum for board 1 channel 15, saving histogram...
+1 time peaks found:
+	10743.3 26
+Less than two time spectrum peaks for board 1 channel 15, skipping...
+Irregular time spectrum for board 1 channel 16, saving histogram...
+1 time peaks found:
+	10743.3 38
+Less than two time spectrum peaks for board 1 channel 16, skipping...
+Irregular time spectrum for board 1 channel 17, saving histogram...
+1 time peaks found:
+	10679.3 43772
+Less than two time spectrum peaks for board 1 channel 17, skipping...
+Irregular time spectrum for board 1 channel 18, saving histogram...
+1 time peaks found:
+	10599.4 3
+Less than two time spectrum peaks for board 1 channel 18, skipping...
+Irregular time spectrum for board 1 channel 19, saving histogram...
+1 time peaks found:
+	10727.3 1
+Less than two time spectrum peaks for board 1 channel 19, skipping...
+Irregular time spectrum for board 1 channel 20, saving histogram...
+1 time peaks found:
+	10743.3 34
+Less than two time spectrum peaks for board 1 channel 20, skipping...
+Irregular time spectrum for board 1 channel 21, saving histogram...
+1 time peaks found:
+	10743.3 34
+Less than two time spectrum peaks for board 1 channel 21, skipping...
+Irregular time spectrum for board 1 channel 22, saving histogram...
+0 time peaks found:
+Less than two time spectrum peaks for board 1 channel 22, skipping...
+Irregular time spectrum for board 1 channel 23, saving histogram...
+1 time peaks found:
+	10711.3 41847
+Less than two time spectrum peaks for board 1 channel 23, skipping...
+Irregular time spectrum for board 1 channel 24, saving histogram...
+1 time peaks found:
+	10663.3 2
+Less than two time spectrum peaks for board 1 channel 24, skipping...
+Irregular time spectrum for board 1 channel 25, saving histogram...
+1 time peaks found:
+	10663.3 2
+Less than two time spectrum peaks for board 1 channel 25, skipping...
+Irregular time spectrum for board 1 channel 26, saving histogram...
+1 time peaks found:
+	10743.3 1600
+Less than two time spectrum peaks for board 1 channel 26, skipping...
+Irregular time spectrum for board 1 channel 27, saving histogram...
+1 time peaks found:
+	10711.3 35329
+Less than two time spectrum peaks for board 1 channel 27, skipping...
+Irregular time spectrum for board 1 channel 28, saving histogram...
+0 time peaks found:
+Less than two time spectrum peaks for board 1 channel 28, skipping...
+Irregular time spectrum for board 1 channel 29, saving histogram...
+1 time peaks found:
+	10743.3 201
+Less than two time spectrum peaks for board 1 channel 29, skipping...
+Irregular time spectrum for board 1 channel 30, saving histogram...
+1 time peaks found:
+	10647.4 1
+Less than two time spectrum peaks for board 1 channel 30, skipping...
+Irregular time spectrum for board 1 channel 31, saving histogram...
+1 time peaks found:
+	10743.3 1786
+Less than two time spectrum peaks for board 1 channel 31, skipping...
+Irregular time spectrum for board 3 channel 10, saving histogram...
+1 time peaks found:
+	10727.3 42164
+Less than two time spectrum peaks for board 3 channel 10, skipping...
+Irregular time spectrum for board 3 channel 12, saving histogram...
+1 time peaks found:
+	10679.3 39114
+Less than two time spectrum peaks for board 3 channel 12, skipping...
+Irregular time spectrum for board 3 channel 14, saving histogram...
+1 time peaks found:
+	10711.3 41985
+Less than two time spectrum peaks for board 3 channel 14, skipping...
+Irregular time spectrum for board 3 channel 16, saving histogram...
+1 time peaks found:
+	10743.3 121
+Less than two time spectrum peaks for board 3 channel 16, skipping...
+Irregular time spectrum for board 3 channel 18, saving histogram...
+1 time peaks found:
+	10743.3 4773
+Less than two time spectrum peaks for board 3 channel 18, skipping...
+Irregular time spectrum for board 3 channel 20, saving histogram...
+1 time peaks found:
+	10679.3 3
+Less than two time spectrum peaks for board 3 channel 20, skipping...
+Irregular time spectrum for board 3 channel 24, saving histogram...
+1 time peaks found:
+	10743.3 4202
+Less than two time spectrum peaks for board 3 channel 24, skipping...
+Irregular time spectrum for board 3 channel 26, saving histogram...
+1 time peaks found:
+	10727.3 26506
+Less than two time spectrum peaks for board 3 channel 26, skipping...
+Irregular time spectrum for board 3 channel 28, saving histogram...
+1 time peaks found:
+	10711.3 32593
+Less than two time spectrum peaks for board 3 channel 28, skipping...
+Irregular time spectrum for board 3 channel 30, saving histogram...
+1 time peaks found:
+	10679.3 32870
+Less than two time spectrum peaks for board 3 channel 30, skipping...
+Irregular time spectrum for board 5 channel 12, saving histogram...
+1 time peaks found:
+	10679.3 40556
+Less than two time spectrum peaks for board 5 channel 12, skipping...
+Irregular time spectrum for board 5 channel 16, saving histogram...
+1 time peaks found:
+	10727.3 36888
+Less than two time spectrum peaks for board 5 channel 16, skipping...
+Irregular time spectrum for board 5 channel 18, saving histogram...
+1 time peaks found:
+	10743.3 38138
+Less than two time spectrum peaks for board 5 channel 18, skipping...
+Irregular time spectrum for board 5 channel 20, saving histogram...
+1 time peaks found:
+	10679.3 30166
+Less than two time spectrum peaks for board 5 channel 20, skipping...
+Irregular time spectrum for board 5 channel 24, saving histogram...
+1 time peaks found:
+	10743.3 13878
+Less than two time spectrum peaks for board 5 channel 24, skipping...
+Irregular time spectrum for board 5 channel 26, saving histogram...
+1 time peaks found:
+	10679.3 31169
+Less than two time spectrum peaks for board 5 channel 26, skipping...
+Irregular time spectrum for board 5 channel 30, saving histogram...
+1 time peaks found:
+	10695.3 40309
+Less than two time spectrum peaks for board 5 channel 30, skipping...
+Irregular time spectrum for board 7 channel 8, saving histogram...
+1 time peaks found:
+	10663.3 42517
+Less than two time spectrum peaks for board 7 channel 8, skipping...
+Irregular time spectrum for board 7 channel 12, saving histogram...
+1 time peaks found:
+	10663.3 32464
+Less than two time spectrum peaks for board 7 channel 12, skipping...
+Irregular time spectrum for board 7 channel 18, saving histogram...
+1 time peaks found:
+	10647.4 34506
+Less than two time spectrum peaks for board 7 channel 18, skipping...
+Irregular time spectrum for board 7 channel 20, saving histogram...
+1 time peaks found:
+	10727.3 39344
+Less than two time spectrum peaks for board 7 channel 20, skipping...
+Irregular time spectrum for board 7 channel 24, saving histogram...
+1 time peaks found:
+	10711.3 43123
+Less than two time spectrum peaks for board 7 channel 24, skipping...
+Irregular time spectrum for board 7 channel 26, saving histogram...
+1 time peaks found:
+	10679.3 44833
+Less than two time spectrum peaks for board 7 channel 26, skipping...
+Irregular time spectrum for board 7 channel 28, saving histogram...
+1 time peaks found:
+	10663.3 40076
+Less than two time spectrum peaks for board 7 channel 28, skipping...
+Irregular time spectrum for board 7 channel 30, saving histogram...
+1 time peaks found:
+	10727.3 44915
+Less than two time spectrum peaks for board 7 channel 30, skipping...
+Time spectrum fit failed for board 8 channel 18, skipping and saving histogram...

@@ -2,6 +2,7 @@
 #include <TFile.h>
 #include <TH1.h>
 #include <TSpectrum.h>
+#include <TString.h>
 #include <TTree.h>
 
 #include <cmath>
@@ -63,24 +64,14 @@ struct Progress {
 void time_calibration() {
 
 	// Read file and TTree
-	string path = "../RootFiles/";
-	string ifname = "run-446-par";
+	string path = "/data4/N9/mnt/analysis/e25001/rootout/";
+	string ifname = "sort_run238";
 	size_t numentries;
 	TFile *file = TFile::Open((path + ifname + ".root").c_str());
 	if (!file || file->IsZombie()) {
 		std::cerr << "Error opening file!" << std::endl;
 		return;
 	}
-
-	// Check if tree exists in the file
-	TTree *tree = (TTree*)file->Get("tpar");
-	if (!tree) {
-		std::cerr << "Tree 't' not found in the file!" << std::endl;
-		file->Close();
-		return;
-	}
-	numentries = tree->GetEntries();
-	cout << "Total entries in tree: " << numentries << endl;
 
 	// Macro parameters
 	size_t max_channels = pow(2, 14); // 16384, max time channels from HINP
@@ -137,42 +128,50 @@ void time_calibration() {
   }
 
 	// Progress bar setup
-	size_t boards = 12; // # boards to loop through (12 for full HINP crate)
+	size_t boards = 8; // # boards to loop through (12 for full HINP crate)
 	size_t channels = 32; // # channels per board, should be 32
 	Progress pbar;
 	pbar.SetRange(0, boards * channels);
 
 	// Loop through boards/channels to fit time peaks
-	TH1I hist("hist", "hist", max_channels/4, 0, max_channels);
 	TSpectrum peakfinder; // for finding peaks, max two peaks can be found
-	string gate;
 	Int_t npeaks;
 	size_t i1, i2;
 	double a1, a2;
 	bool hasErrors = false;
 	for (size_t b = 1; b < boards + 1; b++) {
 		for (size_t ch = 0; ch < channels; ch++) {
+			size_t tele = (b - 1) / 2;
+			bool isFront = (b % 2) == 1;
+			string sumName = "FrontTime_R/Front";
+			if (!isFront) sumName = "BackTime_R/Back";
 
-			// Draw histogram
-			gate = "board==" + to_string(b) + " && chan==" + to_string(ch);
-			tree->Draw("t>>hist", gate.c_str(), "goff");
+			// Extract histogram from file
+			TString graph_name = Form("Summary/1d%sTime_R%zu_%zu", sumName.c_str(), tele, ch);
+			TH1I* hist = nullptr;
+			file->GetObject(graph_name.Data(), hist);
+			if (!hist) {
+				cout << "WARNING: Skipping board " << b << " channel " << ch << endl;
+				cout << "Histogram " << graph_name.Data() << " not found" << endl;
+				continue;
+			}
 
 			// Find peaks
-			peakfinder.Search(&hist);
+			peakfinder.Search(hist);
 			npeaks = peakfinder.GetNPeaks(); 
 			Double_t* peakx = peakfinder.GetPositionX();
 			Double_t* peaky = peakfinder.GetPositionY();
 
 			// Make sure the peaks are good
 			if (npeaks != 2) {
-				eofile << "Irregular time spectrum for (" << gate << "), saving histogram..." << endl;
+				eofile << "Irregular time spectrum for board " << b << " channel " << ch << ", saving histogram..." << endl;
 				eofile << to_string(npeaks) << " time peaks found:" << endl;
 				for (int i = 0; i < npeaks; i++) eofile << "\t" << peakx[i] << " " << peaky[i] << endl;
-				hist.Draw();
-				hist.SetStats(0);
+				hist->Draw();
+				hist->SetStats(0);
 				
 				if (npeaks < 2) {
-					eofile << "Less than two time spectrum peaks for (" << gate << "), skipping..." << endl;
+					eofile << "Less than two time spectrum peaks for board " << b << " channel " << ch << ", skipping..." << endl;
 					c->SaveAs(("histogram_" + to_string(b) + "-" + to_string(ch) + ".png").c_str());
 					hasErrors = true;
 					pbar.Increment(1);
@@ -197,7 +196,7 @@ void time_calibration() {
 				}
 			}
 			if ((a1 == 0.) || (a2 == 0.)) {
-				eofile << "No two valid time spectrum peaks found for (" << gate << "), skipping..." << endl;
+				eofile << "No two valid time spectrum peaks found for board " << b << " channel " << ch << ", skipping..." << endl;
 				c->SaveAs(("histogram_" + to_string(b) + "-" + to_string(ch) + ".png").c_str());
 				hasErrors = true;
 				pbar.Increment(1);
@@ -221,13 +220,13 @@ void time_calibration() {
 			fit.SetParLimits(4, min, max);
 			fit.SetParLimits(5, 0, 100);
 			fit.SetRange(min, max);
-			Int_t fitStatus = hist.Fit(&fit, "NRQ", "", min, max);
+			Int_t fitStatus = hist->Fit(&fit, "NRQ", "", min, max);
 
 			// Check if fit failed
 			if (fitStatus > 0) {
-				eofile << "Time spectrum fit failed for (" << gate << "), skipping and saving histogram..." << endl;
-				hist.Draw();
-				hist.GetXaxis()->SetRangeUser(min, max);
+				eofile << "Time spectrum fit failed for board " << b << " channel " << ch << ", skipping and saving histogram..." << endl;
+				hist->Draw();
+				hist->GetXaxis()->SetRangeUser(min, max);
 				fit.Draw("same");
 				c->SaveAs(("histogram_" + to_string(b) + "-" + to_string(ch) + ".png").c_str());
 				pbar.Increment(1);
@@ -235,7 +234,7 @@ void time_calibration() {
 				continue;
 			}
 			else if (fitStatus < 0) {
-				eofile << "Time spectrum fit non-minimizer error for (" << gate << "), skipping..." << endl;
+				eofile << "Time spectrum fit non-minimizer error for board " << b << " channel " << ch << ", skipping..." << endl;
 				pbar.Increment(1);
 				hasErrors = true;
 				continue;
