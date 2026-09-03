@@ -45,6 +45,7 @@ cmake_install.cmake
 build/*
 *.pcm
 macros/*ACLiC*
+macros/cal_eloss/build/*
 
 # Data files
 *.root

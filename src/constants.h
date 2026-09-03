@@ -1,5 +1,4 @@
-#ifndef CONSTANTS_H
-#define CONSTANTS_H
+#pragma once
 
 /* This originally used to just be a constants header file, but after modifications
  * by Henry Webb (h.s.webb@wustl.edu) is now more of a general utilities file.
@@ -207,5 +206,3 @@ template<typename T1, typename T2>
 constexpr std::pair<size_t, size_t> sz_pair(T1 z, T2 a) {
     return { static_cast<size_t>(z), static_cast<size_t>(a) };
 }
-
-#endif
