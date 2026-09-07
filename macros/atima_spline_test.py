@@ -155,3 +155,34 @@ if __name__ == "__main__":
             print(
                 f"  Spline {i+1}: loge_y*2 = {log_val:10.6f} -> Linear = {linear_val:12.6e}"
             )
+            
+    # ==========================================
+    # RANGE DERIVATIVE METHOD FOR dE/dx
+    # ==========================================
+    A_proj = 1 + (7.28897 / 931.478) # mass of 1H in AMU from AME2016 mass excess
+    test_energies = np.array([0.02, 0.10])  # MeV/u
+    
+    print()
+    print("==========================================")
+    print("   DERIVATIVE dE/dx FROM SPLINES (A / dR/dT)")
+    print("==========================================")
+    
+    for E in test_energies:
+        print(f"\nEnergy: {E:.4f} MeV/u")
+        print("-" * 50)
+    
+        for i, spl in enumerate(splines):
+            # 1. First derivative of the spline at energy E: d(Spline_i)/dT
+            spl_deriv = spl.derivative(1)
+            dR_dT = spl_deriv(E)
+    
+            # 2. Prevent division by zero if a non-range spline has 0 derivative
+            if np.abs(dR_dT) < 1e-12:
+                dEdx_calc = np.nan
+            else:
+                # 3. Calculate dE/dx = A / (dR/dT)
+                dEdx_calc = A_proj / dR_dT
+    
+            print(
+                f"  Spline {i+1}: dR/dT = {dR_dT:13.6e} -> Calculated dE/dx = {dEdx_calc:12.6f}"
+            )
