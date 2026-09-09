@@ -6,6 +6,8 @@ include(ExternalProject)
 project(n9sort)
 
 option(RELATIVISTIC "Set to ON to use relativistic kinematics. Otherwise, Newtonian kinematics are used instead." ON)
+set(ELOSS_METHOD "ATIMA" CACHE STRING "Select energy loss method: SRIM, ATIMA, or CATIMA")
+set_property(CACHE ELOSS_METHOD PROPERTY STRINGS "SRIM" "ATIMA" "CATIMA")
 
 # Dummy target to hold project configuration, mostly for things that also need to be passed to ROOT_GENERATE_DICTIONARY
 set(DUMMY_FILE ${CMAKE_CURRENT_BINARY_DIR}/dummy_empty.cpp)
@@ -13,12 +15,29 @@ if(NOT EXISTS ${DUMMY_FILE})
 	file(WRITE ${DUMMY_FILE} "// Intentional dummy file for CMake project configuration\n")
 endif()
 add_library(ProjectConfig OBJECT ${DUMMY_FILE})
+
+# Toggle for relativistic vs. newtonian physics
 if(RELATIVISTIC)
 	message(STATUS "Building with relativistic kinematics.")
 	target_compile_definitions(ProjectConfig PUBLIC -Drel=1)
 else()
 	message(STATUS "Building with Newtonian kinematics.")
 	target_compile_definitions(ProjectConfig PUBLIC -Drel=0)
+endif()
+
+# Selection for energy loss/gain method
+if(ELOSS_METHOD STREQUAL "SRIM")
+	message(STATUS "Building with SRIM tables for energy loss/gain")
+	target_compile_definitions(ProjectConfig PUBLIC -Deloss_mode=0)
+elseif(ELOSS_METHOD STREQUAL "ATIMA")
+	message(STATUS "Building with ATIMA b-spline files for energy loss/gain")
+	target_compile_definitions(ProjectConfig PUBLIC -Deloss_mode=1)
+elseif(ELOSS_METHOD STREQUAL "CATIMA")
+	message(FATAL_ERROR "Energy loss/gain method '${ELOSS_METHOD}' is not supported yet! Please use either SRIM or ATIMA.")
+#	message(STATUS "Building with CATIMA on-demand spline calculation for energy loss/gain")
+#	target_compile_definitions(ProjectConfig PUBLIC -Deloss_mode=2)
+else()
+	message(FATAL_ERROR "Invalid energy loss/gain method '${ELOSS_METHOD}'. Valid choices are: SRIM, ATIMA, and CATIMA.")
 endif()
 
 # Enable C++17
@@ -53,42 +72,44 @@ list(TRANSFORM SOURCES PREPEND ${SRC}/)
 # Define the Boost source
 # We use the official Boost GitHub mirror to grab just the preprocessor module
 FetchContent_Declare(
-    boost_preprocessor
-    GIT_REPOSITORY https://github.com/boostorg/preprocessor.git
-    GIT_TAG        master # Or a specific tag like boost-1.84.0
+	boost_preprocessor
+	GIT_REPOSITORY https://github.com/boostorg/preprocessor.git
+	GIT_TAG		master # Or a specific tag like boost-1.84.0
 )
 FetchContent_MakeAvailable(boost_preprocessor)
 set(BOOST_PP_INCLUDE "${boost_preprocessor_SOURCE_DIR}/include")
 
 # Download and setup latest GSL as external project
 ExternalProject_Add(
-    gsl_external
-    URL https://ftp.gnu.org/gnu/gsl/gsl-2.8.tar.gz
-    DOWNLOAD_EXTRACT_TIMESTAMP TRUE
-    PREFIX ${GSL_PREFIX}
-    CONFIGURE_COMMAND <SOURCE_DIR>/configure --prefix=${GSL_PREFIX} --disable-shared --enable-static CFLAGS=-fPIC CXXFLAGS=-fPIC
-    BUILD_COMMAND make -j4
-    INSTALL_COMMAND make install
+	gsl_external
+	URL https://ftp.gnu.org/gnu/gsl/gsl-2.8.tar.gz
+	DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+	PREFIX ${GSL_PREFIX}
+	CONFIGURE_COMMAND <SOURCE_DIR>/configure --prefix=${GSL_PREFIX} --disable-shared --enable-static CFLAGS=-fPIC CXXFLAGS=-fPIC
+	BUILD_COMMAND make -j4
+	INSTALL_COMMAND make install
 )
 
 # Create imported target for GSL
 add_library(GSL::gsl STATIC IMPORTED)
 set_target_properties(GSL::gsl PROPERTIES
-    IMPORTED_LOCATION ${GSL_STATIC_LIB}
-    INTERFACE_INCLUDE_DIRECTORIES "${GSL_INCLUDE_DIR}"
+	IMPORTED_LOCATION ${GSL_STATIC_LIB}
+	INTERFACE_INCLUDE_DIRECTORIES "${GSL_INCLUDE_DIR}"
 )
 add_dependencies(GSL::gsl gsl_external)
 
 # Create imported target for GSL's CBLAS
 add_library(GSL::gslcblas STATIC IMPORTED)
 set_target_properties(GSL::gslcblas PROPERTIES
-    IMPORTED_LOCATION ${GSLCBLAS_STATIC_LIB}
-    INTERFACE_INCLUDE_DIRECTORIES "${GSL_INCLUDE_DIR}"
+	IMPORTED_LOCATION ${GSLCBLAS_STATIC_LIB}
+	INTERFACE_INCLUDE_DIRECTORIES "${GSL_INCLUDE_DIR}"
 )
 add_dependencies(GSL::gslcblas gsl_external)
 
 # Locate the ROOT package and define a number of useful targets and variables
-find_package(ROOT REQUIRED COMPONENTS RIO Tree Hist TreePlayer Core Imt Thread MultiProc)
+# Version >= 6.38.04 is required to fix impossibility of writing histograms to a TBufferMerger in earlier versions
+find_package(ROOT 6.38.04 REQUIRED COMPONENTS RIO Tree Hist TreePlayer Core Imt Thread MultiProc)
+message(STATUS "Found ROOT version: ${ROOT_VERSION} at ${ROOT_DIR}")
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 include_directories(${ROOT_INCLUDE_DIRS})
 message("ROOT include directory: ${ROOT_INCLUDE_DIRS}")

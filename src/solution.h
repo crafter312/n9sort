@@ -3,8 +3,10 @@
 
 #if defined(rel) && rel == 1
 #include "einstein.h"
-#else
+#elif defined (rel) && rel == 0
 #include "newton.h"
+#else
+#error "compile-time variable 'rel' is undefined or set to an unsupported value!"
 #endif
 
 class solution {
@@ -12,8 +14,10 @@ class solution {
 public:
 #if defined(rel) && rel == 1
 	CEinstein Kinematics;
-#else
+#elif defined (rel) && rel == 0
 	CNewton Kinematics;
+#else
+#error "compile-time variable 'rel' is undefined or set to an unsupported value!"
 #endif
 
 	double distTarget;

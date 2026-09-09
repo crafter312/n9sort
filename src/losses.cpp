@@ -18,9 +18,17 @@ using namespace std;
  */
 CLosses::CLosses(int Zmax0, string path, string mat) : material(mat) {
 	Zmax = Zmax0;
-	string suffix = "_" + mat + ".loss";
-	string filename;
+#if defined(eloss_mode) && eloss_mode == 0
 	loss = new CLoss3*[Zmax];
+	path += "SRIM/";
+#elif defined(eloss_mode) && eloss_mode == 1
+	loss = new CLoss4*[Zmax];
+	path += "ATIMA/";
+#else
+#error "compile-time variable 'eloss_mode' is undefined or set to an unsupported value!"
+#endif
+	const string suffix = "_" + mat + ".loss";
+	string filename;
 	for (size_t iZ = 1; iZ <= Zmax; iZ++) {
 		switch (iZ) {
 			case 1:
@@ -54,7 +62,7 @@ CLosses::CLosses(int Zmax0, string path, string mat) : material(mat) {
 				filename = path + "Neon" + suffix;
 				break;
 			default:
-				throw invalid_argument(string(BOLDRED) + string("loss case for Z = ") + to_string(iZ) + string( " not implemented") + string(RESET));
+				throw_error_arg("Loss case for Z = " + to_string(iZ) + " not supported!");
 		}
 		
 #ifdef ENABLE_DEBUG
@@ -62,7 +70,13 @@ CLosses::CLosses(int Zmax0, string path, string mat) : material(mat) {
 		cout << filename << endl;
 #endif
 
+#if defined(eloss_mode) && eloss_mode == 0
 		loss[iZ - 1] = new CLoss3(filename);
+#elif defined(eloss_mode) && eloss_mode == 1
+		loss[iZ - 1] = new CLoss4(filename);
+#else
+#error "compile-time variable 'eloss_mode' is undefined or set to an unsupported value!"
+#endif
 	}
 }
 

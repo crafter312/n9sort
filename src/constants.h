@@ -212,7 +212,10 @@ constexpr std::pair<size_t, size_t> sz_pair(T1 z, T2 a) {
     return { static_cast<size_t>(z), static_cast<size_t>(a) };
 }
 
-// Header-only throw helper using inline
+// Header-only throw helpers using inline
 inline void throw_error(const std::string& msg) {
-    throw std::runtime_error(std::string(RED) + msg + std::string(RESET));
+    throw std::runtime_error(std::string(BOLDRED) + msg + std::string(RESET));
+}
+inline void throw_error_arg(const std::string& msg) {
+    throw std::invalid_argument(std::string(BOLDRED) + msg + std::string(RESET));
 }
