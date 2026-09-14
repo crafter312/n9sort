@@ -83,8 +83,6 @@ CLoss4::CLoss4(const std::string& filename) {
 
 	// Free temporary knot vector memory
 	gsl_vector_free(knots_tmp);
-
-	cout << GREEN << "Successfully read ATIMA spline file " << filename << RESET << endl;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
