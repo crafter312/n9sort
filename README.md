@@ -14,12 +14,15 @@ To set up project:
 
 To build:
 
-1. In root project directory, run `mkdir build`
-2. Then `cd build`
-3. Then `cmake cmake -DROOT_DIR=$ROOTSYS/cmake -DCMAKE_C_COMPILER=/bin/gcc -DCMAKE_CXX_COMPILER=/bin/g++ ..`
-	- Make sure to replace the paths to gcc and g++ with the desired compiler, or ommit entirely if your system does not have multiple potentially conflicting compilers
-4. Finally, `make -j`
-5. Run the code with `./sort` inside the build directory
+0. If re-building an already built project, run `rm -rf build` first from the root project directory to clear the previous build artifacts.
+1. In root project directory, run `cmake -B build [OPTIONAL FLAGS HERE] && cmake --build build -j`
+	- OPTIONAL FLAGS (added after `cmake --build build`):
+		- `-DROOT_DIR=/opt/root/cmake`: Add this if using a local ROOT installation instead of a system-wide one. Make sure to change the path to point to the intended ROOT installation directory. This points explicitly to the correct ROOT cmake directory so that CMake does not get confused about multiple possible ROOT installations. ROOT should be v6.38.04 or higher.
+		- `-DCMAKE_C_COMPILER=/bin/gcc -DCMAKE_CXX_COMPILER=/bin/g++`: Add this if using in an environment with multiple C++ compilers. Make sure to change the paths to point to the desired compiler.
+		- `-DRELATIVISTIC=OFF`: Add this if you want to turn relativistic kinematics off in favor of Newtonian kinematics. This is ON by default.
+		- `-DELOSS_METHOD=[0|1|2]`: Add this to specify the energy loss/gain method. Options are 0 (SRIM), 1 (ATIMA), and 2 (CATIMA). This is 1 by default.
+2. Navigate into build directory with `cd build`.
+5. Run the code with `./sort` inside the build directory. Relative file paths are usually specified relative to the build directory, so it is crucial that the program is run from here.
 
 Before running the code, make sure to change all of the configuration settings in `sort.config` to the desired values, along with all the other various required input files for the different parts of the code (CsI channel map, Si strip ranges, calibrations, etc.).
 

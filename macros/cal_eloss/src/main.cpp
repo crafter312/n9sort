@@ -1,6 +1,8 @@
+#include <cmath>
+#include <iomanip>
 #include <iostream>
 #include <vector>
-#include <iomanip>
+
 #include <catima/catima.h>
 
 #include "constants.h"
@@ -24,13 +26,15 @@ int main() {
 
 	/******** MATERIALS ********/
 
-	// 1/4 inch degrader (average measured real thickness in mm)
+	// 1/4 inch degrader (average measured real thickness in mm), half
 	catima::Material degrader_thin = catima::get_material(13); // Al with elemental atomic weight and standard density
-	degrader_thin.thickness_cm(6.3345 * 0.1); 
+	const double degrader_thin_half_cm = 6.3345 * 0.1 * 0.5;
+	degrader_thin.thickness_cm(degrader_thin_half_cm); 
 
-	// 1/2 inch degrader (average measured real thickness in mm)
+	// 1/2 inch degrader (average measured real thickness in mm), half
 	catima::Material degrader_thick = catima::get_material(13); // Al with elemental atomic weight and standard density
-	degrader_thick.thickness_cm(12.708 * 0.1);
+	const double degrader_thick_half_cm = 12.708 * 0.1 * 0.5;
+	degrader_thick.thickness_cm(degrader_thick_half_cm);
 
 	// 3.8 mm aluminum covers (per telescope with average measured real thickness in mm)
 	const vector<double> cover_thicknesses = {3.761, 3.7505, 3.7755, 3.755};
@@ -50,7 +54,46 @@ int main() {
 		silicons.push_back(silicon);
 	}
 
-	/******** LAYERS ********/
+	/******** ANGLES ********/
+	// Here, I calculate the polar angle corresponding to the center of each CsI crystal
+	// in Gobbi. These values are rotationally symmetric around the beam axis, so I only
+	// need to calculate seven for one telescope. These are used for elastic scattering
+	// and angle-dependent effective thickness calculations.
+
+	// Gobbi geometric constants (all distances in cm)
+	const double silicon_frame = 7.237;    // exterior silicon frame dimension
+	const double inner_hole    = 2.5;      // interior Gobbi hole dimension
+	const double tele_center_x = (.5 * silicon_frame) + (.5 * inner_hole);
+	const double tele_center_y = (.5 * silicon_frame) - (.5 * inner_hole);
+	const double large_csi     = 3.42011;  // width of large CsI crystal
+	const double small_csi     = 1.642827; // width of small CsI crystal
+	const double gobbi_dist    = 54.7;     // distance between center of target and front face of silicons
+	const double silicon_thick = 0.65;     // approximate distance from front face of silicons to front face of CsI crystals
+	const double total_dist    = gobbi_dist + silicon_thick;
+
+	// Calculate per-crystal values
+	vector<double> front_center_x = {
+		tele_center_x - (1.5 * small_csi), tele_center_x - (.5 * small_csi), tele_center_x - (.5 * small_csi), tele_center_x - (1.5 * small_csi),
+		tele_center_x + (.5 * large_csi), tele_center_x + (.5 * large_csi), tele_center_x - (.5 * large_csi) 
+	};
+	vector<double> front_center_y = {
+		tele_center_y - (1.5 * small_csi), tele_center_y - (1.5 * small_csi), tele_center_y - (.5 * small_csi), tele_center_y - (.5 * small_csi),
+		tele_center_y - (.5 * large_csi), tele_center_y + (.5 * large_csi), tele_center_y + (.5 * large_csi) 
+	};
+	vector<double> polar_angle_rad(7, 0.);
+	vector<double> polar_angle_deg(7, 0.);
+	for (size_t i = 0; i < 7; i++) {
+		polar_angle_rad[i] = atan(sqrt((front_center_x[i]*front_center_x[i]) + (front_center_y[i]*front_center_y[i])) / total_dist);
+		polar_angle_deg[i] = polar_angle_rad[i] * rad_to_deg;
+	}
+
+	/******** ENERGY LOSS ********/
+
+	// First, calculate loss through first half of target. This is the same for all
+	// CsI crystals in all telescopes.
+	catima::Result degraderResult = catima::calculate(p, degrader_thin);
+	double Eout = degraderResult.Eout*mass_u;
+
 	// CATima facilitates energy loss calculations for multiple materials in succession
 	// by allowing you to define a `Layers` object of multiple materials and pass them
 	// all into the calculation at once. It then returns a set of results for each layer
@@ -88,7 +131,7 @@ int main() {
 		cout << "  Thickness: " << testMaterialSequence[i].thickness_cm() << " cm" << endl;
 
 		double Ein = multiResult.results[i].Ein*mass_u;
-		double Eout = multiResult.results[i].Eout*mass_u;
+		Eout = multiResult.results[i].Eout*mass_u;
 		cout << "  Ein: " << Ein << " MeV" << endl;
 		cout << "  Eout: " << Eout << " MeV" << endl;
 		cout << "  Eloss: " << Ein - Eout << " MeV" << endl;

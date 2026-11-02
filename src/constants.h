@@ -8,6 +8,8 @@
  */
 
 #include <cmath>
+#include <stdexcept>
+#include <string>
 #include <unordered_map>
 #include <utility>
 
@@ -35,6 +37,9 @@ const double vfact = c/sqrt(m0);  // velocity (cm/ns) = vfact * sqrt(2. * E(MeV)
 const double pi = acos(-1.);
 const double deg_to_rad = pi/180;
 const double rad_to_deg = 180/pi;
+const double Eout_th_epsilon = 1e-5; // same value used by CATima
+const double Ezero = 1E-3;           // lowest E to calculate, below taken as 0 (same value used by CATima)
+const size_t Eloss_max_iter = 100;   // max number of allowed iterations for Newton-Raphson method in energy loss calculations
 
 // Masses excesses from AME2016 compilation
 const double mass_n = 8.07132;
@@ -205,4 +210,12 @@ const std::unordered_map<std::pair<size_t, size_t>, double, pair_hash> Mass_look
 template<typename T1, typename T2>
 constexpr std::pair<size_t, size_t> sz_pair(T1 z, T2 a) {
     return { static_cast<size_t>(z), static_cast<size_t>(a) };
+}
+
+// Header-only throw helpers using inline
+inline void throw_error(const std::string& msg) {
+    throw std::runtime_error(std::string(BOLDRED) + msg + std::string(RESET));
+}
+inline void throw_error_arg(const std::string& msg) {
+    throw std::invalid_argument(std::string(BOLDRED) + msg + std::string(RESET));
 }

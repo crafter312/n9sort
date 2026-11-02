@@ -6,6 +6,8 @@ include(ExternalProject)
 project(n9sort)
 
 option(RELATIVISTIC "Set to ON to use relativistic kinematics. Otherwise, Newtonian kinematics are used instead." ON)
+set(ELOSS_METHOD "ATIMA" CACHE STRING "Select energy loss method: SRIM, ATIMA, or CATIMA")
+set_property(CACHE ELOSS_METHOD PROPERTY STRINGS "SRIM" "ATIMA" "CATIMA")
 
 # Dummy target to hold project configuration, mostly for things that also need to be passed to ROOT_GENERATE_DICTIONARY
 set(DUMMY_FILE ${CMAKE_CURRENT_BINARY_DIR}/dummy_empty.cpp)
@@ -13,12 +15,29 @@ if(NOT EXISTS ${DUMMY_FILE})
 	file(WRITE ${DUMMY_FILE} "// Intentional dummy file for CMake project configuration\n")
 endif()
 add_library(ProjectConfig OBJECT ${DUMMY_FILE})
+
+# Toggle for relativistic vs. newtonian physics
 if(RELATIVISTIC)
 	message(STATUS "Building with relativistic kinematics.")
 	target_compile_definitions(ProjectConfig PUBLIC -Drel=1)
 else()
 	message(STATUS "Building with Newtonian kinematics.")
 	target_compile_definitions(ProjectConfig PUBLIC -Drel=0)
+endif()
+
+# Selection for energy loss/gain method
+if(ELOSS_METHOD STREQUAL "SRIM")
+	message(STATUS "Building with SRIM tables for energy loss/gain")
+	target_compile_definitions(ProjectConfig PUBLIC -Deloss_mode=0)
+elseif(ELOSS_METHOD STREQUAL "ATIMA")
+	message(STATUS "Building with ATIMA b-spline files for energy loss/gain")
+	target_compile_definitions(ProjectConfig PUBLIC -Deloss_mode=1)
+elseif(ELOSS_METHOD STREQUAL "CATIMA")
+	message(FATAL_ERROR "Energy loss/gain method '${ELOSS_METHOD}' is not supported yet! Please use either SRIM or ATIMA.")
+#	message(STATUS "Building with CATIMA on-demand spline calculation for energy loss/gain")
+#	target_compile_definitions(ProjectConfig PUBLIC -Deloss_mode=2)
+else()
+	message(FATAL_ERROR "Invalid energy loss/gain method '${ELOSS_METHOD}'. Valid choices are: SRIM, ATIMA, and CATIMA.")
 endif()
 
 # Enable C++17
@@ -33,12 +52,19 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
 set(CMAKE_INSTALL_LIBDIR ${PROJECT_BINARY_DIR}/lib)
+set(GSL_PREFIX ${CMAKE_BINARY_DIR}/external/gsl)
+set(GSL_INCLUDE_DIR ${GSL_PREFIX}/include)
+set(GSL_STATIC_LIB ${GSL_PREFIX}/lib/libgsl.a)
+set(GSLCBLAS_STATIC_LIB ${GSL_PREFIX}/lib/libgslcblas.a)
+
+# Ensure the include directory exists at CMake config time so validation passes
+file(MAKE_DIRECTORY ${GSL_INCLUDE_DIR})
 
 # Uncomment the below compile time variable to enable debug outputs
 #add_definitions(-DENABLE_DEBUG=true)
 
 # Set project sources
-set(SOURCES SortConfig.cpp Det.cpp Gobbi28.cpp wood.cpp histo.cpp HINP.cpp telescope.cpp elist.cpp solution.cpp pid.cpp ZApar.cpp einstein.cpp losses.cpp loss3.cpp correl2.cpp parType.cpp calibrate.cpp Input.cpp CsIPSDGates.cpp)
+set(SOURCES SortConfig.cpp Det.cpp Gobbi28.cpp wood.cpp histo.cpp HINP.cpp telescope.cpp elist.cpp solution.cpp pid.cpp ZApar.cpp einstein.cpp losses.cpp loss3.cpp loss4.cpp correl2.cpp parType.cpp calibrate.cpp Input.cpp CsIPSDGates.cpp)
 set(LIBHEADERS parType.h wood.h kinematics.h newton.h einstein.h solution.h)
 
 list(TRANSFORM SOURCES PREPEND ${SRC}/)
@@ -46,15 +72,44 @@ list(TRANSFORM SOURCES PREPEND ${SRC}/)
 # Define the Boost source
 # We use the official Boost GitHub mirror to grab just the preprocessor module
 FetchContent_Declare(
-    boost_preprocessor
-    GIT_REPOSITORY https://github.com/boostorg/preprocessor.git
-    GIT_TAG        master # Or a specific tag like boost-1.84.0
+	boost_preprocessor
+	GIT_REPOSITORY https://github.com/boostorg/preprocessor.git
+	GIT_TAG		master # Or a specific tag like boost-1.84.0
 )
 FetchContent_MakeAvailable(boost_preprocessor)
 set(BOOST_PP_INCLUDE "${boost_preprocessor_SOURCE_DIR}/include")
 
+# Download and setup latest GSL as external project
+ExternalProject_Add(
+	gsl_external
+	URL https://ftp.gnu.org/gnu/gsl/gsl-2.8.tar.gz
+	DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+	PREFIX ${GSL_PREFIX}
+	CONFIGURE_COMMAND <SOURCE_DIR>/configure --prefix=${GSL_PREFIX} --disable-shared --enable-static CFLAGS=-fPIC CXXFLAGS=-fPIC
+	BUILD_COMMAND make -j4
+	INSTALL_COMMAND make install
+)
+
+# Create imported target for GSL
+add_library(GSL::gsl STATIC IMPORTED)
+set_target_properties(GSL::gsl PROPERTIES
+	IMPORTED_LOCATION ${GSL_STATIC_LIB}
+	INTERFACE_INCLUDE_DIRECTORIES "${GSL_INCLUDE_DIR}"
+)
+add_dependencies(GSL::gsl gsl_external)
+
+# Create imported target for GSL's CBLAS
+add_library(GSL::gslcblas STATIC IMPORTED)
+set_target_properties(GSL::gslcblas PROPERTIES
+	IMPORTED_LOCATION ${GSLCBLAS_STATIC_LIB}
+	INTERFACE_INCLUDE_DIRECTORIES "${GSL_INCLUDE_DIR}"
+)
+add_dependencies(GSL::gslcblas gsl_external)
+
 # Locate the ROOT package and define a number of useful targets and variables
-find_package(ROOT REQUIRED COMPONENTS RIO Tree Hist TreePlayer Core Imt Thread MultiProc)
+# Version >= 6.38.04 is required to fix impossibility of writing histograms to a TBufferMerger in earlier versions
+find_package(ROOT 6.38.04 REQUIRED COMPONENTS RIO Tree Hist TreePlayer Core Imt Thread MultiProc)
+message(STATUS "Found ROOT version: ${ROOT_VERSION} at ${ROOT_DIR}")
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 include_directories(${ROOT_INCLUDE_DIRS})
 message("ROOT include directory: ${ROOT_INCLUDE_DIRS}")
@@ -71,7 +126,7 @@ add_custom_target(generate_dict ALL DEPENDS ${CMAKE_BINARY_DIR}/G__n9sort.cxx)
 # Create a shared library to handle the generated sources (with sim class)
 add_library(n9sort SHARED ${SOURCES} ${CMAKE_BINARY_DIR}/G__n9sort.cxx)
 set_target_properties(n9sort PROPERTIES EXCLUDE_FROM_ALL TRUE)
-target_link_libraries(n9sort PRIVATE ProjectConfig boost_preprocessor)
+target_link_libraries(n9sort PRIVATE ProjectConfig boost_preprocessor GSL::gsl GSL::gslcblas)
 target_link_libraries(n9sort PUBLIC ROOT::RIO ROOT::Tree ROOT::Hist ROOT::TreePlayer ROOT::Core ROOT::Imt ROOT::Thread ROOT::MultiProc)
 set_target_properties(n9sort PROPERTIES
 	BUILD_RPATH "${CMAKE_BINARY_DIR}"
@@ -80,7 +135,7 @@ set_target_properties(n9sort PROPERTIES
 
 # Create sort executable
 add_executable(sort ${SRC}/sort.cpp)
-target_link_libraries(sort PRIVATE ProjectConfig boost_preprocessor)
+target_link_libraries(sort PRIVATE ProjectConfig boost_preprocessor GSL::gsl GSL::gslcblas)
 target_link_libraries(sort PUBLIC n9sort ROOT::RIO ROOT::Tree ROOT::Hist ROOT::TreePlayer ROOT::Core ROOT::Imt ROOT::Thread ROOT::MultiProc)
 set_target_properties(sort PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set_target_properties(sort PROPERTIES

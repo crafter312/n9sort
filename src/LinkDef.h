@@ -9,8 +9,10 @@
 #pragma link C++ class CKinematics+;
 #if defined(rel) && rel == 1
 #pragma link C++ class CEinstein+;
-#else
+#elif defined(rel) && rel == 0
 #pragma link C++ class CNewton+;
+#else
+#error "compile-time variable 'rel' is undefined or set to an unsupported value!"
 #endif
 #pragma link C++ class solution+;
 #pragma link C++ class std::vector<solution>+;
