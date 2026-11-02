@@ -6,7 +6,7 @@ include(ExternalProject)
 project(n9sort)
 
 option(RELATIVISTIC "Set to ON to use relativistic kinematics. Otherwise, Newtonian kinematics are used instead." ON)
-set(ELOSS_METHOD "ATIMA" CACHE STRING "Select energy loss method: SRIM, ATIMA, or CATIMA")
+set(ELOSS_METHOD "SRIM" CACHE STRING "Select energy loss method: SRIM, ATIMA, or CATIMA")
 set_property(CACHE ELOSS_METHOD PROPERTY STRINGS "SRIM" "ATIMA" "CATIMA")
 
 # Dummy target to hold project configuration, mostly for things that also need to be passed to ROOT_GENERATE_DICTIONARY

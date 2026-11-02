@@ -55,7 +55,10 @@ void PlotFancyHist(string tname, string params, string gate, string options, str
 
 	// Macro constants
 	string ifdir  = "/data4/N9/mnt/analysis/e25001/rootout/";
-	string ifname = "sort_all_noneighbors_hasCsITDCQDC_SiFBGates_CsIPSD_CsIrecal.root";
+	//string ifname = "sort_all_noneighbors_hasCsITDCQDC_SiFBGates_CsIPSD_CsIrecal.root";
+	//string ifname = "sort_run16-54_noneighbors_hasCsITDC_SiFBGates_CsIrecal_p+3MeV.root";
+	//string ifname = "sort_run16-54_noneighbors_hasCsITDC_SiFBGates_CsIrecal.root";
+	string ifname = "sort_all_noneighbors_hasCsITDCQDC_SiFBGates_CsIPSD_CsIrecal_p+3MeV.root";
 
 	// Set default style attributes
 	TStyle* Sty = new TStyle("MyStyle", "MyStyle");
