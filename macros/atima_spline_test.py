@@ -186,3 +186,22 @@ if __name__ == "__main__":
             print(
                 f"  Spline {i+1}: dR/dT = {dR_dT:13.6e} -> Calculated dE/dx = {dEdx_calc:12.6f}"
             )
+            
+    # ==========================================
+    # RANGE SPLINE EVALUATION
+    # ==========================================
+    test_energy = 100 # MeV/u
+    
+    print()
+    print("==========================================")
+    print("   RANGE FROM SPLINES")
+    print("==========================================")
+    
+    print(f"\nEnergy: {test_energy:.4f} MeV/u")
+    print("-" * 50)
+
+    spl = splines[0]
+    r = spl(test_energy)
+    logr = np.exp(r)
+    print(f"  Spline 1: range = {r:13.6e}")
+    print(f"  Spline 1: range = {logr:13.6e}")
