@@ -50,6 +50,8 @@ TH1* GetLastDrawnHistogram() {
  * @param options The third argument of the `TTree::Draw` call
  * @param xtitle The title for the X axis
  * @param ytitle The title for the Y axis
+ * @param xtitleoff The offset for the X axis title
+ * @param ytitleoff The offset for the Y axis title
  */
 void PlotFancyHist(string tname, string params, string gate, string options, string xtitle, string ytitle, double xtitleoff=1., double ytitleoff=.9) {
 
@@ -128,6 +130,8 @@ void PlotFancyHist(string tname, string params, string gate, string options, str
 	TH1* hist = GetLastDrawnHistogram();
 	if (hist == nullptr) {
 		cerr << "Problem retrieving supposedly drawn histogram, exiting..." << endl;
+		ifile->Close();
+		return;
 	}
 
 	hist->SetLineColor(kBlue+2); // `kBlue+2` is the default blue shade used when plotting histograms via `TTree::Draw`
@@ -135,6 +139,82 @@ void PlotFancyHist(string tname, string params, string gate, string options, str
 	hist->GetXaxis()->CenterTitle();
 	hist->GetYaxis()->SetTitle(ytitle.c_str());
 	hist->GetYaxis()->CenterTitle();
+
+	mycan->Print("Canvas_1.eps", "eps");
+}
+
+/**
+ * Function to redraw the currently displayed histogram to a new
+ * canvas with better and more standardized visual attributes.
+ * @param options The third argument of the `TTree::Draw` call
+ * @param xtitle The title for the X axis
+ * @param ytitle The title for the Y axis
+ * @param xtitleoff The offset for the X axis title
+ * @param ytitleoff The offset for the Y axis title
+ */
+void MakeHistFancy(string options, string xtitle, string ytitle, double xtitleoff=1., double ytitleoff=.9) {
+
+	// Set default style attributes
+	TStyle* Sty = new TStyle("MyStyle", "MyStyle");
+	Sty->SetOptTitle(0);
+	Sty->SetOptStat(0);
+	Sty->SetLineWidth(3);
+	Sty->SetPalette(kBird);
+	Sty->SetCanvasColor(10);
+	Sty->SetCanvasBorderMode(0);
+	Sty->SetFrameLineWidth(0);
+	Sty->SetFrameFillColor(10);
+	Sty->SetPadColor(10);
+	Sty->SetPadTickX(1);
+	Sty->SetPadTickY(1);
+	Sty->SetPadBottomMargin(0.15);
+	Sty->SetPadTopMargin(0.06);
+	Sty->SetPadLeftMargin(0.12);
+	Sty->SetPadRightMargin(0.14);
+	Sty->SetHistLineWidth(3);
+	Sty->SetFuncWidth(3);
+	Sty->SetFuncColor(kGreen);
+	Sty->SetLineWidth(3);
+	Sty->SetLabelSize(0.05, "xyz");
+	Sty->SetLabelOffset(0.01, "y");
+	Sty->SetLabelOffset(0.01, "x");
+	Sty->SetLabelColor(kBlack, "xyz");
+	Sty->SetTitleSize(0.06, "y");
+	Sty->SetTitleSize(0.06, "x");
+	Sty->SetTitleOffset(ytitleoff, "y");
+	Sty->SetTitleOffset(xtitleoff, "x");
+	Sty->SetTitleFillColor(10);
+	Sty->SetTitleTextColor(kBlack);
+	Sty->SetTickLength(.05, "xz");
+	Sty->SetTickLength(.025, "y");
+	Sty->SetNdivisions(10, "y");
+	Sty->SetNdivisions(10, "x");
+	Sty->SetEndErrorSize(0);
+	Sty->SetTextFont(42);
+	gROOT->SetStyle("MyStyle");
+	gROOT->ForceStyle();
+
+	// Get histogram and set axis titles, other visual attributes
+	TH1* hist = GetLastDrawnHistogram();
+	if (hist == nullptr) {
+		cerr << "Problem retrieving supposedly drawn histogram, exiting..." << endl;
+		return;
+	}
+
+	// Calculate fractional margins (default margin is 0.1 fraction of width/height)
+	const size_t canw = 1000;
+	const size_t canh = 610;
+
+	TCanvas* mycan = (TCanvas*)gROOT->FindObjectAny("mycan");
+	if (!mycan) mycan = new TCanvas("mycan", "", canw, canh);
+	mycan->Draw();
+
+	hist->SetLineColor(kBlue+2); // `kBlue+2` is the default blue shade used when plotting histograms via `TTree::Draw`
+	hist->GetXaxis()->SetTitle(xtitle.c_str());
+	hist->GetXaxis()->CenterTitle();
+	hist->GetYaxis()->SetTitle(ytitle.c_str());
+	hist->GetYaxis()->CenterTitle();
+	hist->Draw(options.c_str());
 
 	mycan->Print("Canvas_1.eps", "eps");
 }

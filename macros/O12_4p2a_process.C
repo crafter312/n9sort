@@ -70,7 +70,7 @@ void O12_4p2a_process() {
 	TDirectory* dir12O = dirInvMass->mkdir("12O", "12O");
 	dir12O->cd();
 	TH2I* Be6_subevents = new TH2I("Be6_subevents", "Be6_subevents", 200, 0, 10, 200, 0, 10);
-	TH2I* Be6_subevents_zoomed = new TH2I("Be6_subevents_zoomed", "Be6_subevents_zoomed", 25, 0, 2.5, 25, 0, 2.5);
+	TH2I* Be6_subevents_zoomed = new TH2I("Be6_subevents_zoomed", "Be6_subevents_zoomed", 50, 0, 2.5, 50, 0, 2.5);
 	TH1I* C8_subevents = new TH1I("C8_subevents", "C8_subevents", 200, 0, 16);
 	TH1I* Be8_subevents = new TH1I("Be8_subevents", "Be8_subevents", 1000, 0, 10);
 	TH1I* C10_gated_subevents = new TH1I("C10_gated_subevents", "C10_gated_subevents", 200, 0, 12);
