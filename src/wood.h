@@ -117,6 +117,7 @@ public:
 
 	void initFrag(size_t i, parType::detType det);
 	void loadFrag(size_t i, parType::detType det, solution* frag);
+	TTree* getTree() const { return t; }
 
 	// NOTE: This version of the code doesn't use CAESAR or any other gamma detector.
 	// As such, I do not know what this function should look like, and it will have
