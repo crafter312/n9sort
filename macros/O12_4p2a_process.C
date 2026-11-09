@@ -34,7 +34,6 @@ void O12_4p2a_process() {
 
 	// Radius for 6Be+6Be 2D gate
 	const double Be6Rad = 0.292;
-	const double Be6BandWidth = Be6Rad * 2. / sqrt(2.);
 
 	// Read in file
 	TFile *file = TFile::Open("/data4/N9/mnt/analysis/e25001/rootout/sort_all_noneighbors_hasCsITDCQDC_SiFBGates_CsIPSD_CsIrecal_p+3MeV.root");
@@ -64,6 +63,7 @@ void O12_4p2a_process() {
 	double num6Be6Be{0};
 	double num8C{0.};
 	double num8Csideband{0.};
+	double num8BeGated9B{0.};
 	bool has8Be{false};
 	double avgSubeventsInGate{0.};
 	float const Q6Be = mass_6Be - (mass_alpha + 2.*mass_p);
@@ -80,10 +80,14 @@ void O12_4p2a_process() {
 	dir12O->cd();
 	TH2I* Be6_subevents = new TH2I("Be6_subevents_8BeVeto", "Be6_subevents_8BeVeto", 200, 0, 10, 200, 0, 10);
 	TH2I* Be6_subevents_zoomed = new TH2I("Be6_subevents_8BeVeto_zoomed", "Be6_subevents_8BeVeto_zoomed", 50, 0, 2.5, 50, 0, 2.5);
-	TH1I* Be6_subevents_gate_proj = new TH1I("Be6_subevents_gate_proj", "Be6_subevents_gate_proj", 100, 0, 5);
+	TH1I* Be6_subevents_gate_x_proj = new TH1I("Be6_subevents_8BeVeto_x_proj", "Be6_subevents_8BeVeto_proj", 100, 0, 5);
+	TH1I* Be6_subevents_ExRad = new TH1I("Be6_subevents_8BeVeto_ExRad", "Be6_subevents_8BeVeto_ExRad", 200, 0, 10);
+	TH1I* Be6_subevents_gate_yx_proj = new TH1I("Be6_subevents_8BeVeto_xy_proj", "Be6_subevents_8BeVeto_xy_proj", 200, 0, 10);
 	TH1I* C8_subevents = new TH1I("C8_subevents_8BeVeto", "C8_subevents_8BeVeto", 200, 0, 16);
 	TH1I* Be8_subevents = new TH1I("Be8_subevents", "Be8_subevents", 1000, 0, 10);
-	TH1I* C10_gated_subevents = new TH1I("C10_gated_subevents", "C10_gated_subevents", 200, 0, 12);
+	TH1I* B9_subevents = new TH1I("B9_subevents_8Begate", "B9_subevents_8Begate", 200, 0, 12);
+	TH1I* C10_subevents_8Be9Bgate = new TH1I("C10_subevents_8Be9Bgate", "C10_subevents_8Be9Bgate", 200, 0, 12);
+	TH1I* C10_subevents_8Begate_9Bveto = new TH1I("C10_subevents_8Begate_9Bveto", "C10_subevents_8Begate_9Bveto", 200, 0, 12);
 	TH1I* O12_Erel_8Begate = new TH1I("O12_Erel_8Begate", "O12_Erel_8Begate", 200, 4, 15);
 	TH1I* O12_Erel_6Be6Begate = new TH1I("O12_Erel_6Be6Begate_8BeVeto", "O12_Erel_6Be6Begate_8BeVeto", 200, 4, 15);
 	TH1I* O12_Erel_8Cgate = new TH1I("O12_Erel_8Cgate_8BeVeto", "O12_Erel_8Cgate_8BeVeto", 200, 4, 15);
@@ -103,6 +107,7 @@ void O12_4p2a_process() {
 		tout->Branch("num6Be6Be", &num6Be6Be);
 		tout->Branch("num8C", &num8C);
 		tout->Branch("num8Csideband", &num8Csideband);
+		tout->Branch("num8BeGated9B", &num8BeGated9B);
 		tout->Branch("has8Be", &has8Be);
 	}
 
@@ -201,6 +206,7 @@ void O12_4p2a_process() {
 		num6Be6Be     = 0.;
 		num8C         = 0.;
 		num8Csideband = 0.;
+		num8BeGated9B = 0.;
 		has8Be        = false;
 
 		// Then, retrieve other inputs
@@ -220,12 +226,30 @@ void O12_4p2a_process() {
 		correl.makeArray(1);
 		float Erel_8Be = correl.findErel();
 		Be8_subevents->Fill(Erel_8Be);
-		has8Be = Erel_8Be < .2f;
+		has8Be = (Erel_8Be > 0.f) && (Erel_8Be < .2f);
 
-		// If contains 8Be subevent, reconstruct all 10C subevents just to see
+		// If contains 8Be subevent, reconstruct all 9B and 10C subevents.
 		// Then reconstruct 12O, fill dedicated histogram, and continue the
 		// event loop
 		if (has8Be) {
+
+			// First 9B subevents
+			for (size_t i = 0; i < 4; i++) {
+				correl.zeroMask();
+				correl.proton.mask[i] = 1;
+				correl.alpha.mask[0]  = 1;
+				correl.alpha.mask[1]  = 1;
+				correl.makeArray(1);
+				float Erel_9B = correl.findErel();
+				B9_subevents->Fill(Erel_9B);
+				if ((Erel_9B > 0.f) && (Erel_9B < .5f))
+					num8BeGated9B += 1.;
+			}
+
+			// Then reconstruct 10C subevents
+			correl.zeroMask();
+			correl.alpha.mask[0] = 1;
+			correl.alpha.mask[1] = 1;
 			for (size_t i = 0; i < 4; i++) {
 				for (size_t j = i + 1; j < 4; j++) {
 					correl.proton.mask[i] = 1;
@@ -241,7 +265,10 @@ void O12_4p2a_process() {
 
 					correl.makeArray(1);
 					float Erel_10C = correl.findErel();
-					C10_gated_subevents->Fill(Erel_10C);
+					if (num8BeGated9B > 0.)
+						C10_subevents_8Be9Bgate->Fill(Erel_10C);
+					else if (num8BeGated9B == 0.)
+						C10_subevents_8Begate_9Bveto->Fill(Erel_10C); 
 				}
 			}
 
@@ -277,10 +304,15 @@ void O12_4p2a_process() {
 				Be6_subevents->Fill(Erel_6Be_1, Erel_6Be_2);
 				Be6_subevents_zoomed->Fill(Erel_6Be_1, Erel_6Be_2);
 				float radius = sqrt((Ex_6Be_1 * Ex_6Be_1) + (Ex_6Be_2 * Ex_6Be_2));
+				Be6_subevents_ExRad->Fill(radius);
 				//num6Be6Be += (double)cutg->IsInside(Erel_6Be_1, Erel_6Be_2);
 				num6Be6Be += (double)(radius < Be6Rad);
-				bool insideDiagonalBand = abs(Erel_6Be_2 - Erel_6Be_1) <= Be6BandWidth;
-				if (insideDiagonalBand) Be6_subevents_gate_proj->Fill(Erel_6Be_1);
+				bool insideDiagonalBand = (abs(Erel_6Be_2 - Erel_6Be_1) / sqrt(2.)) <= Be6Rad;
+				double u = (Erel_6Be_1 + Erel_6Be_2) / sqrt(2.); // Along the y=x line
+				if (insideDiagonalBand) {
+					Be6_subevents_gate_x_proj->Fill(Erel_6Be_1);
+					Be6_subevents_gate_yx_proj->Fill(u);
+				}
 			}
 		}
 		if (num6Be6Be > 0.) O12_Erel_6Be6Begate->Fill(Erel_12O);

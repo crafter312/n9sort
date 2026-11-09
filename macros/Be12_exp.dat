@@ -1,0 +1,23 @@
+Observed and known levels in Be12
+J P N Estar Width decayMode known
+####################################
+0   1 1 0     0    NA 1
+2   1 1 2109  0    NA 1
+0   1 2 2251  0    NA 1
+1  -1 1 2715  0    NA 1
+UN  0 0 4412  634  NA 1
+UN  0 0 4580  101  NA 1
+UN  0 0 5724  85   NA 1
+UN  0 0 6275  0    NA 1
+UN  0 0 7200  0    NA 1
+UN  0 0 8230  0    NA 1
+UN  0 0 8600  500  NA 1
+UN  0 0 9300  2000 NA 1
+UN  0 0 10000 1500 NA 1
+0   1 3 10800 0    NA 1
+2   1 2 11300 0    NA 1
+UN  0 0 11800 1000 NA 1
+UN  0 0 12100 0    NA 1
+UN  0 0 13200 1000 NA 1
+UN  0 0 14000 0    NA 1
+6   1 1 14900 0    NA 1
