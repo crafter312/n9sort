@@ -259,6 +259,8 @@ void Gobbi28::analyze() {
 		if (CsIN == 1) {
 			Histo.csiMult1_nfbCorr->Fill(BackN, FrontN);
 			if ((FrontN > 0) && (BackN > 0)) {
+				int fs1 = Telescope[id]->Front.Order[0].strip;
+				int bs1 = Telescope[id]->Back.Order[0].strip;
 				double fe1 = Telescope[id]->Front.Order[0].energy;
 				double be1 = Telescope[id]->Back.Order[0].energy;
 				if ((FrontN == 1) && (BackN == 1)) {
@@ -266,20 +268,30 @@ void Gobbi28::analyze() {
 					Histo.csiMult1_1f1bdiff->Fill(abs(be1 - fe1));
 				}
 				else if ((FrontN == 2) && (BackN == 1)) {
-					double fe2 = Telescope[id]->Front.Order[1].energy;
-					Histo.csiMult1_2fv1b->Fill(be1, fe1 + fe2);
-					Histo.csiMult1_2f1bdiff->Fill(abs(be1 - fe1 - fe2));
+					int fs2 = Telescope[id]->Front.Order[1].strip;
+					if (abs(fs2 - fs1) == 1) {
+						double fe2 = Telescope[id]->Front.Order[1].energy;
+						Histo.csiMult1_2fv1b->Fill(be1, fe1 + fe2);
+						Histo.csiMult1_2f1bdiff->Fill(abs(be1 - fe1 - fe2));
+					}
 				}
 				else if ((FrontN == 1) && (BackN == 2)) {
-					double be2 = Telescope[id]->Back.Order[1].energy;
-					Histo.csiMult1_1fv2b->Fill(be1 + be2, fe1);
-					Histo.csiMult1_1f2bdiff->Fill(abs(be1 + be2 - fe1));
+					int bs2 = Telescope[id]->Back.Order[1].strip;
+					if (abs(bs2 - bs1) == 1) {
+						double be2 = Telescope[id]->Back.Order[1].energy;
+						Histo.csiMult1_1fv2b->Fill(be1 + be2, fe1);
+						Histo.csiMult1_1f2bdiff->Fill(abs(be1 + be2 - fe1));
+					}
 				}
 				else if ((FrontN == 2) && (BackN == 2)) {
-					double fe2 = Telescope[id]->Front.Order[1].energy;
-					double be2 = Telescope[id]->Back.Order[1].energy;
-					Histo.csiMult1_2fv2b->Fill(be1 + be2, fe1 + fe2);
-					Histo.csiMult1_2f2bdiff->Fill(abs(be1 + be2 - fe1 - fe2));
+					int fs2 = Telescope[id]->Front.Order[1].strip;
+					int bs2 = Telescope[id]->Back.Order[1].strip;
+					if ((abs(fs2 - fs1) == 1) && (abs(bs2 - bs1) == 1)) {
+						double fe2 = Telescope[id]->Front.Order[1].energy;
+						double be2 = Telescope[id]->Back.Order[1].energy;
+						Histo.csiMult1_2fv2b->Fill(be1 + be2, fe1 + fe2);
+						Histo.csiMult1_2f2bdiff->Fill(abs(be1 + be2 - fe1 - fe2));
+					}
 				}
 			}
 		}
