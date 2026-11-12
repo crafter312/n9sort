@@ -7,6 +7,8 @@
  */
 
 #include <fstream>
+#include <mutex>
+#include <sstream>
 #include <unordered_map>
 
 #include <TRandom.h>
@@ -22,7 +24,7 @@
 class Gobbi28 {
 
 public:
-	Gobbi28(Input& in, histo& hist, SortConfig& config);
+	Gobbi28(Input& in, histo& hist, SortConfig& config, std::atomic<size_t>& _nEvtSelected, std::mutex& _ofileMutex, std::ofstream& _testOut);
 	~Gobbi28();
 
 	void analyze();
@@ -46,6 +48,9 @@ private:
 	size_t nTelCsIs;      // number of CsI crystals per telescope, determined by Gobbb28 class when reading in CsI mapping file
 
 	histo& Histo;
+	std::atomic<size_t>& nEvtSelected;
+	std::mutex& ofileMutex;
+	std::ofstream& testOut;
 
 	const Input::GobbiInput& input;
 	const Input::ADCQDCInput& input_adc;
@@ -75,7 +80,7 @@ private:
 	
 	TRandom* Ran;
 
-	//ofstream testOut{"../RootFiles/TestDataOut_20Entries.txt"};
+	stringstream tmpOut{""};
 
 	// Inputs are telescope number, channel number, and hit index for below functions
 	void addFrontHit(size_t tel, size_t ch, size_t i);

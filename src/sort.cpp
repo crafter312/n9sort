@@ -53,6 +53,10 @@ int main() {
 	std::atomic<long long> globalProcessed{0};
 	mutex consoleMutex; // To prevent text scrambling
 
+	// Setup for debug/testing output file
+	mutex ofileMutex;   // To protect output file for debug information
+	ofstream testOut("../RootFiles/" + sortConfig.GetDebugFileName());
+
 	// Create the TBufferMerger: this class orchestrates the parallel writing to an output ROOT file
 	string ofname = sortConfig.GetOutputDir() + sortConfig.GetOfileName();
 	ROOT::TBufferMerger merger(ofname.c_str(), "RECREATE");
@@ -77,6 +81,7 @@ int main() {
 	
 	// Other counters
 	atomic<size_t> pidSkipped   = 0;
+	atomic<size_t> nEvtSelected = 0;
 	
 	/******** EVENT PROCESSING LAMBDA FUNCTION ********/
 	
@@ -94,7 +99,7 @@ int main() {
 
 		// Initialize analysis classes
 		histo Histo(f, sortConfig);
-		Det det(input, Histo, sortConfig, runnum);
+		Det det(input, Histo, sortConfig, runnum, nEvtSelected, ofileMutex, testOut);
 		
 		// Thread-local event loop
 		size_t localCounter = 0;
@@ -233,6 +238,7 @@ int main() {
 	cout << "OTHER COUNTERS                                                          " << endl;
 	cout << "# solutions invalidated due to Eloss errors: " << pidSkipped << endl;
 
+	testOut.close();
 	return 0;
 }
 

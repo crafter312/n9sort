@@ -172,6 +172,7 @@ void Plot10CSimple() {
 	double peakMax = 2.;
 	double Ipeak = peak1->Integral(peakMin, peakMax);
 	double Iback = background->Integral(peakMin, peakMax);
+	const double IbackSAVE = Iback;
 	double Itot  = Ipeak + Iback;
 	cout << "% signal     = " << Ipeak / Itot * 100. << "%" << endl;
 	cout << "% background = " << Iback / Itot * 100. << "%" << endl;
@@ -339,75 +340,74 @@ void Plot10CSimple() {
 	mycan3->Print("Canvas_3.eps", "eps");
 
 	/******** 12O BACKGROUND ********/
-	// Next, what I can do is create a sideband gate in the 8C spectrum
+	// Next, what I can do is create a sideband gate in the 10C spectrum
 	// to see what the corresponding 12O background looks like. Basically,
 	// I make a 12O spectrum for the sideband gate. I then scale this
 	// sideband spectrum by the ratio between the background integral in
 	// the signal region and the background integral in the sideband
 	// region. This gives me a background for the 12O spectrum.
-/*
-	// Get 8C gated histogram
-	hname = "12O/O12_Erel_8Cgate_8BeVeto";
-	TH1* hist2 = (TH1*)ifile->Get((string("InvMass/") + hname).c_str());
-	if (!hist2) {
+
+	// Get 10C gated histogram
+	hname = "12O/O12_Erel_8Be9B10Cgates";
+	TH1* hist4a = (TH1*)ifile->Get((string("InvMass/") + hname).c_str());
+	if (!hist4a) {
 		cerr << "Histogram " << hname << " not found in file or could not be opened" << endl;
 		ifile->Close();
 		return;
 	}
 
 	// Get sideband gated histogram
-	hname = "12O/O12_Erel_8Csideband_8BeVeto";
-	TH1F* hist3 = (TH1F*)ifile->Get((string("InvMass/") + hname).c_str());
-	if (!hist3) {
+	hname = "12O/O12_Erel_8Be9Bgated10Csideband";
+	TH1F* hist4b = (TH1F*)ifile->Get((string("InvMass/") + hname).c_str());
+	if (!hist4b) {
 		cerr << "Histogram " << hname << " not found in file or could not be opened" << endl;
 		ifile->Close();
 		return;
 	}
 
-	// Find or make second canvas
-	TCanvas* mycan2 = (TCanvas*)gROOT->FindObjectAny("mycan2");
-	if (!mycan2) mycan2 = new TCanvas("mycan2", "", canw, canh);
+	// Find or make fourth canvas
+	TCanvas* mycan4 = (TCanvas*)gROOT->FindObjectAny("mycan4");
+	if (!mycan4) mycan4 = new TCanvas("mycan4", "", canw, canh);
 
 	// Plot data
-	xtitle = "E_{rel} 4p+2#alpha (MeV)";
-	hist2->Rebin(4);
-	hist2->SetLineColor(kBlack);
-	hist2->SetMarkerStyle(20);
-	hist2->GetXaxis()->SetRangeUser(4, 15);
-	hist2->GetXaxis()->SetTitle(xtitle.c_str());
-	hist2->GetXaxis()->CenterTitle();
-	hist2->GetYaxis()->SetTitle(ytitle.c_str());
-	hist2->GetYaxis()->CenterTitle();
-	hist2->Draw("EX0P");
+	xtitle = "E_{rel} 4p+2#alpha (MeV, ^{8}Be and ^{9}B gates)";
+	hist4a->Rebin(4);
+	hist4a->SetLineColor(kBlack);
+	hist4a->SetMarkerStyle(20);
+	hist4a->GetXaxis()->SetRangeUser(4, 15);
+	hist4a->GetXaxis()->SetTitle(xtitle.c_str());
+	hist4a->GetXaxis()->CenterTitle();
+	hist4a->GetYaxis()->SetTitle(ytitle.c_str());
+	hist4a->GetYaxis()->CenterTitle();
+	hist4a->Draw("EX0P");
 
 	// Plot scaled sideband background
-	double Isideband = background->Integral(4, 5);
-	hist3->Rebin(4);
-	hist3->Scale(Iback / Isideband);
-	hist3->SetLineColor(kBlue+2); // `kBlue+2` is the default blue shade used when plotting histograms via `TTree::Draw`
-	hist3->SetLineStyle(9);
-	hist3->Draw("HIST SAME");
+	double Isideband = background->Integral(2, 3);
+	hist4b->Rebin(4);
+	hist4b->Scale(IbackSAVE / Isideband);
+	hist4b->SetLineColor(kBlue+2); // `kBlue+2` is the default blue shade used when plotting histograms via `TTree::Draw`
+	hist4b->SetLineStyle(9);
+	hist4b->Draw("HIST SAME");
 
 	// Draw legend
-	TLegend* legend2 = new TLegend(0.54, 0.76, 0.86, 0.94);
-	legend2->AddEntry(hist2, "Data", "ep");
-	legend2->AddEntry(hist3, "Sideband bkgd. (scaled)", "l");
-	legend2->Draw();
+	TLegend* legend4 = new TLegend(0.5, 0.76, 0.86, 0.94);
+	legend4->AddEntry(hist4a, "Data, ^{10}C E*=5.18 MeV gate", "ep");
+	legend4->AddEntry(hist4b, "Sideband bkgd. (scaled)", "l");
+	legend4->Draw();
 
-	mycan2->Print("Canvas_2.eps", "eps");
+	mycan4->Print("Canvas_4.eps", "eps");
 
-	// Find or make third canvas
-	TCanvas* mycan3 = (TCanvas*)gROOT->FindObjectAny("mycan3");
-	if (!mycan3) mycan3 = new TCanvas("mycan3", "", canw, canh);
+	// Find or make fifth canvas
+	TCanvas* mycan5 = (TCanvas*)gROOT->FindObjectAny("mycan5");
+	if (!mycan5) mycan5 = new TCanvas("mycan5", "", canw, canh);
 
-	xtitle = "E_{rel} 4p+2#alpha (MeV, ^{8}C gate, bkgd. sub.)";
-	hist2->Add(hist3, -1);
-	hist2->GetXaxis()->SetTitle(xtitle.c_str());
-	hist2->GetYaxis()->SetTitle("");
-	hist2->Draw("EX0P");
+	xtitle = "E_{rel} 4p+2#alpha (MeV, ^{10}C E*=5.18 MeV, bkgd. sub.)";
+	hist4a->Add(hist4b, -1);
+	hist4a->GetXaxis()->SetTitle(xtitle.c_str());
+	hist4a->GetYaxis()->SetTitle("");
+	hist4a->Draw("EX0P");
 
-	mycan3->Print("Canvas_3.eps", "eps");
-*/
+	mycan5->Print("Canvas_5.eps", "eps");
 }
 
 

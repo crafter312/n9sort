@@ -33,14 +33,17 @@
 #include "telescope.h"
 #include "wood.h"
 
+#include <atomic>
+#include <fstream>
 #include <iostream>
 #include <memory>
+#include <mutex>
 #include <string>
 
 class Det {
 
 public:
-	Det(Input& in, histo& hist, SortConfig& config, size_t run);
+	Det(Input& in, histo& hist, SortConfig& config, size_t run, std::atomic<size_t>& nEvtSelected, std::mutex& ofileMutex, std::ofstream& testOut);
 	~Det();
 
 	void analyze();

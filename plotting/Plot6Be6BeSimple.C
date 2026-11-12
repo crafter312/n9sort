@@ -522,10 +522,6 @@ void Plot6Be6BeSimple() {
 	mycan1a->Modified();
 	mycan1a->Update();
 
-	//mycan1a->GetView()->SetPerspective();
-	//mycan1a->Modified();
-	//mycan1a->Update();
-
 	mycan1a->Print("Canvas_1a.eps", "eps");
 
 	// Now try making a fit to data comparison for this 2D fit by projecting along y = x
@@ -632,7 +628,7 @@ void Plot6Be6BeSimple() {
 
 			// Check if the point falls inside the circular region: (x - x0)^2 + (y - y0)^2 <= R^2
 			Double_t r2 = (x - x0) * (x - x0) + (y - y0) * (y - y0);
-			if (r2 <= (Be6Rad * Be6Rad)) {
+			if (r2 < (Be6Rad * Be6Rad)) {
 				// Evaluate your peak component and background component separately
 				Double_t peakVal = fitPeak2D->Eval(x, y); 
 				Double_t bgVal   = fitBkgd2D->Eval(x, y);
@@ -664,9 +660,9 @@ void Plot6Be6BeSimple() {
 	// sideband spectrum by the ratio between the background integral in
 	// the signal region and the background integral in the sideband
 	// region. This gives me a background for the 12O spectrum.
-/*
+
 	// Get 6Be gated histogram
-	hname = "12O/O12_Erel_8Cgate_8BeVeto";
+	hname = "12O/O12_Erel_6Be6Begate_8BeVeto";
 	TH1* hist2 = (TH1*)ifile->Get((string("InvMass/") + hname).c_str());
 	if (!hist2) {
 		cerr << "Histogram " << hname << " not found in file or could not be opened" << endl;
@@ -675,7 +671,7 @@ void Plot6Be6BeSimple() {
 	}
 
 	// Get sideband gated histogram
-	hname = "12O/O12_Erel_8Csideband_8BeVeto";
+	hname = "12O/O12_Erel_6Be6Besideband_8BeVeto";
 	TH1F* hist3 = (TH1F*)ifile->Get((string("InvMass/") + hname).c_str());
 	if (!hist3) {
 		cerr << "Histogram " << hname << " not found in file or could not be opened" << endl;
@@ -688,7 +684,7 @@ void Plot6Be6BeSimple() {
 	if (!mycan2) mycan2 = new TCanvas("mycan2", "", canw, canh);
 
 	// Plot data
-	xtitle = "E_{rel} 4p+2#alpha (MeV)";
+	xtitle = "E_{rel} 4p+2#alpha (MeV, ^{8}Be veto)";
 	hist2->Rebin(4);
 	hist2->SetLineColor(kBlack);
 	hist2->SetMarkerStyle(20);
@@ -699,17 +695,37 @@ void Plot6Be6BeSimple() {
 	hist2->GetYaxis()->CenterTitle();
 	hist2->Draw("EX0P");
 
+	Double_t bgSideIntegral = 0.0;
+
+	nStepsGrid = 200;
+	dx = (4.0 * Be6Rad) / nStepsGrid;
+	dy = (4.0 * Be6Rad) / nStepsGrid;
+	cellArea = dx * dy;
+
+	for (int i = 0; i <= nStepsGrid; ++i) {
+		Double_t x = (x0 - (2.*Be6Rad)) + i * dx;
+		for (int j = 0; j <= nStepsGrid; ++j) {
+			Double_t y = (y0 - (2.*Be6Rad)) + j * dy;
+
+			// Check if the point falls inside the disk region
+			Double_t r2 = (x - x0) * (x - x0) + (y - y0) * (y - y0);
+			if ((r2 >= (Be6Rad * Be6Rad)) && (r2 < ((2.*Be6Rad)*(2.*Be6Rad)))) {
+				Double_t bgVal   = fitBkgd2D->Eval(x, y);
+				if (!TMath::IsNaN(bgVal))   bgSideIntegral += bgVal * cellArea;
+			}
+		}
+	}
+
 	// Plot scaled sideband background
-	double Isideband = background->Integral(4, 5);
 	hist3->Rebin(4);
-	hist3->Scale(Iback / Isideband);
+	hist3->Scale(bgIntegral / bgSideIntegral);
 	hist3->SetLineColor(kBlue+2); // `kBlue+2` is the default blue shade used when plotting histograms via `TTree::Draw`
 	hist3->SetLineStyle(9);
 	hist3->Draw("HIST SAME");
 
 	// Draw legend
 	TLegend* legend2 = new TLegend(0.54, 0.76, 0.86, 0.94);
-	legend2->AddEntry(hist2, "Data", "ep");
+	legend2->AddEntry(hist2, "Data, ^{6}Be+^{6}Be gate", "ep");
 	legend2->AddEntry(hist3, "Sideband bkgd. (scaled)", "l");
 	legend2->Draw();
 
@@ -719,14 +735,13 @@ void Plot6Be6BeSimple() {
 	TCanvas* mycan3 = (TCanvas*)gROOT->FindObjectAny("mycan3");
 	if (!mycan3) mycan3 = new TCanvas("mycan3", "", canw, canh);
 
-	xtitle = "E_{rel} 4p+2#alpha (MeV, ^{8}C gate, bkgd. sub.)";
+	xtitle = "E_{rel} 4p+2#alpha (MeV, ^{6}Be gate, bkgd. sub.)";
 	hist2->Add(hist3, -1);
 	hist2->GetXaxis()->SetTitle(xtitle.c_str());
 	hist2->GetYaxis()->SetTitle("");
 	hist2->Draw("EX0P");
 
 	mycan3->Print("Canvas_3.eps", "eps");
-*/
 }
 
 

@@ -27,7 +27,16 @@ using namespace std;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-Det::Det(Input& in, histo& hist, SortConfig& config, size_t run) : input(in.GetGobbi()), Targetdist(config.GetTargDist()), TargetThickness(config.GetTargThick()), hinpboards(config.GetHinpboards()), hinpchans(config.GetHinpchans()), Histo(hist), gobbi(in, hist, config), input_tdc(in.GetTDC()), runnum(run) {
+Det::Det(Input& in, histo& hist, SortConfig& config, size_t run, atomic<size_t>& nEvtSelected, mutex& ofileMutex, ofstream& testOut) : 
+	input(in.GetGobbi()),
+	Targetdist(config.GetTargDist()),
+	TargetThickness(config.GetTargThick()),
+	hinpboards(config.GetHinpboards()),
+	hinpchans(config.GetHinpchans()),
+	Histo(hist),
+	gobbi(in, hist, config, nEvtSelected, ofileMutex, testOut),
+	input_tdc(in.GetTDC()),
+	runnum(run) {
 
 #ifdef ENABLE_DEBUG
 	cout << "Det::Det 1" << endl;

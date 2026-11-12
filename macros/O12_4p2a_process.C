@@ -60,10 +60,13 @@ void O12_4p2a_process() {
 	vector<size_t> singleMults(4, 0); // per-telescope total count of events with only one particle in this telescope
 	vector<size_t> multiMults(4, 0);  // per-telescope total count of events with multiple particles in this telescope
 
-	double num6Be6Be{0};
+	double num6Be6Be{0.};
+	double num6Be6BeSideband{0.};
 	double num8C{0.};
 	double num8Csideband{0.};
 	double num8BeGated9B{0.};
+	double num8Be9BGated10C{0.};
+	double num8Be9BGated10Csideband{0.};
 	bool has8Be{false};
 	double avgSubeventsInGate{0.};
 	float const Q6Be = mass_6Be - (mass_alpha + 2.*mass_p);
@@ -89,7 +92,10 @@ void O12_4p2a_process() {
 	TH1I* C10_subevents_8Be9Bgate = new TH1I("C10_subevents_8Be9Bgate", "C10_subevents_8Be9Bgate", 200, 0, 12);
 	TH1I* C10_subevents_8Begate_9Bveto = new TH1I("C10_subevents_8Begate_9Bveto", "C10_subevents_8Begate_9Bveto", 200, 0, 12);
 	TH1I* O12_Erel_8Begate = new TH1I("O12_Erel_8Begate", "O12_Erel_8Begate", 200, 4, 15);
+	TH1I* O12_Erel_8Be9B10Cgates = new TH1I("O12_Erel_8Be9B10Cgates", "O12_Erel_8Be9B10Cgates", 200, 4, 15);
+	TH1I* O12_Erel_8Be9Bgated10Csideband = new TH1I("O12_Erel_8Be9Bgated10Csideband", "O12_Erel_8Be9Bgated10Csideband", 200, 4, 15);
 	TH1I* O12_Erel_6Be6Begate = new TH1I("O12_Erel_6Be6Begate_8BeVeto", "O12_Erel_6Be6Begate_8BeVeto", 200, 4, 15);
+	TH1I* O12_Erel_6Be6Besideband = new TH1I("O12_Erel_6Be6Besideband_8BeVeto", "O12_Erel_6Be6Besideband_8BeVeto", 200, 4, 15);
 	TH1I* O12_Erel_8Cgate = new TH1I("O12_Erel_8Cgate_8BeVeto", "O12_Erel_8Cgate_8BeVeto", 200, 4, 15);
 	TH1D* O12_Erel_8Csideband = new TH1D("O12_Erel_8Csideband_8BeVeto", "O12_Erel_8Csideband_8BeVeto", 200, 4, 15);
 
@@ -105,9 +111,12 @@ void O12_4p2a_process() {
 	{
 		TTree* tout = O12_4p2a.getTree();
 		tout->Branch("num6Be6Be", &num6Be6Be);
+		tout->Branch("num6Be6BeSideband", &num6Be6BeSideband);
 		tout->Branch("num8C", &num8C);
 		tout->Branch("num8Csideband", &num8Csideband);
 		tout->Branch("num8BeGated9B", &num8BeGated9B);
+		tout->Branch("num8Be9BGated10C", &num8Be9BGated10C);
+		tout->Branch("num8Be9BGated10Csideband", &num8Be9BGated10Csideband);
 		tout->Branch("has8Be", &has8Be);
 	}
 
@@ -203,11 +212,14 @@ void O12_4p2a_process() {
 		// can now perform calculations
 
 		// First, reset the tree variables
-		num6Be6Be     = 0.;
-		num8C         = 0.;
-		num8Csideband = 0.;
-		num8BeGated9B = 0.;
-		has8Be        = false;
+		num6Be6Be                = 0.;
+		num6Be6BeSideband        = 0.;
+		num8C                    = 0.;
+		num8Csideband            = 0.;
+		num8BeGated9B            = 0.;
+		num8Be9BGated10C         = 0.;
+		num8Be9BGated10Csideband = 0.;
+		has8Be                   = false;
 
 		// Then, retrieve other inputs
 		Erel_12O = *Erel_12ORV;
@@ -265,8 +277,11 @@ void O12_4p2a_process() {
 
 					correl.makeArray(1);
 					float Erel_10C = correl.findErel();
-					if (num8BeGated9B > 0.)
+					if (num8BeGated9B > 0.) {
+						num8Be9BGated10C += (double)((Erel_10C > 0.f) && (Erel_10C < 2.f));
+						num8Be9BGated10Csideband += (double)((Erel_10C >= 2.f) && (Erel_10C < 3.f));
 						C10_subevents_8Be9Bgate->Fill(Erel_10C);
+					}
 					else if (num8BeGated9B == 0.)
 						C10_subevents_8Begate_9Bveto->Fill(Erel_10C); 
 				}
@@ -274,6 +289,10 @@ void O12_4p2a_process() {
 
 			O12_Erel_8Begate->Fill(Erel_12O);
 		}
+		if (num8Be9BGated10C > 0.)
+			O12_Erel_8Be9B10Cgates->Fill(Erel_12O);
+		else if (num8Be9BGated10Csideband > 0.)
+			O12_Erel_8Be9Bgated10Csideband->Fill(Erel_12O);
 
 		// Loop through all combinations of (2p + a) + (2p + a) and perform 6Be
 		// reconstruction for each. To do this, only have to pick one alpha and
@@ -307,6 +326,7 @@ void O12_4p2a_process() {
 				Be6_subevents_ExRad->Fill(radius);
 				//num6Be6Be += (double)cutg->IsInside(Erel_6Be_1, Erel_6Be_2);
 				num6Be6Be += (double)(radius < Be6Rad);
+				num6Be6BeSideband += (double)((radius >= Be6Rad) && (radius < (2.*Be6Rad)));
 				bool insideDiagonalBand = (abs(Erel_6Be_2 - Erel_6Be_1) / sqrt(2.)) <= Be6Rad;
 				double u = (Erel_6Be_1 + Erel_6Be_2) / sqrt(2.); // Along the y=x line
 				if (insideDiagonalBand) {
@@ -315,7 +335,10 @@ void O12_4p2a_process() {
 				}
 			}
 		}
-		if (num6Be6Be > 0.) O12_Erel_6Be6Begate->Fill(Erel_12O);
+		if (num6Be6Be > 0.)
+			O12_Erel_6Be6Begate->Fill(Erel_12O);
+		else if (num6Be6BeSideband > 0.)
+			O12_Erel_6Be6Besideband->Fill(Erel_12O);
 
 		// Then check all combinations of 8C + a (there are only two)
 		int current_alpha_status[2] = {0, 0}; // 0: neither, 1: peak, 2: sideband

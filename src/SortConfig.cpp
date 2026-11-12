@@ -86,6 +86,8 @@ SortConfig::SortConfig(string configFilePath) {
 			CsIChannelMapFile = line.substr(line.find('=') + 2);
 		else if (line.find("CsIPSDGateFile") != string::npos)
 			CsIPSDGateFile = line.substr(line.find('=') + 2);
+		else if (line.find("DebugFileName") != string::npos)
+			DebugFileName = line.substr(line.find('=') + 2);
 		else if (line.find("targdist") != string::npos) {
 			string temps = line.substr(line.find('=') + 2);
 			try {
