@@ -54,6 +54,12 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, SortConfig& config) : hinpbo
   dirPSD = dirDEEplots->mkdir("PSDplots","PSDplots");
   dirhitmaps  = new TDirectoryFile("hitmaps","hitmaps");
 
+	// Directory for silicon strip plots
+	dirStripStats = new TDirectoryFile("StripStats","StripStats");
+	csiMult1 = dirStripStats->mkdir("csiMult1","csiMult1");
+	csiMult2 = dirStripStats->mkdir("csiMult2","csiMult2");
+	csiMult3 = dirStripStats->mkdir("csiMult3","csiMult3");
+
   // Directory for all correlations and inv-mass
   dirInvMass = new TDirectoryFile("InvMass","InvMass");
 	singleFrags = dirInvMass->mkdir("singleFrags", "singleFrags");
@@ -369,6 +375,16 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, SortConfig& config) : hinpbo
 
 	NeighborStripECorrelations = new TH2I("NeighborStripECorrelations","",500,0,20,500,0,20); // Order is energy ordered, so x is larger energy and y is smaller energy
 
+	csiMult1->cd();
+	csiMult1_nfbCorr = new TH2I("csiMult1_nfbCorr","",10,0,10,10,0,10); // front is y and back is x
+	csiMult1_1fv1b = new TH2I("csiMult1_1fv1b","",500,0,90,500,0,90);
+	csiMult1_2fv1b = new TH2I("csiMult1_2fv1b","",500,0,90,500,0,90);
+	csiMult1_1fv2b = new TH2I("csiMult1_1fv2b","",500,0,90,500,0,90);
+	csiMult1_2fv2b = new TH2I("csiMult1_2fv2b","",500,0,90,500,0,90);
+	csiMult1_1f1bdiff = new TH1I("csiMult1_1f1bdiff","",1000,0,90);
+	csiMult1_2f1bdiff = new TH1I("csiMult1_2f1bdiff","",1000,0,90);
+	csiMult1_1f2bdiff = new TH1I("csiMult1_1f2bdiff","",1000,0,90);
+	csiMult1_2f2bdiff = new TH1I("csiMult1_2f2bdiff","",1000,0,90);
 
   // He4
   dir4He->cd();

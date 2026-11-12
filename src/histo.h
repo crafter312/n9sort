@@ -70,9 +70,14 @@ public:
 	
 	TDirectoryFile* dirTDC;
 
-	TDirectoryFile* dirDEEplots; // directory for deltaE-E plots used in particle identificaiton
-	TDirectory* dirPSD;          // directory for PSD plots
-	TDirectoryFile* dirhitmaps;  // directory for all particle type hitmaps
+	TDirectoryFile* dirDEEplots;   // directory for deltaE-E plots used in particle identificaiton
+	TDirectory* dirPSD;            // directory for PSD plots
+	TDirectoryFile* dirhitmaps;    // directory for all particle type hitmaps
+
+	TDirectoryFile* dirStripStats; // directory for per-telescope front/back strip statistics (used for identifying when to and when not to add neighboring strips)
+	TDirectory* csiMult1;
+	TDirectory* csiMult2;
+	TDirectory* csiMult3; 
 
 	TDirectoryFile* dirInvMass;  // directory for all correlations and inv-mass
 	TDirectory* singleFrags; // directory for single multiplicity events (calibrations and whatnot)
@@ -223,6 +228,17 @@ public:
 	TH1I* dTime_Li;
 	TH2I* CorrelationTable;
 	TH2I* NeighborStripECorrelations; // Order is energy ordered, so x is larger energy and y is smaller energy
+
+	// Silicon strip plots
+	TH2I* csiMult1_nfbCorr;
+	TH2I* csiMult1_1fv1b;
+	TH2I* csiMult1_2fv1b;
+	TH2I* csiMult1_1fv2b;
+	TH2I* csiMult1_2fv2b;
+	TH1I* csiMult1_1f1bdiff;
+	TH1I* csiMult1_2f1bdiff;
+	TH1I* csiMult1_1f2bdiff;
+	TH1I* csiMult1_2f2bdiff;
 
 	/******** CORRELATIONS AND INVARIANT MASS PLOTS ********/
 

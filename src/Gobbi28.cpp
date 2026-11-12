@@ -253,13 +253,44 @@ void Gobbi28::analyze() {
 		cout << "id " << id << ", Nsol " << Telescope[id]->Nsolution << endl;
 #endif
 
+		int FrontN = Telescope[id]->Front.Nstore;
+		int BackN  = Telescope[id]->Back.Nstore;
+		int CsIN   = Telescope[id]->CsI.Nstore;
+		if (CsIN == 1) {
+			Histo.csiMult1_nfbCorr->Fill(BackN, FrontN);
+			if ((FrontN > 0) && (BackN > 0)) {
+				double fe1 = Telescope[id]->Front.Order[0].energy;
+				double be1 = Telescope[id]->Back.Order[0].energy;
+				if ((FrontN == 1) && (BackN == 1)) {
+					Histo.csiMult1_1fv1b->Fill(be1, fe1);
+					Histo.csiMult1_1f1bdiff->Fill(abs(be1 - fe1));
+				}
+				else if ((FrontN == 2) && (BackN == 1)) {
+					double fe2 = Telescope[id]->Front.Order[1].energy;
+					Histo.csiMult1_2fv1b->Fill(be1, fe1 + fe2);
+					Histo.csiMult1_2f1bdiff->Fill(abs(be1 - fe1 - fe2));
+				}
+				else if ((FrontN == 1) && (BackN == 2)) {
+					double be2 = Telescope[id]->Back.Order[1].energy;
+					Histo.csiMult1_1fv2b->Fill(be1 + be2, fe1);
+					Histo.csiMult1_1f2bdiff->Fill(abs(be1 + be2 - fe1));
+				}
+				else if ((FrontN == 2) && (BackN == 2)) {
+					double fe2 = Telescope[id]->Front.Order[1].energy;
+					double be2 = Telescope[id]->Back.Order[1].energy;
+					Histo.csiMult1_2fv2b->Fill(be1 + be2, fe1 + fe2);
+					Histo.csiMult1_2f2bdiff->Fill(abs(be1 + be2 - fe1 - fe2));
+				}
+			}
+		}
+
 		// This is the spot where we run Telescope->Neighbours() for addback
 		//Telescope[id]->Front.Neighbours(id);
 		//Telescope[id]->Back.Neighbours(id);
 		
-		int FrontN = Telescope[id]->Front.Nstore;
-		int BackN  = Telescope[id]->Back.Nstore;
-		int CsIN   = Telescope[id]->CsI.Nstore;
+		FrontN = Telescope[id]->Front.Nstore;
+		BackN  = Telescope[id]->Back.Nstore;
+		CsIN   = Telescope[id]->CsI.Nstore;
 		
 		NCsI_all += CsIN;
 
