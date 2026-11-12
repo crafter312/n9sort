@@ -23,6 +23,9 @@ using namespace std;
 
 Gobbi28::Gobbi28(Input& in, histo& hist, SortConfig& config, atomic<size_t>& _nEvtSelected, mutex& _ofileMutex, ofstream& _testOut) : Targetdist(config.GetTargDist()), TargetThickness(config.GetTargThick()), hinpboards(config.GetHinpboards()), hinpchans(config.GetHinpchans()), Histo(hist), input(in.GetGobbi()), input_qdc(in.GetQDC()), input_adc(in.GetADC()), input_tdc(in.GetTDC()), csiGates(config), nEvtSelected(_nEvtSelected), ofileMutex(_ofileMutex), testOut(_testOut) {
 
+	// Conditionally set max Si strip threshold
+	if (config.GetSkipHighEStrips()) maxStripThresh = 90.;
+
 	// Seed TRandom with current system clock
 	auto now = chrono::system_clock::now();
 	UInt_t tstamp = chrono::duration_cast<chrono::seconds>(now.time_since_epoch()).count();
@@ -189,6 +192,7 @@ Gobbi28::~Gobbi28() {
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void Gobbi28::analyze() {
+	hasLargeEStrip = false;
 	tmpOut.str("");
 	tmpOut.clear();
 /*
@@ -231,6 +235,9 @@ void Gobbi28::analyze() {
 	
 	// Loop through CsI ADC/QDC/TDC hits, match and store in Telescope array
 	addCsIHits();
+
+	// Skip high Si strip E events BEFORE neighbor addback
+	if (hasLargeEStrip) return;
 
 	// Loop through telescopes and perform additional analysis
 	size_t sumchan = 0;
@@ -561,8 +568,9 @@ void Gobbi28::addFrontHit(size_t tel, size_t ch, size_t i) {
 	if ((tR < 6000) || (tR > 10750)) return;
 
 	size_t ER = input.GetE(i);
-	size_t ELoR = input.GetELo(i);
 	double Energy = FrontEcal->getEnergy(tel, ch, ER);
+	if (Energy > maxStripThresh) hasLargeEStrip = true;
+	size_t ELoR = input.GetELo(i);
 	double time = FrontTimecal->getTime(tel, ch, tR);
 
 	Histo.sumFrontE_R->Fill(tel*hinpchans + ch, ER);
@@ -592,8 +600,9 @@ void Gobbi28::addBackHit(size_t tel, size_t ch, size_t i) {
 	if ((tR < 5500) || (tR > 11750)) return;
 
 	size_t ER = input.GetE(i);
-	size_t ELoR = input.GetELo(i);
 	double Energy = BackEcal->getEnergy(tel, ch, ER);
+	if (Energy > maxStripThresh) hasLargeEStrip = true;
+	size_t ELoR = input.GetELo(i);
 	double time = BackTimecal->getTime(tel, ch, tR);
 
 	Histo.sumBackE_R->Fill(tel*hinpchans + ch, ER);

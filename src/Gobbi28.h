@@ -7,6 +7,7 @@
  */
 
 #include <fstream>
+#include <limits>
 #include <mutex>
 #include <sstream>
 #include <unordered_map>
@@ -40,12 +41,16 @@ public:
 private:
 	double Targetdist;
 	double TargetThickness;
-	size_t hinpboards;    // total number of HINP boards used
-	size_t hinpchans;     // number of channels per HINP board (should always be 32)
-	size_t NCsI;          // number of CsI crystals per telescope, determined by telescope class when reading in CsI extents file
-	size_t maxadcchan{0}; // the largest adc channel that the CsI crystals go up to
-	size_t tdcstart{16};  // defines which tdc channel the CsI crystals start at
-	size_t nTelCsIs;      // number of CsI crystals per telescope, determined by Gobbb28 class when reading in CsI mapping file
+	size_t hinpboards;     // total number of HINP boards used
+	size_t hinpchans;      // number of channels per HINP board (should always be 32)
+	size_t NCsI;           // number of CsI crystals per telescope, determined by telescope class when reading in CsI extents file
+	size_t maxadcchan{0};  // the largest adc channel that the CsI crystals go up to
+	size_t tdcstart{16};   // defines which tdc channel the CsI crystals start at
+	size_t nTelCsIs;       // number of CsI crystals per telescope, determined by Gobbb28 class when reading in CsI mapping file
+
+	// should be 90 MeV if high E strip skipping is turned on, otherwise std::numeric_limits<double>::max() by default
+	double maxStripThresh{std::numeric_limits<double>::max()};
+	bool hasLargeEStrip{false};
 
 	histo& Histo;
 	std::atomic<size_t>& nEvtSelected;

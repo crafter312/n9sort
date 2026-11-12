@@ -50,6 +50,7 @@ private:
 	size_t hinpboards;    // total number of HINP boards in experimental setup
 	size_t hinpchans;     // number of channels per HINP board (this should always be 32)
 	double gobbiHoleSize; // size of inner hole in Gobbi 28 (or new Gobbi) in mm
+	bool skipHighEStrips; // skips events with strips > 90 MeV, past which leakage into both neighbor strips begins to occur
 
 public:
 	SortConfig(std::string configFilePath);
@@ -93,6 +94,7 @@ public:
 	size_t GetHinpboards() const { return hinpboards; }
 	size_t GetHinpchans() const { return hinpchans; }
 	double GetGobbiHoleSize() const { return gobbiHoleSize; }
+	bool GetSkipHighEStrips() const { return skipHighEStrips; }
 };
 
 #endif

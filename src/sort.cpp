@@ -42,11 +42,13 @@ int main() {
 	auto start = chrono::high_resolution_clock::now();
 
 #ifndef rel
-	cout << "WARNING: compile time variable `rel` not defined, using Newtonian mechanics" << endl;
+	cout << BOLDCYAN << "WARNING: compile time variable `rel` not defined, using Newtonian mechanics" << RESET << endl;
 #endif
 	
 	// Load config file for sort code
 	SortConfig sortConfig("../config/sort.config");
+	if (sortConfig.GetSkipHighEStrips())
+		cout << BOLDCYAN << "WARNING: skipHighEStrips is set to true, all events at least 1 silicon strip E > 90 MeV WILL BE SKIPPED" << RESET << endl;
 	
 	// Setup for multi-threaded progress bar
 	const size_t updateRate = sortConfig.GetUpdateRate();

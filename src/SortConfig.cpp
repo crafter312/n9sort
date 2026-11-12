@@ -151,6 +151,12 @@ SortConfig::SortConfig(string configFilePath) {
 				throw invalid_argument("gobbiHoleSize in config file " + configFilePath + " is not a valid double");
 			}
 		}
+		else if (line.find("skipHighEStrips") != string::npos) {
+			string temps = line.substr(line.find('=') + 2);
+			skipHighEStrips = (temps == "true"  || temps == "1") ? true : 
+			                  (temps == "false" || temps == "0") ? false : 
+			                  (throw invalid_argument("skipHighEStrips in config file " + configFilePath + " is invalid boolean string"), false);
+		}
 	}
 	configfile.close();
 }
