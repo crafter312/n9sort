@@ -206,7 +206,7 @@ void elist::reset()
 //Note from 8/29/2024, leave the spelling for old time's sake
 //Copied from Johnathan Phillips' sort code
 //looks for cross talks events
-void elist::Neighbours(int id)
+void elist::Neighbours()
 {
   if (Nstore <1) return; // nothing to look at 
 

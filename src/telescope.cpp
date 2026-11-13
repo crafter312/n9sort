@@ -715,9 +715,9 @@ vector<vector<bool>> telescope::getCombinationMasks(size_t totalElements, size_t
 int telescope::multiHitECsI(stringstream& ss) {
 
 	// Step 1: Calculate poison value
-	double S = Front.Nstore + Back.Nstore;     // padded cost array size
-	double MaxEDiff = 10;                      // maximum front-back Si strip energy difference
-	double POISON = (S * S * MaxEDiff) + 1000; // make sure poison value is sufficiently large
+	double S = Front.Nstore + Back.Nstore;      // padded cost array size
+	double MaxEDiff = 1.;                       // maximum front-back Si strip energy difference
+	double POISON = (S * S * MaxEDiff) + 1000.; // make sure poison value is sufficiently large
 
 	// Step 2: Prepare cost array
 	// This is done by creating an array of size S and padding the edge region around the main

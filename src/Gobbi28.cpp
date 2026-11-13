@@ -253,6 +253,7 @@ void Gobbi28::analyze() {
 		cout << "id " << id << ", Nsol " << Telescope[id]->Nsolution << endl;
 #endif
 
+		// Conditional neighboring Si strip addback
 		int FrontN = Telescope[id]->Front.Nstore;
 		int BackN  = Telescope[id]->Back.Nstore;
 		int CsIN   = Telescope[id]->CsI.Nstore;
@@ -263,6 +264,8 @@ void Gobbi28::analyze() {
 				int bs1 = Telescope[id]->Back.Order[0].strip;
 				double fe1 = Telescope[id]->Front.Order[0].energy;
 				double be1 = Telescope[id]->Back.Order[0].energy;
+				double ft1 = Telescope[id]->Front.Order[0].time;
+				double bt1 = Telescope[id]->Back.Order[0].time;
 				if ((FrontN == 1) && (BackN == 1)) {
 					Histo.csiMult1_1fv1b->Fill(be1, fe1);
 					Histo.csiMult1_1f1bdiff->Fill(abs(be1 - fe1));
@@ -271,16 +274,24 @@ void Gobbi28::analyze() {
 					int fs2 = Telescope[id]->Front.Order[1].strip;
 					if (abs(fs2 - fs1) == 1) {
 						double fe2 = Telescope[id]->Front.Order[1].energy;
+						double ft2 = Telescope[id]->Front.Order[1].time;
+						double ediff = abs(be1 - fe1 - fe2);
 						Histo.csiMult1_2fv1b->Fill(be1, fe1 + fe2);
-						Histo.csiMult1_2f1bdiff->Fill(abs(be1 - fe1 - fe2));
+						Histo.csiMult1_2f1bdiff->Fill(ediff);
+						Histo.csiMult1_2f1b_ftdiff->Fill(abs(ft2 - ft1));
+						if (ediff < 1.) Telescope[id]->Front.Neighbours();
 					}
 				}
 				else if ((FrontN == 1) && (BackN == 2)) {
 					int bs2 = Telescope[id]->Back.Order[1].strip;
 					if (abs(bs2 - bs1) == 1) {
 						double be2 = Telescope[id]->Back.Order[1].energy;
+						double bt2 = Telescope[id]->Back.Order[1].time;
+						double ediff = abs(be1 + be2 - fe1);
 						Histo.csiMult1_1fv2b->Fill(be1 + be2, fe1);
-						Histo.csiMult1_1f2bdiff->Fill(abs(be1 + be2 - fe1));
+						Histo.csiMult1_1f2bdiff->Fill(ediff);
+						Histo.csiMult1_1f2b_btdiff->Fill(abs(bt2 - bt1));
+						if (ediff < 1.) Telescope[id]->Back.Neighbours();
 					}
 				}
 				else if ((FrontN == 2) && (BackN == 2)) {
@@ -289,21 +300,21 @@ void Gobbi28::analyze() {
 					if ((abs(fs2 - fs1) == 1) && (abs(bs2 - bs1) == 1)) {
 						double fe2 = Telescope[id]->Front.Order[1].energy;
 						double be2 = Telescope[id]->Back.Order[1].energy;
+						double ft2 = Telescope[id]->Front.Order[1].time;
+						double bt2 = Telescope[id]->Back.Order[1].time;
 						Histo.csiMult1_2fv2b->Fill(be1 + be2, fe1 + fe2);
 						Histo.csiMult1_2f2bdiff->Fill(abs(be1 + be2 - fe1 - fe2));
+						Histo.csiMult1_2f2b_ftdiff->Fill(abs(ft2 - ft1));
+						Histo.csiMult1_2f2b_btdiff->Fill(abs(bt2 - bt1));
 					}
 				}
 			}
 		}
 
-		// This is the spot where we run Telescope->Neighbours() for addback
-		//Telescope[id]->Front.Neighbours(id);
-		//Telescope[id]->Back.Neighbours(id);
-		
+		// Get new multiplicities after neighbor addback
 		FrontN = Telescope[id]->Front.Nstore;
 		BackN  = Telescope[id]->Back.Nstore;
 		CsIN   = Telescope[id]->CsI.Nstore;
-		
 		NCsI_all += CsIN;
 
 		// Then fill summary histograms after addback

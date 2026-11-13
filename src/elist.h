@@ -45,7 +45,7 @@ public:
 	void Remove(int);
 	int Reduce(const char*);
 	void reset();
-	void Neighbours(int);
+	void Neighbours();
 	void Threshold(double);
 	double threshold0;
 };
