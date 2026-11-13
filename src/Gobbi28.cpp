@@ -276,9 +276,11 @@ void Gobbi28::analyze() {
 						double fe2 = Telescope[id]->Front.Order[1].energy;
 						double ft2 = Telescope[id]->Front.Order[1].time;
 						double ediff = abs(be1 - fe1 - fe2);
+						double tdiff = abs(ft2 - ft1);
 						Histo.csiMult1_2fv1b->Fill(be1, fe1 + fe2);
 						Histo.csiMult1_2f1bdiff->Fill(ediff);
-						Histo.csiMult1_2f1b_ftdiff->Fill(abs(ft2 - ft1));
+						Histo.csiMult1_2f1b_ftdiff->Fill(tdiff);
+						Histo.csiMult1_2f1b_ftdiff_vs_Ediff->Fill(ediff, tdiff);
 						if (ediff < 1.) Telescope[id]->Front.Neighbours();
 					}
 				}
@@ -288,9 +290,11 @@ void Gobbi28::analyze() {
 						double be2 = Telescope[id]->Back.Order[1].energy;
 						double bt2 = Telescope[id]->Back.Order[1].time;
 						double ediff = abs(be1 + be2 - fe1);
+						double tdiff = abs(bt2 - bt1);
 						Histo.csiMult1_1fv2b->Fill(be1 + be2, fe1);
 						Histo.csiMult1_1f2bdiff->Fill(ediff);
-						Histo.csiMult1_1f2b_btdiff->Fill(abs(bt2 - bt1));
+						Histo.csiMult1_1f2b_btdiff->Fill(tdiff);
+						Histo.csiMult1_1f2b_btdiff_vs_Ediff->Fill(ediff, tdiff);
 						if (ediff < 1.) Telescope[id]->Back.Neighbours();
 					}
 				}
@@ -302,10 +306,15 @@ void Gobbi28::analyze() {
 						double be2 = Telescope[id]->Back.Order[1].energy;
 						double ft2 = Telescope[id]->Front.Order[1].time;
 						double bt2 = Telescope[id]->Back.Order[1].time;
+						double ediff = abs(be1 + be2 - fe1 - fe2);
+						double ftdiff = abs(ft2 - ft1);
+						double btdiff = abs(bt2 - bt1);
 						Histo.csiMult1_2fv2b->Fill(be1 + be2, fe1 + fe2);
-						Histo.csiMult1_2f2bdiff->Fill(abs(be1 + be2 - fe1 - fe2));
-						Histo.csiMult1_2f2b_ftdiff->Fill(abs(ft2 - ft1));
-						Histo.csiMult1_2f2b_btdiff->Fill(abs(bt2 - bt1));
+						Histo.csiMult1_2f2bdiff->Fill(ediff);
+						Histo.csiMult1_2f2b_ftdiff->Fill(ftdiff);
+						Histo.csiMult1_2f2b_btdiff->Fill(btdiff);
+						Histo.csiMult1_2f2b_ftdiff_vs_Ediff->Fill(ediff, ftdiff);
+						Histo.csiMult1_2f2b_btdiff_vs_Ediff->Fill(ediff, btdiff);
 					}
 				}
 			}

@@ -243,6 +243,10 @@ public:
 	TH1I* csiMult1_1f2b_btdiff;
 	TH1I* csiMult1_2f2b_ftdiff;
 	TH1I* csiMult1_2f2b_btdiff;
+	TH2I* csiMult1_2f1b_ftdiff_vs_Ediff;
+	TH2I* csiMult1_1f2b_btdiff_vs_Ediff;
+	TH2I* csiMult1_2f2b_ftdiff_vs_Ediff;
+	TH2I* csiMult1_2f2b_btdiff_vs_Ediff;
 
 	/******** CORRELATIONS AND INVARIANT MASS PLOTS ********/
 
