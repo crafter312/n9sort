@@ -716,7 +716,7 @@ int telescope::multiHitECsI(stringstream& ss) {
 
 	// Step 1: Calculate poison value
 	double S = Front.Nstore + Back.Nstore;      // padded cost array size
-	double MaxEDiff = 1.;                       // maximum front-back Si strip energy difference
+	double MaxEDiff = 2.;                       // maximum front-back Si strip energy difference
 	double POISON = (S * S * MaxEDiff) + 1000.; // make sure poison value is sufficiently large
 
 	// Step 2: Prepare cost array
@@ -1050,6 +1050,103 @@ double telescope::light2energy(size_t Z, size_t A, size_t tel, size_t id, double
 		energy = calCsI_Alpha->getEnergy(tel, id, energy);
 	else throw invalid_argument(string(BOLDRED) + string("ERROR: found no calib for Z = ") + to_string(Z) + string(" A = ") + to_string(A) + string(" tel = ") + to_string(tel) + string(" Csi ID = ") + to_string(id) + string(RESET));
 	return energy;
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+//   _.+._
+// (^\/^\/^)
+//  \@*@*@/
+//  {_____} Just as the queen would prefer to spell it
+// Note from 8/29/2024, leave the spelling for old time's sake
+// Copied from Johnathan Phillips' sort code
+// looks for cross talks events
+// Note from 11/18/2026, completely re-written
+void telescope::Neighbours() {
+	if (hasCsI)
+		NeighboursCsI();
+	else
+		NeighboursSi();
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+// Conditional neighboring Si strip addback
+void telescope::NeighboursCsI() {
+	int FrontN = Front.Nstore;
+	int BackN  = Back.Nstore;
+	int CsIN   = CsI.Nstore;
+	if (CsIN == 1) {
+		Histo.csiMult1_nfbCorr->Fill(BackN, FrontN);
+		if ((FrontN > 0) && (BackN > 0)) {
+			int fs1 = Front.Order[0].strip;
+			int bs1 = Back.Order[0].strip;
+			double fe1 = Front.Order[0].energy;
+			double be1 = Back.Order[0].energy;
+			double ft1 = Front.Order[0].time;
+			double bt1 = Back.Order[0].time;
+			if ((FrontN == 1) && (BackN == 1)) {
+				Histo.csiMult1_1fv1b->Fill(be1, fe1);
+				Histo.csiMult1_1f1bdiff->Fill(abs(be1 - fe1));
+			}
+			else if ((FrontN == 2) && (BackN == 1)) {
+				int fs2 = Front.Order[1].strip;
+				if (abs(fs2 - fs1) == 1) {
+					double fe2 = Front.Order[1].energy;
+					double ft2 = Front.Order[1].time;
+					double ediff = abs(be1 - fe1 - fe2);
+					double tdiff = abs(ft2 - ft1);
+					Histo.csiMult1_2fv1b->Fill(be1, fe1 + fe2);
+					Histo.csiMult1_2f1bdiff->Fill(ediff);
+					Histo.csiMult1_2f1b_ftdiff->Fill(tdiff);
+					Histo.csiMult1_2f1b_ftdiff_vs_Ediff->Fill(ediff, tdiff);
+					if ((ediff < 2.) && (tdiff < 600.)) Front.Neighbours(0, 1);
+				}
+			}
+			else if ((FrontN == 1) && (BackN == 2)) {
+				int bs2 = Back.Order[1].strip;
+				if (abs(bs2 - bs1) == 1) {
+					double be2 = Back.Order[1].energy;
+					double bt2 = Back.Order[1].time;
+					double ediff = abs(be1 + be2 - fe1);
+					double tdiff = abs(bt2 - bt1);
+					Histo.csiMult1_1fv2b->Fill(be1 + be2, fe1);
+					Histo.csiMult1_1f2bdiff->Fill(ediff);
+					Histo.csiMult1_1f2b_btdiff->Fill(tdiff);
+					Histo.csiMult1_1f2b_btdiff_vs_Ediff->Fill(ediff, tdiff);
+					if ((ediff < 2.) && (tdiff < 600.)) Back.Neighbours(0, 1);
+				}
+			}
+			else if ((FrontN == 2) && (BackN == 2)) {
+				int fs2 = Front.Order[1].strip;
+				int bs2 = Back.Order[1].strip;
+				if ((abs(fs2 - fs1) == 1) && (abs(bs2 - bs1) == 1)) {
+					double fe2 = Front.Order[1].energy;
+					double be2 = Back.Order[1].energy;
+					double ft2 = Front.Order[1].time;
+					double bt2 = Back.Order[1].time;
+					double ediff = abs(be1 + be2 - fe1 - fe2);
+					double ftdiff = abs(ft2 - ft1);
+					double btdiff = abs(bt2 - bt1);
+					Histo.csiMult1_2fv2b->Fill(be1 + be2, fe1 + fe2);
+					Histo.csiMult1_2f2bdiff->Fill(ediff);
+					Histo.csiMult1_2f2b_ftdiff->Fill(ftdiff);
+					Histo.csiMult1_2f2b_btdiff->Fill(btdiff);
+					Histo.csiMult1_2f2b_ftdiff_vs_Ediff->Fill(ediff, ftdiff);
+					Histo.csiMult1_2f2b_btdiff_vs_Ediff->Fill(ediff, btdiff);
+				}
+			}
+		}
+	}
+	else if (CsIN == 2) {
+		
+	}
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void telescope::NeighboursSi() {
+
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

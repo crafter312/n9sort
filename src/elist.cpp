@@ -206,54 +206,47 @@ void elist::reset()
 //Note from 8/29/2024, leave the spelling for old time's sake
 //Copied from Johnathan Phillips' sort code
 //looks for cross talks events
-void elist::Neighbours()
-{
-  if (Nstore <1) return; // nothing to look at 
+//Note from 11/18/2026, completely re-written (see telescope
+//for rest of code, this just adds two given strip indices)
+void elist::Neighbours(size_t i, size_t j) {
 
-/*
-  for (int i = 0; i<Nstore; i++)
-  {
-    cout << "  strip " << Order[i].strip << " E " << Order[i].energy << " Eraw " << Order[i].energyR << " time " << Order[i].time << endl;
-  }
-*/
+	// Check if out of bounds or same strip
+	if ((i >= Nstore) || (j >= Nstore) || (i == j)) return;
 
-  if (Nstore ==1) // no neighbors to look for
-  {
-    Order[0].energyMax = Order[0].energy;
-    Order[0].neighbours = 0;
-    return ;
-  }
-  int i=-1;
-  for (;;)
-  {
-    i++;
-    if (i >= Nstore) break;
-    Order[i].energyMax = Order[i].energy;
-    Order[i].neighbours = 0;
+	// Enforce energy ordering and check if not neighbors
+	order* hitI = &Order[i];
+	order* hitJ = &Order[j];
+	if (abs(hitI->strip - hitJ->strip) != 1) return;
+	if ((hitI->energy > 0) && (hitJ->energy > 0) && (hitJ->energy > hitI->energy)) {
+		order* tmp = hitI;
+		hitI = hitJ;
+		hitJ = tmp;
+		size_t tmpInd = i;
+		i = j;
+		j = tmpInd;
+	}
+	else if (hitJ->energyR > hitI->energyR) {
+		order* tmp = hitI;
+		hitI = hitJ;
+		hitJ = tmp;
+		size_t tmpInd = i;
+		i = j;
+		j = tmpInd;
+	}
+	hitI->energyMax = hitI->energy;
+	hitI->neighbours = 0;
 
-    int j = i;
-    for (;;)
-    {
-      j++;
-      if (j >= Nstore) break;
-      if (abs(Order[i].strip - Order[j].strip) == 1) //neighboring strips
-      {
-				Histo.NeighborStripECorrelations->Fill(Order[i].energy, Order[j].energy); // Order is energy ordered, so x is larger energy and y is smaller energy
-        //cout << "!!!!!  neighbour addback " << endl;
-        Order[i].energy += Order[j].energy; // add energy from adjacent strip
-        Order[i].neighbours++;
+	// Safe to add 
+	Histo.NeighborStripECorrelations->Fill(hitI->energy, hitJ->energy); // Order is energy ordered, so x is larger energy and y is smaller energy
+	hitI->energy += hitJ->energy; // add energy from adjacent strip
+	hitI->neighbours++;
 
-        //remove this strip from the list
-        if (j != Nstore-1)
-        {
-          //shift all Order objects back one
-          for (int k=j+1;k<Nstore;k++) {Order[k-1] = Order[k];}
-        }
-        Nstore--;
-        j--;
-      }
-    }
-  }
+	// Remove j strip from the list
+	if (j != Nstore-1) {
+		// Shift all Order objects back one
+		for (size_t k = j + 1; k < Nstore; k++) Order[k - 1] = Order[k];
+	}
+	Nstore--;
 }
 
 //cut threshold

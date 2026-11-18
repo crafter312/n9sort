@@ -57,6 +57,11 @@ public:
 	size_t getPID();
 	int calcEloss();
 	bool isCenter(size_t ifront, size_t iback);
+	int simpleFrontBack();
+	void position(int);
+	std::pair<double, double> simplePosition(); // for calculating position without a solution
+	void positionC(int);
+	void Neighbours();
 
 	histo& Histo;
 
@@ -82,17 +87,14 @@ public:
 
 	pid* Pid;
 	vector<pid*> PidCsI;
-
-	int simpleFrontBack();
-	void position(int);
-	std::pair<double, double> simplePosition(); // for calculating position without a solution
-	void positionC(int);
 	
 	// Getters
 	size_t GetNCsI() const { return NCsI; }
 
  private:
  	double light2energy(size_t Z, size_t A, size_t tel, size_t id, double energy);
+	void NeighboursCsI();
+	void NeighboursSi();
  	
  	calibrate* calCsI_Alpha;
 	calibrate* calCsI_d;
