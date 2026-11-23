@@ -26,6 +26,7 @@
 //     |____| 2  |
 //          |____|
 
+#include <cmath>
 #include <sstream>
 #include <utility>
 #include <vector>
@@ -59,7 +60,7 @@ public:
 	bool isCenter(size_t ifront, size_t iback);
 	int simpleFrontBack();
 	void position(int);
-	std::pair<double, double> simplePosition(); // for calculating position without a solution
+	std::pair<double, double> simplePosition(size_t fi, size_t bi); // for calculating position without a solution
 	void positionC(int);
 	void Neighbours();
 
@@ -105,6 +106,10 @@ public:
 	int BackLow[4];
 	int BackHigh[4];
 
+	// Thresholds (tuned using CsI per telescope mult. 1 cases)
+	const double deMax{2.};
+	const double dtMax{600.};
+
 	// Position
 	double Xcenter; // center of detector in cm along x axis
 	double Ycenter; // center of detector in cm along y axis
@@ -112,6 +117,8 @@ public:
 	double SiFrame;
 	double holeSize;
 	TRandom* Ran;
+
+	double distTarget{NAN};
 	
 	// FB silicon strip extents for CsI crystal matching (min, max, inclusive)
 	std::vector<std::pair<size_t, size_t>> CsIFextents;

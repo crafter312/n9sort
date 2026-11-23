@@ -27,7 +27,6 @@
 
 #include <algorithm>
 #include <chrono>
-#include <cmath>
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
@@ -175,6 +174,7 @@ void telescope::init(int id0, SortConfig& config) {
 
 void telescope::SetTargetDistance(double dist)	{
 	for (size_t i = 0; i < 20; i++) Solution[i].SetTargetDistance(dist);
+	distTarget = dist;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -958,11 +958,11 @@ void telescope::position(int isol) {
 }
 
 // Calculates the x-y position and angles in the array in cm
-pair<double, double> telescope::simplePosition() {
+pair<double, double> telescope::simplePosition(size_t fi, size_t bi) {
 	double Xpos,Ypos;
 
-	int ifront = Front.Order[0].strip;
-	int iback = Back.Order[0].strip;
+	int ifront = Front.Order[fi].strip;
+	int iback = Back.Order[bi].strip;
 	if (id == 0) 
 	{
 		Xpos = Xcenter + (((double)iback+Ran->Rndm())/32.-0.5)*SiWidth;
@@ -1076,70 +1076,162 @@ void telescope::NeighboursCsI() {
 	int FrontN = Front.Nstore;
 	int BackN  = Back.Nstore;
 	int CsIN   = CsI.Nstore;
+	if ((FrontN <= 0) || (BackN <= 0)) return;
+
+	order& front0 = Front.Order[0];
+	order& back0 = Back.Order[0];
+	int fs0 = front0.strip;
+	int bs0 = back0.strip;
+	double fe0 = front0.energy;
+	double be0 = back0.energy;
+	double ft0 = front0.time;
+	double bt0 = back0.time;
 	if (CsIN == 1) {
 		Histo.csiMult1_nfbCorr->Fill(BackN, FrontN);
-		if ((FrontN > 0) && (BackN > 0)) {
-			int fs1 = Front.Order[0].strip;
-			int bs1 = Back.Order[0].strip;
-			double fe1 = Front.Order[0].energy;
-			double be1 = Back.Order[0].energy;
-			double ft1 = Front.Order[0].time;
-			double bt1 = Back.Order[0].time;
-			if ((FrontN == 1) && (BackN == 1)) {
-				Histo.csiMult1_1fv1b->Fill(be1, fe1);
-				Histo.csiMult1_1f1bdiff->Fill(abs(be1 - fe1));
-			}
-			else if ((FrontN == 2) && (BackN == 1)) {
-				int fs2 = Front.Order[1].strip;
-				if (abs(fs2 - fs1) == 1) {
-					double fe2 = Front.Order[1].energy;
-					double ft2 = Front.Order[1].time;
-					double ediff = abs(be1 - fe1 - fe2);
-					double tdiff = abs(ft2 - ft1);
-					Histo.csiMult1_2fv1b->Fill(be1, fe1 + fe2);
-					Histo.csiMult1_2f1bdiff->Fill(ediff);
-					Histo.csiMult1_2f1b_ftdiff->Fill(tdiff);
-					Histo.csiMult1_2f1b_ftdiff_vs_Ediff->Fill(ediff, tdiff);
-					if ((ediff < 2.) && (tdiff < 600.)) Front.Neighbours(0, 1);
-				}
-			}
-			else if ((FrontN == 1) && (BackN == 2)) {
-				int bs2 = Back.Order[1].strip;
-				if (abs(bs2 - bs1) == 1) {
-					double be2 = Back.Order[1].energy;
-					double bt2 = Back.Order[1].time;
-					double ediff = abs(be1 + be2 - fe1);
-					double tdiff = abs(bt2 - bt1);
-					Histo.csiMult1_1fv2b->Fill(be1 + be2, fe1);
-					Histo.csiMult1_1f2bdiff->Fill(ediff);
-					Histo.csiMult1_1f2b_btdiff->Fill(tdiff);
-					Histo.csiMult1_1f2b_btdiff_vs_Ediff->Fill(ediff, tdiff);
-					if ((ediff < 2.) && (tdiff < 600.)) Back.Neighbours(0, 1);
-				}
-			}
-			else if ((FrontN == 2) && (BackN == 2)) {
-				int fs2 = Front.Order[1].strip;
-				int bs2 = Back.Order[1].strip;
-				if ((abs(fs2 - fs1) == 1) && (abs(bs2 - bs1) == 1)) {
-					double fe2 = Front.Order[1].energy;
-					double be2 = Back.Order[1].energy;
-					double ft2 = Front.Order[1].time;
-					double bt2 = Back.Order[1].time;
-					double ediff = abs(be1 + be2 - fe1 - fe2);
-					double ftdiff = abs(ft2 - ft1);
-					double btdiff = abs(bt2 - bt1);
-					Histo.csiMult1_2fv2b->Fill(be1 + be2, fe1 + fe2);
-					Histo.csiMult1_2f2bdiff->Fill(ediff);
-					Histo.csiMult1_2f2b_ftdiff->Fill(ftdiff);
-					Histo.csiMult1_2f2b_btdiff->Fill(btdiff);
-					Histo.csiMult1_2f2b_ftdiff_vs_Ediff->Fill(ediff, ftdiff);
-					Histo.csiMult1_2f2b_btdiff_vs_Ediff->Fill(ediff, btdiff);
+		if ((FrontN == 1) && (BackN == 1)) {
+			Histo.csiMult1_1fv1b->Fill(be0, fe0);
+			Histo.csiMult1_1f1bdiff->Fill(abs(be0 - fe0));
+		}
+		else if ((FrontN == 2) && (BackN == 1)) {
+			order& front1 = Front.Order[1];
+			if (abs(front1.strip - fs0) != 1) return;
+
+			double fe1 = front1.energy;
+			double ft1 = front1.time;
+			double ediff = abs(be0 - fe0 - fe1);
+			double tdiff = abs(ft1 - ft0);
+			Histo.csiMult1_2fv1b->Fill(be0, fe0 + fe1);
+			Histo.csiMult1_2f1bdiff->Fill(ediff);
+			Histo.csiMult1_2f1b_ftdiff->Fill(tdiff);
+			Histo.csiMult1_2f1b_ftdiff_vs_Ediff->Fill(ediff, tdiff);
+			if ((ediff < deMax) && (tdiff < dtMax)) {
+				Front.Neighbours(0, 1); // simple front neighbor addback
+
+				// Investigate extra little ~1.5 MeV Ediff peak whenever there are two front strips
+				if ((ediff > 1.4) && (ediff < 2.)) {
+					pair<double, double> xy = simplePosition(0, 0);
+					double x = xy.first;
+					double y = xy.second;
+					Histo.csiMult1_2f1b_hitmap_dEpeak->Fill(x, y);
+					order& csi0 = CsI.Order[0];
+					double XYZ2 = (x*x) + (y*y) + (distTarget*distTarget);
+					double theta = acos(distTarget / sqrt(XYZ2));
+					Histo.DEE_CsI_2f1b_weirdpeak[id][csi0.strip]->Fill(csi0.energyR, Front.Order[0].energy * cos(theta));
 				}
 			}
 		}
+		else if ((FrontN == 1) && (BackN == 2)) {
+			order& back1 = Back.Order[1];
+			if (abs(back1.strip - bs0) != 1) return;
+
+			double be1 = back1.energy;
+			double bt1 = back1.time;
+			double ediff = abs(be0 + be1 - fe0);
+			double tdiff = abs(bt1 - bt0);
+			Histo.csiMult1_1fv2b->Fill(be0 + be1, fe0);
+			Histo.csiMult1_1f2bdiff->Fill(ediff);
+			Histo.csiMult1_1f2b_btdiff->Fill(tdiff);
+			Histo.csiMult1_1f2b_btdiff_vs_Ediff->Fill(ediff, tdiff);
+			if ((ediff < deMax) && (tdiff < dtMax)) Back.Neighbours(0, 1); // simple back neighbor addback
+		}
+		else if ((FrontN == 2) && (BackN == 2)) {
+			order& front1 = Front.Order[1];
+			order& back1 = Back.Order[1];
+			if ((abs(front1.strip - fs0) != 1) || (abs(back1.strip - bs0) != 1)) return;
+
+			double fe1 = front1.energy;
+			double be1 = back1.energy;
+			double ft1 = front1.time;
+			double bt1 = back1.time;
+			double ediff = abs(be0 + be1 - fe0 - fe1);
+			double ftdiff = abs(ft1 - ft0);
+			double btdiff = abs(bt1 - bt0);
+			Histo.csiMult1_2fv2b->Fill(be0 + be1, fe0 + fe1);
+			Histo.csiMult1_2f2bdiff->Fill(ediff);
+			Histo.csiMult1_2f2b_ftdiff->Fill(ftdiff);
+			Histo.csiMult1_2f2b_btdiff->Fill(btdiff);
+			Histo.csiMult1_2f2b_ftdiff_vs_Ediff->Fill(ediff, ftdiff);
+			Histo.csiMult1_2f2b_btdiff_vs_Ediff->Fill(ediff, btdiff);
+		}
 	}
 	else if (CsIN == 2) {
-		
+		if ((FrontN == 2) && (BackN == 1)) {
+			order& front1 = Front.Order[1];
+			if (abs(front1.strip - fs0) <= 1) return;
+
+			double fe1 = front1.energy;
+			double ediff = abs(be0 - fe0 - fe1);
+			Histo.csiMult2_2fv1b->Fill(be0, fe0 + fe1);
+			Histo.csiMult2_2f1bdiff->Fill(ediff);
+			if (ediff >= 4.) return; // tuned to `csiMult2_2f1bdiff` histogram
+
+			// Artificially split single back strip into two and assign front energies and times
+			Back.Remove(0);	
+			Back.Add(bs0, fe0, front0.energyRlow, front0.energyR, ft0);
+			Back.Add(bs0, fe1, front1.energyRlow, front1.energyR, front1.time);
+			multBack++;
+		}
+		else if ((FrontN == 1) && (BackN = 2)) {
+			order& back1 = Back.Order[1];
+			if (abs(back1.strip - bs0) <= 1) return;
+
+			double be1 = back1.energy;
+			double ediff = abs(be0 + be1 - fe0);
+			Histo.csiMult2_1fv2b->Fill(be0 + be1, fe0);
+			Histo.csiMult2_1f2bdiff->Fill(ediff);
+			if (ediff >= 1.) return; // tuned to `csiMult2_1f2bdiff` histogram
+
+			// Artificially split single front strip into two and assign back energies and times
+			Front.Remove(0);
+			Front.Add(fs0, be0, back0.energyRlow, back0.energyR, bt0);
+			Front.Add(fs0, be1, back1.energyRlow, back1.energyR, back1.time);
+		}
+		else if ((FrontN == 3) && (BackN = 2)) {
+			int hi = max(fs0, max(Front.Order[1].strip, Front.Order[2].strip));
+			int lo = min(fs0, min(Front.Order[1].strip, Front.Order[2].strip));
+			if ((abs(Back.Order[1].strip - bs0) <= 1) && ((hi - lo) <= 2)) return; // skip where the backs and fronts are all clustered together
+
+			for (size_t i = 0; i < FrontN; i++) {
+				for (size_t j = i + 1; j < FrontN; j++) {
+					for (size_t k = 0; k < BackN; k++) {
+						order& fronti = Front.Order[i];
+						order& frontj = Front.Order[j];
+						if (abs(frontj.strip - fronti.strip) != 1) continue;
+
+						order& backk  = Back.Order[k];
+						double ediff  = abs(backk.energy - fronti.energy - frontj.energy);
+						double tdiff  = abs(frontj.time - fronti.time);
+						Histo.csiMult2_3fv2b->Fill(backk.energy, fronti.energy + frontj.energy);
+						Histo.csiMult2_3f2bdiff->Fill(ediff);
+						Histo.csiMult2_3f2b_ftdiff->Fill(tdiff);
+						Histo.csiMult2_3f2b_ftdiff_vs_Ediff->Fill(ediff, tdiff);
+					}
+				}
+			}
+		}
+		else if ((FrontN == 2) && (BackN = 3)) {
+			int hi = max(bs0, max(Back.Order[1].strip, Back.Order[2].strip));
+			int lo = min(bs0, min(Back.Order[1].strip, Back.Order[2].strip));
+			if ((abs(Front.Order[1].strip - fs0) <= 1) && ((hi - lo) <= 2)) return; // skip where the backs and fronts are all clustered together
+
+			for (size_t i = 0; i < BackN; i++) {
+				for (size_t j = i + 1; j < BackN; j++) {
+					for (size_t k = 0; k < FrontN; k++) {
+						order& backi = Back.Order[i];
+						order& backj = Back.Order[j];
+						if (abs(backj.strip - backj.strip) != 1) continue;
+
+						order& frontk  = Front.Order[k];
+						double ediff  = abs(backi.energy + backj.energy - frontk.energy);
+						double tdiff  = abs(backj.time - backi.time);
+						Histo.csiMult2_2fv3b->Fill(backi.energy + backj.energy, frontk.energy);
+						Histo.csiMult2_2f3bdiff->Fill(ediff);
+						Histo.csiMult2_2f3b_btdiff->Fill(tdiff);
+						Histo.csiMult2_2f3b_btdiff_vs_Ediff->Fill(ediff, tdiff);
+					}
+				}
+			}
+		}
 	}
 }
 

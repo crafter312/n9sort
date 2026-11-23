@@ -17,9 +17,11 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <map>
 #include <mutex>
 #include <sstream>
 #include <string>
+#include <thread>
 #include <utility>
 #include <vector>
 
@@ -35,11 +37,32 @@
 #include "SortConfig.h"
 
 using namespace std;
+using Clock = chrono::steady_clock;
 
 int main() {
 
 	// Capture the start time
-	auto start = chrono::high_resolution_clock::now();
+	auto start = Clock::now();
+
+	// Variables for accumulating time for profiling
+	// Make the ones inside the multi-threaded lambda function atomic
+	// Actually I messed this up by changing from ints to doubles,
+	// and apparently `atomic<double>` does not have a += operator
+	// like `atomic<int>` does, which seems stupid to me
+	double timeReadFile{0};
+	double timeProcessing{0};
+	mutex timeCounterMutex;
+	double timeInitialize{0};
+	double timeReadRefactor{0};
+	double timeAnalysis{0};
+
+	// This one is weird because I'm trying to determine time across
+	// the end point of the lambda function, so I store the start
+	// times in a map by thread ID for thread safety and then loop
+	// over the map and calculate the total elapsed time.
+	mutex endTimesMutex;
+	map<thread::id, Clock::time_point> lambdaEndStartTimes;
+	double timeDestruct{0};
 
 #ifndef rel
 	cout << BOLDCYAN << "WARNING: compile time variable `rel` not defined, using Newtonian mechanics" << RESET << endl;
@@ -92,6 +115,7 @@ int main() {
 	// and it must be thread safe. To enforce the latter requirement,
 	// TBufferMerger::GetFile will be used for the output file.
 	auto f = [&](TTreeReader &reader) {
+		auto startInit = Clock::now();
 		Input input(reader, sortConfig);
 
 		// Output using thread safe file
@@ -102,19 +126,35 @@ int main() {
 		// Initialize analysis classes
 		histo Histo(f, sortConfig);
 		Det det(input, Histo, sortConfig, runnum, nEvtSelected, ofileMutex, testOut);
+		auto endInit = Clock::now();
+		chrono::duration<double> elapsedInit = endInit - startInit;
 		
 		// Thread-local event loop
 		size_t localCounter = 0;
+		double localTimeReadRefactor = 0.;
+		double localTimeAnalysis = 0.;
+		auto startReadRefactor = Clock::now();
 		while (reader.Next()) {
-			
+			auto endReadRefactor = Clock::now();
+			chrono::duration<double> elapsedReadRefactor = endReadRefactor - startReadRefactor;
+			localTimeReadRefactor += (double)(elapsedReadRefactor.count());
+
 			// Reset global tree output variables
 			Histo.reset();
 
 			// First, take input file from SpecTcl and refactor into usable hit list format
+			startReadRefactor = Clock::now();
 			input.ReadAndRefactor();
+			endReadRefactor = Clock::now();
+			elapsedReadRefactor = endReadRefactor - startReadRefactor;
+			localTimeReadRefactor += (double)(elapsedReadRefactor.count());
 			
 			// Perform analysis
+			auto startAnalysis = Clock::now();
 			det.analyze();
+			auto endAnalysis = Clock::now();
+			chrono::duration<double> elapsedAnalysis = endAnalysis - startAnalysis;
+			localTimeAnalysis += (double)(elapsedAnalysis.count());
 			
 			// Finalize per-event output, if any
 			Histo.Fill();
@@ -130,6 +170,16 @@ int main() {
 
 				localCounter = 0;
 			}
+
+			startReadRefactor = Clock::now();
+		}
+
+		// Add local double time counters to global integer time counters
+		{
+			lock_guard<mutex> lock(timeCounterMutex);
+			timeInitialize   += (double)(elapsedInit.count());
+			timeReadRefactor += localTimeReadRefactor;
+			timeAnalysis     += localTimeAnalysis;
 		}
 
 		// Adding counters here that will tick up for different particle combinations
@@ -144,6 +194,11 @@ int main() {
 		
 		// Other counters
 		pidSkipped   += det.pidSkipped;
+
+		{
+			lock_guard<mutex> lock(endTimesMutex);
+			lambdaEndStartTimes[this_thread::get_id()] = Clock::now();
+		}
 	};
 	
 	/******** RUN NUMBER LOOP ********/
@@ -183,6 +238,7 @@ int main() {
 		runFile >> runnum;
 		if (runFile.eof() || runFile.bad()) break;
 
+		auto startRead = Clock::now();
 		datastring.str("");
 		datastring << sortConfig.GetDataDir() << "run-" << runnum << ".root";
 
@@ -205,6 +261,9 @@ int main() {
 			numentries_singlefile = tree->GetEntries();
 			file->Close();
 		}
+		auto endRead = Clock::now();
+		chrono::duration<double> elapsedRead = endRead - startRead;
+		timeReadFile += (double)(elapsedRead.count());
 
 		cout << "Processing TTree in file: " << datastring.str() << " (" << numentries_singlefile << ")" << endl;
 
@@ -212,22 +271,46 @@ int main() {
 		ROOT::TTreeProcessorMT tp(datastring.str().c_str(), itname.c_str());
 
 		// Execute multi-threaded tree processing
+		lambdaEndStartTimes.clear();
+		auto startProcess = Clock::now();
 		tp.Process(f);
+		auto endProcess = Clock::now();
+
+		for (const auto& [tid, endStartTime] : lambdaEndStartTimes) {
+			chrono::duration<double> elapsedLambdaEnd = endProcess - endStartTime;
+			timeDestruct += (double)(elapsedLambdaEnd.count());
+		}
+
+		chrono::duration<double> elapsedProcess = endProcess - startProcess;
+		timeProcessing += (double)(elapsedProcess.count());
 		cout << endl;
 	}
 
 	// Output program duration
-	auto end = std::chrono::high_resolution_clock::now();
+	auto end = Clock::now();
 	chrono::duration<double> elapsed = end - start;
-	int total_seconds = static_cast<int>(elapsed.count());
-	int hours = total_seconds / 3600;
-	int minutes = (total_seconds % 3600) / 60;
-	int seconds = total_seconds % 60;
+	double total_seconds = (double)(elapsed.count());
+	int hours = (int)total_seconds / 3600;
+	int minutes = ((int)total_seconds % 3600) / 60;
+	int seconds = (int)total_seconds % 60;
 	cout << "Run time: "
 	     << setfill('0') << setw(2) << hours << ":"
 	     << setfill('0') << setw(2) << minutes << ":"
 	     << setfill('0') << setw(2) << seconds << endl;
+	cout << endl;
+	cout << "Time profiling percentage breakdown:" << endl;
+	cout << "Time reading file and tree: " << timeReadFile / total_seconds * 100. << "%" << endl;
+	cout << "Time from TTreeProcessorMT::Process: " << timeProcessing / total_seconds * 100. << "%" << endl;
+	cout << endl;
+	cout << "TTreeProcessorMT::Process further time breakdown:" << endl;
+	cout << "(percent of processing time, not percent of total code run time)" << endl;
+	double timeProcThreadMult = timeProcessing * nthreads;
+	cout << "Time from initialization: " << timeInitialize / timeProcThreadMult * 100. << "%" << endl;
+	cout << "Time from SpecTcl input tree reading and refactoring: " << timeReadRefactor / timeProcThreadMult * 100. << "%" << endl;
+	cout << "Time from analysis: " << timeAnalysis / timeProcThreadMult * 100. << "%" << endl;
+	cout << "Time from things going out of scope at the end of the lambda function: " << timeDestruct / timeProcThreadMult * 100. << "%" << endl;
 
+	// Output analysis counters
 	cout << "************************************************************************" << endl;
 	cout << "PARTICLE COUNTERS                                                       " << endl;
 	cout << "1a + 1p: "  << count_ap     << endl;

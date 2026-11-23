@@ -179,6 +179,7 @@ public:
 	std::vector<TH2I*> DEE_CsI_BackE[4]; // back energies DEE
 	std::vector<TH2I*> DEE_CsI_fronteven[4];
 	std::vector<TH2I*> DEE_CsI_frontodd[4];
+	std::vector<TH2I*> DEE_CsI_2f1b_weirdpeak[4];
 	std::vector<TH1I*> CsI_Time_matched[4];
 	std::vector<TH2I*> CsI_xyhitmap[4];
 
@@ -230,6 +231,8 @@ public:
 	TH2I* NeighborStripECorrelations; // Order is energy ordered, so x is larger energy and y is smaller energy
 
 	// Silicon strip plots
+
+	// Multiplicity 1 in a telescope
 	TH2I* csiMult1_nfbCorr;
 	TH2I* csiMult1_1fv1b;
 	TH2I* csiMult1_2fv1b;
@@ -247,6 +250,21 @@ public:
 	TH2I* csiMult1_1f2b_btdiff_vs_Ediff;
 	TH2I* csiMult1_2f2b_ftdiff_vs_Ediff;
 	TH2I* csiMult1_2f2b_btdiff_vs_Ediff;
+	TH2I* csiMult1_2f1b_hitmap_dEpeak;
+
+	// Multiplicity 2 in a telescope
+	TH2I* csiMult2_2fv1b;
+	TH2I* csiMult2_1fv2b;
+	TH2I* csiMult2_3fv2b;
+	TH2I* csiMult2_2fv3b;
+	TH1I* csiMult2_2f1bdiff;
+	TH1I* csiMult2_1f2bdiff;
+	TH1I* csiMult2_3f2bdiff;
+	TH1I* csiMult2_2f3bdiff;
+	TH1I* csiMult2_3f2b_ftdiff;
+	TH1I* csiMult2_2f3b_btdiff;
+	TH2I* csiMult2_3f2b_ftdiff_vs_Ediff;
+	TH2I* csiMult2_2f3b_btdiff_vs_Ediff;
 
 	/******** CORRELATIONS AND INVARIANT MASS PLOTS ********/
 

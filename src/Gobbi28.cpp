@@ -127,6 +127,7 @@ Gobbi28::Gobbi28(Input& in, histo& hist, SortConfig& config, atomic<size_t>& _nE
 		Histo.DEE_CsI_BackE[i].resize(nTelCsIs);
 		Histo.DEE_CsI_fronteven[i].resize(nTelCsIs);
 		Histo.DEE_CsI_frontodd[i].resize(nTelCsIs);
+		Histo.DEE_CsI_2f1b_weirdpeak[i].resize(nTelCsIs);
 		Histo.CsI_Time_matched[i].resize(nTelCsIs);
 		Histo.CsI_xyhitmap[i].resize(nTelCsIs);
 		
@@ -148,15 +149,17 @@ Gobbi28::Gobbi28(Input& in, histo& hist, SortConfig& config, atomic<size_t>& _nE
 			name = "DEE_CsI_" + to_string(i) + "_" + to_string(j);
 			Histo.DEE_CsI[i][j] = new TH2I(name.c_str(), "", 512, 0, 4096, 500, 0, 50); // E is x, DE is y
 			name = "DEE_CsI_sitgate_" + to_string(i) + "_" + to_string(j);
-	  		Histo.DEE_CsI_sitgate[i][j] = new TH2I(name.c_str(), "", 1024, 0, 4096, 500, 0, 80);
-	  		name = "DEE_CsI_csitgate_" + to_string(i) + "_" + to_string(j);
-	  		Histo.DEE_CsI_csitgate[i][j] = new TH2I(name.c_str(), "", 1024, 0, 4096, 500, 0, 80); 
-	  		name = "DEE_CsI_BackE_" + to_string(i) + "_" + to_string(j);
-	  		Histo.DEE_CsI_BackE[i][j] = new TH2I(name.c_str(), "", 1024, 0, 4096, 500, 0, 80);
+			Histo.DEE_CsI_sitgate[i][j] = new TH2I(name.c_str(), "", 1024, 0, 4096, 500, 0, 80);
+			name = "DEE_CsI_csitgate_" + to_string(i) + "_" + to_string(j);
+			Histo.DEE_CsI_csitgate[i][j] = new TH2I(name.c_str(), "", 1024, 0, 4096, 500, 0, 80); 
+			name = "DEE_CsI_BackE_" + to_string(i) + "_" + to_string(j);
+			Histo.DEE_CsI_BackE[i][j] = new TH2I(name.c_str(), "", 1024, 0, 4096, 500, 0, 80);
 			name = "DEE_CsI_fronteven_" + to_string(i) + "_" + to_string(j);
 			Histo.DEE_CsI_fronteven[i][j] = new TH2I(name.c_str(), "", 1024, 0, 4096, 500, 0, 80);
 			name = "DEE_CsI_frontodd_" + to_string(i) + "_" + to_string(j);
 			Histo.DEE_CsI_frontodd[i][j] = new TH2I(name.c_str(), "", 1024, 0, 4096, 500, 0, 80);
+			name = "DEE_CsI_2f1b_weirdpeak_" + to_string(i) + "_" + to_string(j);
+			Histo.DEE_CsI_2f1b_weirdpeak[i][j] = new TH2I(name.c_str(), "", 1024, 0, 4096, 500, 0, 80);
 			Histo.dir1dCsI_Time->cd();
 			name = "CsI_Time_matched_" + to_string(i) + "_" + to_string(j);
 			Histo.CsI_Time_matched[i][j] = new TH1I(name.c_str(), "", 1000, -500, 500);
@@ -296,7 +299,7 @@ void Gobbi28::analyze() {
 		//ss1 << "=======================================================" << endl;
 		//ss1 << "Telescope: " << id << endl;
 		if (FrontN == 1 && BackN == 1 && CsIN == 1) {
-			pair<double, double> p = Telescope[id]->simplePosition();
+			pair<double, double> p = Telescope[id]->simplePosition(0, 0);
 			Histo.CsI_xyhitmap[id][Telescope[id]->CsI.Order[0].strip]->Fill(p.first, p.second);
 			NsimpleECsI = Telescope[id]->simpleECsI();
 		}

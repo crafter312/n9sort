@@ -393,6 +393,21 @@ histo::histo(shared_ptr<ROOT::TBufferMergerFile> f, SortConfig& config) : hinpbo
 	csiMult1_1f2b_btdiff_vs_Ediff = new TH2I("csiMult1_1f2b_btdiff_vs_Ediff","",1000,0,90,2048,0,4096);
 	csiMult1_2f2b_ftdiff_vs_Ediff = new TH2I("csiMult1_2f2b_ftdiff_vs_Ediff","",1000,0,90,2048,0,4096);
 	csiMult1_2f2b_btdiff_vs_Ediff = new TH2I("csiMult1_2f2b_btdiff_vs_Ediff","",1000,0,90,2048,0,4096);
+	csiMult1_2f1b_hitmap_dEpeak = new TH2I("csiMult1_2f1b_hitmap_dEpeak","", 100,-10,10,100,-10,10);
+
+	csiMult2->cd();
+	csiMult2_2fv1b = new TH2I("csiMult2_2fv1b","",500,0,90,500,0,90);
+	csiMult2_1fv2b = new TH2I("csiMult2_1fv2b","",500,0,90,500,0,90);
+	csiMult2_3fv2b = new TH2I("csiMult2_3fv2b","",500,0,90,500,0,90);
+	csiMult2_2fv3b = new TH2I("csiMult2_2fv3b","",500,0,90,500,0,90);
+	csiMult2_2f1bdiff = new TH1I("csiMult2_2f1bdiff","",1000,0,90);
+	csiMult2_1f2bdiff = new TH1I("csiMult2_1f2bdiff","",1000,0,90);
+	csiMult2_3f2bdiff = new TH1I("csiMult2_3f2bdiff","",1000,0,90);
+	csiMult2_2f3bdiff = new TH1I("csiMult2_2f3bdiff","",1000,0,90);
+	csiMult2_3f2b_ftdiff = new TH1I("csiMult2_3f2b_ftdiff","",8192,0,16384);
+	csiMult2_2f3b_btdiff = new TH1I("csiMult2_2f3b_btdiff","",8192,0,16384);
+	csiMult2_3f2b_ftdiff_vs_Ediff = new TH2I("csiMult2_3f2b_ftdiff_vs_Ediff","",1000,0,90,2048,0,4096);
+	csiMult2_2f3b_btdiff_vs_Ediff = new TH2I("csiMult2_2f3b_btdiff_vs_Ediff","",1000,0,90,2048,0,4096);
 
   // He4
   dir4He->cd();
