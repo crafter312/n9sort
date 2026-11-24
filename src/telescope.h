@@ -107,7 +107,7 @@ public:
 	int BackHigh[4];
 
 	// Thresholds (tuned using CsI per telescope mult. 1 cases)
-	const double deMax{2.};
+	const double deMax{1.};
 	const double dtMax{600.};
 
 	// Position

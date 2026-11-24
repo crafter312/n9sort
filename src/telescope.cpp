@@ -29,6 +29,7 @@
 #include <chrono>
 #include <fstream>
 #include <iostream>
+#include <limits>
 #include <stdexcept>
 #include <string>
 
@@ -1117,6 +1118,12 @@ void telescope::NeighboursCsI() {
 					double XYZ2 = (x*x) + (y*y) + (distTarget*distTarget);
 					double theta = acos(distTarget / sqrt(XYZ2));
 					Histo.DEE_CsI_2f1b_weirdpeak[id][csi0.strip]->Fill(csi0.energyR, Front.Order[0].energy * cos(theta));
+
+					// Replace erroneous front energy with back energy
+					Front.Order[0].energy     = be0;
+					Front.Order[0].energyR    = back0.energyR;
+					Front.Order[0].energyRlow = back0.energyRlow;
+					Front.Order[0].time       = bt0;
 				}
 			}
 		}
@@ -1179,7 +1186,7 @@ void telescope::NeighboursCsI() {
 			double ediff = abs(be0 + be1 - fe0);
 			Histo.csiMult2_1fv2b->Fill(be0 + be1, fe0);
 			Histo.csiMult2_1f2bdiff->Fill(ediff);
-			if (ediff >= 1.) return; // tuned to `csiMult2_1f2bdiff` histogram
+			if (ediff >= deMax) return; // tuned to `csiMult2_1f2bdiff` histogram
 
 			// Artificially split single front strip into two and assign back energies and times
 			Front.Remove(0);
@@ -1191,6 +1198,10 @@ void telescope::NeighboursCsI() {
 			int lo = min(fs0, min(Front.Order[1].strip, Front.Order[2].strip));
 			if ((abs(Back.Order[1].strip - bs0) <= 1) && ((hi - lo) <= 2)) return; // skip where the backs and fronts are all clustered together
 
+			size_t imax, jmax, kmax;
+			bool inWeirdPeak = false;
+			double ediffMin = numeric_limits<double>::max();
+			double tdiffMin = numeric_limits<double>::max();
 			for (size_t i = 0; i < FrontN; i++) {
 				for (size_t j = i + 1; j < FrontN; j++) {
 					for (size_t k = 0; k < BackN; k++) {
@@ -1205,21 +1216,58 @@ void telescope::NeighboursCsI() {
 						Histo.csiMult2_3f2bdiff->Fill(ediff);
 						Histo.csiMult2_3f2b_ftdiff->Fill(tdiff);
 						Histo.csiMult2_3f2b_ftdiff_vs_Ediff->Fill(ediff, tdiff);
+						if ((ediff >= deMax) || (tdiff >= dtMax)) continue;
+
+						// In case their are multiple pairs that meet the threshold,
+						// only add back the pair with the smallest energy and time
+						// difference (assuming this means it is most likely to be
+						// a real particle)
+						if ((ediff >= ediffMin) || (tdiff >= tdiffMin)) continue;
+						imax = i;
+						jmax = j;
+						kmax = k;
+						ediffMin = ediff;
+						tdiffMin = tdiff;
+
+						// Track if its inside the weird peak or not
+						inWeirdPeak = (ediff > 1.3) && (ediff < 2.1);
 					}
 				}
 			}
+
+			// Check if a candidate pair was found
+			if ((ediffMin == numeric_limits<double>::max()) || (tdiffMin == numeric_limits<double>::max())) return;
+
+			// Adds the smaller energy strip to the larger energy strip.
+			// elist is energy ordered to begin with, so in the current
+			// loop, i should have a larger energy than j. Therefore, j
+			// is removed after the addback process and i remains safe,
+			// in theory.
+			Front.Neighbours(imax, jmax);
+
+			// Peak is slightly wider than it was for the CsI mult. 1 case
+			if (!inWeirdPeak) return;
+
+			// Replace erroneous front energy with back energy
+			Front.Order[imax].energy     = Back.Order[kmax].energy;
+			Front.Order[imax].energyR    = Back.Order[kmax].energyR;
+			Front.Order[imax].energyRlow = Back.Order[kmax].energyRlow;
+			Front.Order[imax].time       = Back.Order[kmax].time;
 		}
 		else if ((FrontN == 2) && (BackN = 3)) {
 			int hi = max(bs0, max(Back.Order[1].strip, Back.Order[2].strip));
 			int lo = min(bs0, min(Back.Order[1].strip, Back.Order[2].strip));
 			if ((abs(Front.Order[1].strip - fs0) <= 1) && ((hi - lo) <= 2)) return; // skip where the backs and fronts are all clustered together
 
+			size_t imax, jmax, kmax;
+			double ediffMin = numeric_limits<double>::max();
+			double tdiffMin = numeric_limits<double>::max();
 			for (size_t i = 0; i < BackN; i++) {
 				for (size_t j = i + 1; j < BackN; j++) {
 					for (size_t k = 0; k < FrontN; k++) {
 						order& backi = Back.Order[i];
 						order& backj = Back.Order[j];
-						if (abs(backj.strip - backj.strip) != 1) continue;
+						if (abs(backj.strip - backi.strip) != 1) continue;
 
 						order& frontk  = Front.Order[k];
 						double ediff  = abs(backi.energy + backj.energy - frontk.energy);
@@ -1228,9 +1276,27 @@ void telescope::NeighboursCsI() {
 						Histo.csiMult2_2f3bdiff->Fill(ediff);
 						Histo.csiMult2_2f3b_btdiff->Fill(tdiff);
 						Histo.csiMult2_2f3b_btdiff_vs_Ediff->Fill(ediff, tdiff);
+						if ((ediff >= deMax) || (tdiff >= dtMax)) continue;
+
+						// In case their are multiple pairs that meet the threshold,
+						// only add back the pair with the smallest energy and time
+						// difference (assuming this means it is most likely to be
+						// a real particle)
+						if ((ediff >= ediffMin) || (tdiff >= tdiffMin)) continue;
+						imax = i;
+						jmax = j;
+						kmax = k;
+						ediffMin = ediff;
+						tdiffMin = tdiff;
 					}
 				}
 			}
+
+			// Check if a candidate pair was found
+			if ((ediffMin == numeric_limits<double>::max()) || (tdiffMin == numeric_limits<double>::max())) return;
+
+			// Adds the smaller energy strip to the larger energy strip
+			Back.Neighbours(imax, jmax);
 		}
 	}
 }
